@@ -106,7 +106,15 @@ class TestWarehouseEndpoint(unittest.TestCase):
         self.client.put(
             self.baseUrl + "/1", json=self.ToPut)
 
-    def test_6_unauthorized(self):
+    # alle locations met warehouse_id 1
+    def test_6_get_warehouse_locations(self):
+        response = self.client.get(f"{self.baseUrl}/1/locations")
+        body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body[0].get("warehouse_id"), 1)
+
+    def test_7_unauthorized(self):
         self.client.headers = {"content-type": "application/json"}
         response = self.client.get(self.baseUrl)
 
