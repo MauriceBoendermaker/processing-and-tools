@@ -13,11 +13,6 @@ class TestWarehouseEndpoint(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/warehouses"
         self.client = Client()
-<<<<<<< Updated upstream
-
-    def test_get_warehouses(self):
-        response = self.client.get(self.baseUrl)
-=======
         self.test_body = {
             "id": 56,
             "code": "TESTWARE",
@@ -86,7 +81,6 @@ class TestWarehouseEndpoint(unittest.TestCase):
     def test_5_put_warehouse(self):
         response = self.client.put(
             self.baseUrl + "/1", json=self.ToPut)
->>>>>>> Stashed changes
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), )
