@@ -52,8 +52,8 @@ class TestWarehouseEndpoint(unittest.TestCase):
 
         self.client.headers = {"API_KEY": "a1b2c3d4e5",
                                "content-type": "application/json"}
-    # genummerd omdat volgorde van executie alfabetisch gaat
 
+    # genummerd omdat volgorde van executie alfabetisch gaat
     def test_1_post_warehouse(self):
         response = self.client.post(self.baseUrl, json=self.test_body)
 
@@ -89,10 +89,16 @@ class TestWarehouseEndpoint(unittest.TestCase):
         body = response.json()
         self.assertEqual(body.get('country'), 'BE')
 
-        # cleanup
+        # cleanup naar originele waarde
         self.ToPut['country'] = 'NL'
         self.client.put(
             self.baseUrl + "/1", json=self.ToPut)
+
+    def test_6_unauthorized(self):
+        self.client.headers = {"content-type": "application/json"}
+        response = self.client.get(self.baseUrl)
+
+        self.assertEqual(response.status_code, 401)
 
 
 if __name__ == '__main__':
