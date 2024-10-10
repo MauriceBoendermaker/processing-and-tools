@@ -13,6 +13,7 @@ class TestWarehouseEndpoint(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/warehouses"
         self.client = Client()
+
         self.test_body = {
             "id": 56,
             "code": "TESTWARE",
@@ -83,7 +84,6 @@ class TestWarehouseEndpoint(unittest.TestCase):
             self.baseUrl + "/1", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), )
 
         response = self.client.get(f"{self.baseUrl}/1")
         body = response.json()
