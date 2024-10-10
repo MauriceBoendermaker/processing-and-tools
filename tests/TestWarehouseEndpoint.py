@@ -59,6 +59,9 @@ class TestWarehouseEndpoint(unittest.TestCase):
 
         self.assertEqual(response.status_code, 201)
 
+        # in de toekomst moet POST ook body teruggeven met gemaakte resource:
+        # self.assertEqual(response.json().get("name"), "test warehouse")
+
     def test_2_get_warehouses(self):
         response = self.client.get(self.baseUrl)
         body = response.json()
@@ -68,20 +71,29 @@ class TestWarehouseEndpoint(unittest.TestCase):
 
     def test_3_get_warehouse(self):
         response = self.client.get(f"{self.baseUrl}/1")
+        body = response.json()
 
         self.assertEqual(response.status_code, 200)
+        # check of body klopt
+        self.assertEqual(body.get("id"), 1)
+        self.assertEqual(body.get("name"), "Heemskerk cargo hub")
+
+        response = self.client.get(f"{self.baseUrl}/56")
+        body = response.json()
+        # check of gemaakte Warehouse klopt
+        self.assertEqual(body.get("name"), "test warehouse")
 
     def test_4_delete_warehouse(self):
-        response = self.client.delete(self.baseUrl + "/56")
+        response = self.client.delete(f"{self.baseUrl}/56")
 
         self.assertEqual(response.status_code, 200)
-        if response.status_code == 200:
-            self.assertEqual(check_id_exists(
-                self.client.get(self.baseUrl).json(), "56"), False)
+
+        na_delete = self.client.get(self.baseUrl)
+        self.assertFalse(check_id_exists(na_delete.json(), 56))
 
     def test_5_put_warehouse(self):
         response = self.client.put(
-            self.baseUrl + "/1", json=self.ToPut)
+            f"{self.baseUrl}/1", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)
 
