@@ -1,6 +1,7 @@
 from datetime import datetime
 
 
+# handige functies voor bij het testen
 def match_date(date_str, to_match):
 
     # huidige format waarin de API datums aanmaakt
