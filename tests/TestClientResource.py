@@ -4,7 +4,7 @@ from test_utils import match_date, check_id_exists
 from datetime import date
 
 
-class TestClientEndpoint(unittest.TestCase):
+class TestClientResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/clients"
         self.client = Client()

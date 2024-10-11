@@ -4,7 +4,7 @@ from test_utils import match_date, check_id_exists
 from datetime import date
 
 
-class TestWarehouseEndpoint(unittest.TestCase):
+class TestWarehouseResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/warehouses"
         self.client = Client()
