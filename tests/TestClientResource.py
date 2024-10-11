@@ -49,7 +49,7 @@ class TestClientResource(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
 
         # in de toekomst moet POST ook body teruggeven met gemaakte resource:
-        # self.assertEqual(response.json().get("name"), "test client")
+        # self.assertEqual(response.json().get("name"), self.test_body["name"])
 
     def test_2_get_clients(self):
         response = self.client.get(self.baseUrl)
@@ -89,6 +89,7 @@ class TestClientResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         na_delete = self.client.get(self.baseUrl)
+        # check of deleted
         self.assertFalse(check_id_exists(na_delete.json(), 9821))
 
     # alle orders met ship_to en bill_to 1 (de juiste client)

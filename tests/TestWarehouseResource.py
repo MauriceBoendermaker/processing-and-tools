@@ -55,7 +55,7 @@ class TestWarehouseResource(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
 
         # in de toekomst moet POST ook body teruggeven met gemaakte resource:
-        # self.assertEqual(response.json().get("name"), "test warehouse")
+        # self.assertEqual(response.json().get("name"), self.test_body["name"])
 
     def test_2_get_warehouses(self):
         response = self.client.get(self.baseUrl)
@@ -97,6 +97,7 @@ class TestWarehouseResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         na_delete = self.client.get(self.baseUrl)
+        # check of deleted
         self.assertFalse(check_id_exists(na_delete.json(), 59))
 
     # alle locations met warehouse_id 1
