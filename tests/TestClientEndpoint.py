@@ -56,7 +56,7 @@ class TestClientEndpoint(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(check_id_exists(body, 9821), True)
+        self.assertTrue(check_id_exists(body, 9821))
 
     def test_3_get_client(self):
         response = self.client.get(f"{self.baseUrl}/9821")

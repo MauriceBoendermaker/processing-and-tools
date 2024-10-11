@@ -1,6 +1,7 @@
 import unittest
 from httpx import Client
 from test_utils import match_date, check_id_exists
+from datetime import date
 
 
 class TestWarehouseEndpoint(unittest.TestCase):
@@ -9,7 +10,7 @@ class TestWarehouseEndpoint(unittest.TestCase):
         self.client = Client()
 
         self.test_body = {
-            "id": 56,
+            "id": 59,
             "code": "TESTWARE",
             "name": "test warehouse",
             "address": "Gabriele-Junken-Ring 5/1",
@@ -27,21 +28,21 @@ class TestWarehouseEndpoint(unittest.TestCase):
         }
 
         self.ToPut = {
-            "id": 1,
-            "code": "YQZZNL56",
-            "name": "Heemskerk cargo hub",
-            "address": "Karlijndreef 281",
-            "zip": "4002 AS",
-            "city": "Heemskerk",
-            "province": "Friesland",
-            "country": "BE",
+            "id": 59,
+            "code": "TESTWARE",
+            "name": "test warehouse",
+            "address": "Wijnhaven 107",
+            "zip": "35100",
+            "city": "Rotterdam",
+            "province": "Zuid-holland",
+            "country": "NL",
             "contact": {
-                "name": "Fem Keijzer",
-                "phone": "(078) 0013363",
-                "email": "blamore@example.net"
+                "name": "Bozena Steckel",
+                "phone": "(08587) 18542",
+                "email": "adolfinehentschel@example.net"
             },
-            "created_at": "1983-04-13 04:59:55",
-            "updated_at": "2024-10-08T13:28:19.911773Z"
+            "created_at": "2006-08-31 03:38:40",
+            "updated_at": "2010-04-26 18:16:09"
         }
 
         self.client.headers = {"API_KEY": "a1b2c3d4e5",
@@ -61,44 +62,42 @@ class TestWarehouseEndpoint(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(check_id_exists(body, 56), True)
+        self.assertTrue(check_id_exists(body, 59))
 
     def test_3_get_warehouse(self):
-        response = self.client.get(f"{self.baseUrl}/1")
+        response = self.client.get(f"{self.baseUrl}/59")
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
         # check of body klopt
-        self.assertEqual(body.get("id"), 1)
-        self.assertEqual(body.get("name"), "Heemskerk cargo hub")
-
-        response = self.client.get(f"{self.baseUrl}/56")
-        body = response.json()
-        # check of gemaakte Warehouse klopt
+        self.assertEqual(body.get("id"), 59)
+        self.assertEqual(body.get("code"), "TESTWARE")
         self.assertEqual(body.get("name"), "test warehouse")
+        self.assertEqual(body.get("city"), "testcity")
 
-    def test_4_delete_warehouse(self):
-        response = self.client.delete(f"{self.baseUrl}/56")
+    def test_4_put_warehouse(self):
+        response = self.client.put(
+            f"{self.baseUrl}/59", json=self.ToPut)
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(f"{self.baseUrl}/59")
+        body = response.json()
+        self.assertEqual(body.get('country'), 'NL')
+        self.assertEqual(body.get('province'), 'Zuid-holland')
+        self.assertEqual(body.get('city'), 'Rotterdam')
+        self.assertEqual(body.get('address'), 'Wijnhaven 107')
+
+        self.assertTrue(match_date(body.get('updated_at'), date.today()))
+
+    def test_5_delete_warehouse(self):
+        # teardown/cleanup
+        response = self.client.delete(f"{self.baseUrl}/59")
 
         self.assertEqual(response.status_code, 200)
 
         na_delete = self.client.get(self.baseUrl)
-        self.assertFalse(check_id_exists(na_delete.json(), 56))
-
-    def test_5_put_warehouse(self):
-        response = self.client.put(
-            f"{self.baseUrl}/1", json=self.ToPut)
-
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get(f"{self.baseUrl}/1")
-        body = response.json()
-        self.assertEqual(body.get('country'), 'BE')
-
-        # cleanup naar originele waarde
-        self.ToPut['country'] = 'NL'
-        self.client.put(
-            self.baseUrl + "/1", json=self.ToPut)
+        self.assertFalse(check_id_exists(na_delete.json(), 59))
 
     # alle locations met warehouse_id 1
     # afhankelijk per endpoint of deze optie bestaat; zie endpoint documentatie
