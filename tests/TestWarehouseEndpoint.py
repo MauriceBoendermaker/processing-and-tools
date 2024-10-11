@@ -1,12 +1,6 @@
 import unittest
 from httpx import Client
-
-
-def check_id_exists(json, target_id):
-    for item in json:
-        if item["id"] == target_id:
-            return True
-    return False
+from test_utils import match_date, check_id_exists
 
 
 class TestWarehouseEndpoint(unittest.TestCase):
@@ -107,6 +101,7 @@ class TestWarehouseEndpoint(unittest.TestCase):
             self.baseUrl + "/1", json=self.ToPut)
 
     # alle locations met warehouse_id 1
+    # afhankelijk per endpoint of deze optie bestaat; zie endpoint documentatie
     def test_6_get_warehouse_locations(self):
         response = self.client.get(f"{self.baseUrl}/1/locations")
         body = response.json()
