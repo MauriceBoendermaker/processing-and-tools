@@ -16,3 +16,9 @@ def check_id_exists(json, target_id):
         if item["id"] == target_id:
             return True
     return False
+
+def check_uid_exists(json, target_uid):
+    for item in json:
+        if item["uid"] == target_uid:
+            return True
+    return False
