@@ -50,5 +50,10 @@ class TestSupplierResource(unittest.TestCase):
             "Content-Type": "application/json"
         }
 
+    def test_1_post_supplier(self):
+        response = self.client.post(self.baseUrl, json=self.test_body)
+        if response.status_code not in [200, 201]:
+            print(f"Failed to add supplier: {response.status_code}, {response.text}")
+
 if __name__ == '__main__':
     unittest.main()
