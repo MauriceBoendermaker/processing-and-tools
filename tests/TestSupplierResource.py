@@ -77,5 +77,25 @@ class TestSupplierResource(unittest.TestCase):
         self.assertEqual(body.get("contact_name"), self.test_body["contact_name"])
         self.assertTrue(match_date(body.get("created_at"), date.today()))
 
+    def test_4_get_supplier_items(self):
+        response = self.client.get(f"{self.baseUrl}/{self.test_id_items}/items")
+        body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(body, list)
+        self.assertGreater(len(body), 0)
+
+        first_item = body[0]
+        self.assertEqual(first_item.get("uid"), "P000012")
+        self.assertEqual(first_item.get("code"), "USN48902j")
+        self.assertEqual(first_item.get("description"), "Right-sized discrete website")
+        self.assertEqual(first_item.get("short_description"), "stand")
+        self.assertEqual(first_item.get("item_line"), 50)
+        self.assertEqual(first_item.get("item_group"), 41)
+        self.assertEqual(first_item.get("item_type"), 95)
+        self.assertEqual(first_item.get("pack_order_quantity"), 6)
+        self.assertEqual(first_item.get("supplier_id"), self.test_id_items)
+        self.assertEqual(first_item.get("supplier_code"), "SUP347")
+
 if __name__ == '__main__':
     unittest.main()
