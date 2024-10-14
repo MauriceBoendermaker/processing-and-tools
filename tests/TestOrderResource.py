@@ -141,5 +141,11 @@ class TestOrderResource(unittest.TestCase):
         print(f"Check if id {self.test_id} is deleted: ")
         self.assertFalse(check_id_exists(response.json(), self.test_id))
 
+    def test_7_unauthorized(self):
+        self.client.headers = {"Content-Type": "application/json"}
+        response = self.client.get(self.baseUrl)
+
+        self.assertEqual(response.status_code, 401)
+
 if __name__ == '__main__':
     unittest.main()
