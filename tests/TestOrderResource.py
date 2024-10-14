@@ -130,5 +130,16 @@ class TestOrderResource(unittest.TestCase):
         self.assertEqual(body.get("total_surcharge"), self.ToPut["total_surcharge"])
         self.assertTrue(match_date(body.get("updated_at"), date.today()))
 
+    def test_6_delete_order(self):
+        response = self.client.delete(f"{self.baseUrl}/{self.test_id}")
+        print("Response status code for test_6_delete_order:", response.status_code)
+        print("Response body for test_6_delete_order:", response.text)
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(self.baseUrl)
+        print(f"Check if id {self.test_id} is deleted: ")
+        self.assertFalse(check_id_exists(response.json(), self.test_id))
+
 if __name__ == '__main__':
     unittest.main()
