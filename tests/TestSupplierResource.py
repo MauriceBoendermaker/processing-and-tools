@@ -62,5 +62,20 @@ class TestSupplierResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(check_id_exists(body, self.test_id))
 
+    def test_3_get_supplier(self):
+        response = self.client.get(f"{self.baseUrl}/{self.test_id}")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body.get("id"), self.test_body["id"])
+        self.assertEqual(body.get("code"), self.test_body["code"])
+        self.assertEqual(body.get("name"), self.test_body["name"])
+        self.assertEqual(body.get("city"), self.test_body["city"])
+        self.assertEqual(body.get("zip_code"), self.test_body["zip_code"])
+        self.assertEqual(body.get("province"), self.test_body["province"])
+        self.assertEqual(body.get("country"), self.test_body["country"])
+        self.assertEqual(body.get("contact_name"), self.test_body["contact_name"])
+        self.assertTrue(match_date(body.get("created_at"), date.today()))
+
 if __name__ == '__main__':
     unittest.main()
