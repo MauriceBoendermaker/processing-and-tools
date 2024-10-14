@@ -97,5 +97,25 @@ class TestSupplierResource(unittest.TestCase):
         self.assertEqual(first_item.get("supplier_id"), self.test_id_items)
         self.assertEqual(first_item.get("supplier_code"), "SUP347")
 
+    def test_5_put_supplier(self):
+        response = self.client.put(f"{self.baseUrl}/{self.test_id}", json=self.ToPut)
+        print("Response status code for test_5_put_supplier:", response.status_code)
+        print("Response body for test_5_put_supplier", response.text)
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(f"{self.baseUrl}/{self.test_id}")
+        body = response.json()
+
+        self.assertEqual(body.get("id"), self.ToPut["id"])
+        self.assertEqual(body.get("code"), self.ToPut["code"])
+        self.assertEqual(body.get("name"), self.ToPut["name"])
+        self.assertEqual(body.get("city"), self.ToPut["city"])
+        self.assertEqual(body.get("zip_code"), self.ToPut["zip_code"])
+        self.assertEqual(body.get("province"), self.ToPut["province"])
+        self.assertEqual(body.get("country"), self.ToPut["country"])
+        self.assertEqual(body.get("contact_name"), self.ToPut["contact_name"])
+        self.assertTrue(match_date(body.get("updated_at"), date.today()))
+
 if __name__ == '__main__':
     unittest.main()
