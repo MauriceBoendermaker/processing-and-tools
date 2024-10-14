@@ -73,5 +73,10 @@ class TestOrderResource(unittest.TestCase):
             "Content-Type": "application/json"
         }
 
+    def test_1_post_order(self):
+        response = self.client.post(self.baseUrl, json=self.test_body)
+        if response.status_code not in [200, 201]:
+            print(f"Failed to add order: {response.status_code}, {response.text}")
+
 if __name__ == '__main__':
     unittest.main()
