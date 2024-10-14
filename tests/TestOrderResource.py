@@ -85,5 +85,20 @@ class TestOrderResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(check_id_exists(body, self.test_id))
 
+    def test_3_get_order(self):
+        response = self.client.get(f"{self.baseUrl}/{self.test_id}")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body.get("id"), self.test_body["id"])
+        self.assertEqual(body.get("source_id"), self.test_body["source_id"])
+        self.assertEqual(body.get("reference"), self.test_body["reference"])
+        self.assertEqual(body.get("order_status"), self.test_body["order_status"])
+        self.assertEqual(body.get("notes"), self.test_body["notes"])
+        self.assertEqual(body.get("ship_to"), self.test_body["ship_to"])
+        self.assertEqual(body.get("bill_to"), self.test_body["bill_to"])
+        self.assertEqual(body.get("total_surcharge"), self.test_body["total_surcharge"])
+        self.assertTrue(match_date(body.get("created_at"), date.today()))
+
 if __name__ == '__main__':
     unittest.main()
