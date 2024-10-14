@@ -117,5 +117,16 @@ class TestSupplierResource(unittest.TestCase):
         self.assertEqual(body.get("contact_name"), self.ToPut["contact_name"])
         self.assertTrue(match_date(body.get("updated_at"), date.today()))
 
+    def test_6_delete_supplier(self):
+        response = self.client.delete(f"{self.baseUrl}/{self.test_id}")
+        print("Response status code for test_6_delete_supplier:", response.status_code)
+        print("Response body for test_6_delete_supplier:", response.text)
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(self.baseUrl)
+        print(f"Check if id {self.test_id} is deleted: ")
+        self.assertFalse(check_id_exists(response.json(), self.test_id))
+
 if __name__ == '__main__':
     unittest.main()
