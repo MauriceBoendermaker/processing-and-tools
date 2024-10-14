@@ -110,5 +110,25 @@ class TestOrderResource(unittest.TestCase):
         self.assertEqual(body[0].get("amount"),
                          self.ToPut["items"][0]["amount"])
 
+    def test_5_put_order(self):
+        response = self.client.put(f"{self.baseUrl}/{self.test_id}", json=self.ToPut)
+        print("Response status code for test_5_put_order:", response.status_code)
+        print("Response body for test_5_put_order", response.text)
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(f"{self.baseUrl}/{self.test_id}")
+        body = response.json()
+
+        self.assertEqual(body.get("id"), self.ToPut["id"])
+        self.assertEqual(body.get("source_id"), self.ToPut["source_id"])
+        self.assertEqual(body.get("reference"), self.ToPut["reference"])
+        self.assertEqual(body.get("order_status"), self.ToPut["order_status"])
+        self.assertEqual(body.get("notes"), self.ToPut["notes"])
+        self.assertEqual(body.get("ship_to"), self.ToPut["ship_to"])
+        self.assertEqual(body.get("bill_to"), self.ToPut["bill_to"])
+        self.assertEqual(body.get("total_surcharge"), self.ToPut["total_surcharge"])
+        self.assertTrue(match_date(body.get("updated_at"), date.today()))
+
 if __name__ == '__main__':
     unittest.main()
