@@ -1,4 +1,6 @@
 from datetime import datetime
+import time
+import httpx
 
 
 # handige functies voor bij het testen
@@ -17,8 +19,18 @@ def check_id_exists(json, target_id):
             return True
     return False
 
+
 def check_uid_exists(json, target_uid):
     for item in json:
         if item["uid"] == target_uid:
             return True
     return False
+
+
+def get_response_time(url):
+    start = time.time()
+    response = httpx.get(url, headers={"API_KEY": "a1b2c3d4e5"})
+    eind = time.time()
+    print(response)
+    # response tijd naar milliseconde
+    return (eind - start) * 1000
