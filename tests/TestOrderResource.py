@@ -78,5 +78,12 @@ class TestOrderResource(unittest.TestCase):
         if response.status_code not in [200, 201]:
             print(f"Failed to add order: {response.status_code}, {response.text}")
 
+    def test_2_get_orders(self):
+        response = self.client.get(self.baseUrl)
+        body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(check_id_exists(body, self.test_id))
+
 if __name__ == '__main__':
     unittest.main()
