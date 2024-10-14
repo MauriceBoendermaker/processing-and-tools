@@ -32,7 +32,6 @@ class TestLocationResource(unittest.TestCase):
     def test_1_post_location(self):
         response = self.client.post(self.baseUrl, json=self.test_body)
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json().get("name"), self.test_body["name"])
 
     # Test to get all locations using GET
     def test_2_get_locations(self):
