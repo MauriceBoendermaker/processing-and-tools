@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models.warehouse_model import Warehouse
-from schemas.warehouse_schema import WarehouseCreate
+from app.models.warehouse_model import Warehouse
+from app.schemas.warehouse_schema import WarehouseCreate
 from datetime import datetime
 
 
