@@ -2,6 +2,9 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+# routers gebruiken
+app.include_router(user_controller.router)
+
 
 @app.get("/")
 async def root():
