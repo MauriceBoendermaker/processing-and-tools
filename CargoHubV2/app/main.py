@@ -1,9 +1,12 @@
 from fastapi import FastAPI
+from app.controllers import warehouse_controller
 
 app = FastAPI()
+# welke port hij runt kan je bij command aanpassen
+# default port is localhost:8000
 
-# routers gebruiken
-app.include_router(user_controller.router)
+# router van de controller gebruiken
+app.include_router(warehouse_controller.router)
 
 
 @app.get("/")
