@@ -5,7 +5,7 @@ from app.schemas import warehouse_schema
 from app.database import get_db
 
 router = APIRouter(
-    prefix="/api/v2/warehouse",
+    prefix="/api/v2/warehouses",
     tags=["warehouses"]
 )
 

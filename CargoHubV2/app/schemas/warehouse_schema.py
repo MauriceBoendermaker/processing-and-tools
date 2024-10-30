@@ -10,7 +10,7 @@ class WarehouseBase(BaseModel):
     city: str
     province: str
     country: str
-    contact: str
+    contact: dict
 
 
 class WarehouseCreate(WarehouseBase):
