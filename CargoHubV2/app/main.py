@@ -23,11 +23,10 @@ async def stat():
 
 # script voor migrations voor later
 from database import Base, engine
-from models import warehouse_model
+from models import warehouse_model # alle models die je wil migraten
+
 
 # maakt alle tables
-
-
 def init_db():
     Base.metadata.create_all(bind=engine)
 

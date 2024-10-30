@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 class WarehouseBase(BaseModel):
@@ -11,6 +12,17 @@ class WarehouseBase(BaseModel):
     province: str
     country: str
     contact: dict
+
+
+class WarehouseUpdate(BaseModel):
+    code: Optional[str] = None
+    name: Optional[str] = None
+    address: Optional[str] = None
+    zip: Optional[str] = None
+    city: Optional[str] = None
+    province: Optional[str] = None
+    country: Optional[str] = None
+    contact: Optional[dict] = None
 
 
 class WarehouseCreate(WarehouseBase):

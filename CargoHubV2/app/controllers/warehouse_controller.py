@@ -39,3 +39,10 @@ def delete_warehouse(id: int, db: Session = Depends(get_db)):
     if succes:
         return f"warehouse with id {id} deleted"
     raise HTTPException(status_code=404, detail="Warehouse not found")
+
+
+@router.put("/{id}")
+def update_warehouse(id: int, warehouse_data: warehouse_schema.WarehouseUpdate, db: Session = Depends(get_db)):
+    if warehouse_data:
+        return warehouse_service.update_warehouse(db, id, warehouse_data)
+    raise HTTPException(status_code=400, detail="invalid request body")
