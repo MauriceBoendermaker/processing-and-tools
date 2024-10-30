@@ -24,5 +24,13 @@ def create_warehouse(warehouse: warehouse_schema.WarehouseCreate, db: Session = 
     # resultaat van de service gaat in db_warehouse
     db_warehouse = warehouse_service.create_warehouse(db, warehouse)
     if db_warehouse is None:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="Warehouse already exists")
     return db_warehouse
+
+
+@router.delete("/{id}")
+def delete_warehouse(id: int, db: Session = Depends(get_db)):
+    succes = warehouse_service.delete_warehouse(db, id)
+    if succes:
+        return f"warehouse with id {id} deleted"
+    raise HTTPException(status_code=404, detail="Warehouse not found")

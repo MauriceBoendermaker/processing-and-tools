@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.warehouse_model import Warehouse
 from app.schemas.warehouse_schema import WarehouseCreate
 from datetime import datetime
+from fastapi import HTTPException
 
 
 def get_all_warehouses(db: Session):
@@ -27,3 +28,14 @@ def create_warehouse(db: Session, warehouse: WarehouseCreate):
     db.commit()
     db.refresh(db_warehouse)  # Refresh om gegenereerde velden te krijgen (Id)
     return db_warehouse
+
+
+def delete_warehouse(db: Session, id: int):
+    to_del = db.query(Warehouse).filter(Warehouse.id == id).first()
+    if to_del is None:
+        return False
+
+    db.delete(to_del)
+    db.commit()
+
+    return True
