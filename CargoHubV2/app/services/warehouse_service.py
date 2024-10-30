@@ -2,12 +2,15 @@ from sqlalchemy.orm import Session
 from app.models.warehouse_model import Warehouse
 from app.schemas.warehouse_schema import WarehouseCreate
 from datetime import datetime
-from fastapi import HTTPException
 
 
 def get_all_warehouses(db: Session):
     # geeft alle warehouses
     return db.query(Warehouse).all()
+
+
+def get_warehouse_by_id(db: Session, id: int):
+    return db.query(Warehouse).filter(Warehouse.id == id).first()
 
 
 def create_warehouse(db: Session, warehouse: WarehouseCreate):

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.services import warehouse_service
 from app.schemas import warehouse_schema
 from app.database import get_db
+from typing import Optional
 
 router = APIRouter(
     prefix="/api/v2/warehouses",
@@ -11,11 +12,15 @@ router = APIRouter(
 
 
 @router.get("/")
-def get_warehouses(db: Session = Depends(get_db)):
+def get_warehouses(db: Session = Depends(get_db), id: Optional[int] = None):
+
+    if id:
+        warehouse = warehouse_service.get_warehouse_by_id(db, id)
+        if warehouse is None:
+            raise HTTPException(status_code=404, detail="Warehouse not found")
+        return warehouse
     warehouses = warehouse_service.get_all_warehouses(db)
     return warehouses
-    # warehouses uit database halen en in variabele stoppen
-    # de warehouses returnen
 
 
 @router.post("/")
