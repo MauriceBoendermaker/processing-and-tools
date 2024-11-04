@@ -10,7 +10,7 @@ class TestShipmentResource(unittest.TestCase):
         self.client = Client()
 
         self.test_body = {
-            "id": 10103,
+            "id": 99999,
             "order_id": 6488,
             "source_id": 36,
             "order_date": "2007-08-08",
@@ -89,7 +89,7 @@ class TestShipmentResource(unittest.TestCase):
         }
 
         self.ToPut = {
-            "id": 10103,
+            "id": 99999,
             "order_id": 6488,
             "source_id": 36,
             "order_date": "2007-08-08",
@@ -184,10 +184,10 @@ class TestShipmentResource(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(check_id_exists(body, 10103))
+        self.assertTrue(check_id_exists(body, 99999))
 
     def test_3_get_shipment(self):
-        response = self.client.get(f"{self.baseUrl}/10103")
+        response = self.client.get(f"{self.baseUrl}/99999")
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
@@ -201,11 +201,11 @@ class TestShipmentResource(unittest.TestCase):
 
     def test_4_put_shipment(self):
         response = self.client.put(
-            f"{self.baseUrl}/10103", json=self.ToPut)
+            f"{self.baseUrl}/99999", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(f"{self.baseUrl}/10103")
+        response = self.client.get(f"{self.baseUrl}/99999")
         body = response.json()
 
         self.assertEqual(body.get("id"), self.ToPut["id"])
@@ -215,7 +215,7 @@ class TestShipmentResource(unittest.TestCase):
 
     def test_5_get_shipment_items(self):
         # krijgt een lijst met item_ids en amounts terug (2 Kvps)
-        response = self.client.get(f"{self.baseUrl}/10103/items")
+        response = self.client.get(f"{self.baseUrl}/99999/items")
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
@@ -230,13 +230,13 @@ class TestShipmentResource(unittest.TestCase):
 
     def test_6_delete_shipment(self):
         # teardown/cleanup
-        response = self.client.delete(f"{self.baseUrl}/10103")
+        response = self.client.delete(f"{self.baseUrl}/99999")
 
         self.assertEqual(response.status_code, 200)
 
         na_delete = self.client.get(self.baseUrl)
         # check of deleted
-        self.assertFalse(check_id_exists(na_delete.json(), 10103))
+        self.assertFalse(check_id_exists(na_delete.json(), 99999))
 
     def test_7_get_shipment_orders(self):
         # krijgt een lijst met order_ids terug die deze shipment id hebben
