@@ -10,7 +10,7 @@ class TestClientResource(unittest.TestCase):
         self.client = Client()
 
         self.test_body = {
-            "id": 9821,
+            "id": 99999,
             "name": "test client",
             "address": "Carstenallee 2",
             "city": "Herzberg",
@@ -25,7 +25,7 @@ class TestClientResource(unittest.TestCase):
         }
 
         self.ToPut = {
-            "id": 9821,
+            "id": 99999,
             "name": "test client",
             "address": "Wijnhaven 107",
             "city": "Rotterdam",
@@ -56,26 +56,26 @@ class TestClientResource(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(check_id_exists(body, 9821))
+        self.assertTrue(check_id_exists(body, 99999))
 
     def test_3_get_client(self):
-        response = self.client.get(f"{self.baseUrl}/9821")
+        response = self.client.get(f"{self.baseUrl}/99999")
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
         # check of body klopt
-        self.assertEqual(body.get("id"), 9821)
+        self.assertEqual(body.get("id"), 99999)
         self.assertEqual(body.get("name"), "test client")
         self.assertEqual(body.get("address"), "Carstenallee 2")
         self.assertEqual(body.get("city"), "Herzberg")
 
     def test_4_put_client(self):
         response = self.client.put(
-            f"{self.baseUrl}/9821", json=self.ToPut)
+            f"{self.baseUrl}/99999", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(f"{self.baseUrl}/9821")
+        response = self.client.get(f"{self.baseUrl}/99999")
         body = response.json()
 
         self.assertEqual(body.get('address'), 'Wijnhaven 107')
@@ -84,13 +84,13 @@ class TestClientResource(unittest.TestCase):
 
     def test_5_delete_client(self):
         # teardown/cleanup
-        response = self.client.delete(f"{self.baseUrl}/9821")
+        response = self.client.delete(f"{self.baseUrl}/99999")
 
         self.assertEqual(response.status_code, 200)
 
         na_delete = self.client.get(self.baseUrl)
         # check of deleted
-        self.assertFalse(check_id_exists(na_delete.json(), 9821))
+        self.assertFalse(check_id_exists(na_delete.json(), 99999))
 
     # alle orders met ship_to en bill_to 1 (de juiste client)
     # afhankelijk per endpoint of deze optie bestaat, zie endpoint documentatie
