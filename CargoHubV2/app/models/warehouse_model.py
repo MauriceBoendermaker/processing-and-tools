@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, JSON, DateTime
-from app.database import Base
+from CargoHubV2.app.database import Base
 
 
 class Warehouse(Base):
