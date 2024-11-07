@@ -21,6 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8
+
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -44,7 +45,7 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: run CargoHubV2
-      run: uvicorn main:FastAPI --host 127.0.0.1 --port 3000
+      run: uvicorn CargoHubV2/main:FastAPI --host 127.0.0.1 --port 3000
     - name: Test with pytest
       run: |
         TestWarehouseResource
