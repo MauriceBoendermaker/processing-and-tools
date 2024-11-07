@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from app.services import warehouse_service
-from app.schemas import warehouse_schema
-from app.database import get_db
+from CargoHubV2.app.services import warehouse_service
+from CargoHubV2.app.schemas import warehouse_schema
+from CargoHubV2.app.database import get_db
 from typing import Optional
 
 router = APIRouter(
