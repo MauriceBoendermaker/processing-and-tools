@@ -53,7 +53,7 @@ jobs:
 
     - name: integratie tests CargoHubV2
       run: |
-        python -m unittest discover -s tests
+        python -m unittest discover -s tests -p 'Test*.py'
 
     - name: Stop the server
       run: |
