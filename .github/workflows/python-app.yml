@@ -45,7 +45,7 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: run CargoHubV2
-      run: uvicorn main:app --host 127.0.0.1 --port 3000
+      run: uvicorn CargoHubV2/app/main:app --host 127.0.0.1 --port 3000
     - name: Test with unittest
       run: |
         python -m unittest discover tests
