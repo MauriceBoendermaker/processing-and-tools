@@ -44,7 +44,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: integratie tests CargoHubV2
+    - name: run CargoHubV2 server
       run: |
         uvicorn CargoHubV2.app.main:app --port 3000
+        sleep 20
+
+    - name: integratie tests CargoHubV2
+      run: |
         python -m unittest discover tests
