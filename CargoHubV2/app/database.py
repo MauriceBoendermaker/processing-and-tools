@@ -10,7 +10,7 @@ load_dotenv()
 
 # database URL uit .env bestand halen
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-relative_db_url = os.getenv("DATABASE_URL")
+relative_db_url = "sqlite:///./Cargo_Database.db"
 
 # database path voor CargoHubV2 root
 SQL_URL = relative_db_url.replace("sqlite:///./", f"sqlite:///{BASE_DIR}/")
