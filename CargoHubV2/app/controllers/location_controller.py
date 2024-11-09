@@ -23,7 +23,7 @@ def get_location_by_id(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Location not found.")
     return location
 
-@router.get("/warehouse/{warehouse_id}", response_model=List[location_schema.Location])
+@router.get("/warehouse/{warehouse_id}/locations", response_model=List[location_schema.Location])
 def get_locations_by_warehouse_id(warehouse_id: int, db: Session = Depends(get_db)):
     locations = location_service.get_locations_by_warehouse_id(db, warehouse_id)
     if not locations:
