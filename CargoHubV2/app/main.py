@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI
 from CargoHubV2.app.controllers import warehouse_controller
+from CargoHubV2.app.controllers import location_controller
 
 app = FastAPI()
 # welke port hij runt kan je bij command aanpassen
@@ -8,6 +9,7 @@ app = FastAPI()
 
 # router van de controller gebruiken
 app.include_router(warehouse_controller.router)
+app.include_router(location_controller.router)
 
 
 @app.get("/")
