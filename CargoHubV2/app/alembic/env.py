@@ -2,8 +2,6 @@ from logging.config import fileConfig
 from CargoHubV2.app.database import Base
 from CargoHubV2.app.models import items_model, location_model, warehouse_model
 
-
-
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
