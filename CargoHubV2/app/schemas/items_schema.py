@@ -2,7 +2,9 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
+
 class ItemBase(BaseModel):
+    uid: str
     code: str
     description: str
     short_description: str
@@ -19,8 +21,10 @@ class ItemBase(BaseModel):
     supplier_code: str
     supplier_part_number: str
 
+
 class ItemCreate(ItemBase):
     pass
+
 
 class ItemUpdate(BaseModel):
     code: Optional[str] = None
@@ -39,8 +43,8 @@ class ItemUpdate(BaseModel):
     supplier_code: Optional[str] = None
     supplier_part_number: Optional[str] = None
 
+
 class ItemResponse(ItemBase):
-    uid: str
     created_at: datetime
     updated_at: datetime
 

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, Integer, DateTime
 from CargoHubV2.app.database import Base
 
+
 class Item(Base):
     __tablename__ = "items"
 
