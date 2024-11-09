@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, JSON, DateTime
 from CargoHubV2.app.database import Base
 
+
 class Location(Base):
     __tablename__ = "locations"
 

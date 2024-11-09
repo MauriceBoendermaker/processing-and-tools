@@ -1,7 +1,8 @@
-
 from fastapi import FastAPI
 from CargoHubV2.app.controllers import warehouse_controller
+
 from CargoHubV2.app.controllers import location_controller
+from CargoHubV2.app.controllers import items_controller
 
 app = FastAPI()
 # welke port hij runt kan je bij command aanpassen
@@ -10,6 +11,7 @@ app = FastAPI()
 # router van de controller gebruiken
 app.include_router(warehouse_controller.router)
 app.include_router(location_controller.router)
+app.include_router(items_controller.router)
 
 
 @app.get("/")
@@ -25,7 +27,7 @@ async def stat():
 
 # script voor migrations voor later
 from database import Base, engine
-from models import warehouse_model # alle models die je wil migraten
+from models import warehouse_model, items_model, location_model # alle models die je wil migraten
 
 
 # maakt alle tables
