@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Integer, DateTime
+from datetime import datetime
 from CargoHubV2.app.database import Base
 
 
@@ -21,5 +22,5 @@ class Item(Base):
     supplier_id = Column(Integer)
     supplier_code = Column(String)
     supplier_part_number = Column(String)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)

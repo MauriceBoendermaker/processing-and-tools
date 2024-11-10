@@ -29,11 +29,12 @@ def get_items(uid: Optional[str] = None, db: Session = Depends(get_db)):
 
 
 @router.put("/{uid}", response_model=ItemResponse)
-def update_item_endpoint(uid: str, item_data: ItemCreate, db: Session = Depends(get_db)):
-    item = update_item(db, uid, item_data.model_dump())
+def update_item_endpoint(uid: str, item_data: ItemUpdate, db: Session = Depends(get_db)):
+    item = update_item(db, uid, item_data)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return item
+
 
 
 @router.delete("/{uid}")
