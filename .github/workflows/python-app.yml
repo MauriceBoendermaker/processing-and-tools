@@ -47,7 +47,7 @@ jobs:
 
     - name: execute unit-tests
       run: |
-        pytest unit-tests --pyargs -k "Unit"
+        pytest unit-tests/ --pyargs -k "Unit"
 
   integration-tests: 
     needs: build
