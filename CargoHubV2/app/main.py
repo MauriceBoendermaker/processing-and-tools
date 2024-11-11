@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from CargoHubV2.app.controllers import warehouse_controller
-
 from CargoHubV2.app.controllers import location_controller
 from CargoHubV2.app.controllers import items_controller
+from CargoHubV2.app.controllers import transfers_controller
 
 app = FastAPI()
 # welke port hij runt kan je bij command aanpassen
