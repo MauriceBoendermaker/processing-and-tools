@@ -12,6 +12,7 @@ app = FastAPI()
 app.include_router(warehouse_controller.router)
 app.include_router(location_controller.router)
 app.include_router(items_controller.router)
+app.include_router(transfers_controller)
 
 
 @app.get("/")
