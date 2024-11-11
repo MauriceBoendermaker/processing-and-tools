@@ -1,4 +1,3 @@
-'''
 from fastapi import FastAPI
 from CargoHubV2.app.controllers import warehouse_controller
 from CargoHubV2.app.controllers import location_controller
@@ -40,3 +39,4 @@ def init_db():
 if __name__ == "__main__":
     init_db()
     print("Tables created successfully!")
+'''
