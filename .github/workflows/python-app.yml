@@ -5,7 +5,7 @@ name: Python application
  
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "Transfers-endpoint-V2" ]
  
 jobs:
   build:
@@ -47,7 +47,7 @@ jobs:
 
     - name: execute unit-tests
       run: |
-        pytest unit-tests/
+        pytest CargoHubV2/app/
 
   integration-tests: 
     needs: build
