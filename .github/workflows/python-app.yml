@@ -47,9 +47,9 @@ jobs:
 
     - name: execute unit-tests
       run: |
-        pytest ./unit-tests --pyargs -k "Unit*"
+        pytest ./unit-tests --pyargs -k "Unit"
 
-  test: 
+  integration-tests: 
     needs: build
     runs-on: ubuntu-latest
     steps:
