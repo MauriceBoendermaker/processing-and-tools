@@ -4,13 +4,13 @@ from typing import Optional
 
 
 class LocationBase(BaseModel):
-    location_id: int
+    warehouse_id: int
     code: str
     name: dict
 
 
 class LocationUpdate(BaseModel):
-    location_id: Optional[int] = None
+    warehouse_id: Optional[int] = None
     code: Optional[str] = None
     name: Optional[dict] = None
 
