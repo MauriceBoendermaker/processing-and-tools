@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from datetime import datetime
 from CargoHubV2.app.services.items_service import create_item, get_item, get_all_items, update_item, delete_item
 from CargoHubV2.app.models.items_model import Item
-from CargoHubV2.app.schemas.items_schema import ItemCreate, ItemUpdate
+from CargoHubV2.app.schemas.items_schema import ItemCreate, WarehouseUpdate
 
 
 # Sample data to use in tests
@@ -96,7 +96,7 @@ def test_get_all_items():
 def test_update_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**sample_item_data)
-    item_update_data = ItemUpdate(description="Updated description")
+    item_update_data = WarehouseUpdate(description="Updated description")
     
     updated_item = update_item(db, "123e4567-e89b-12d3-a456-426614174000", item_update_data)
     
@@ -108,7 +108,7 @@ def test_update_item_found():
 def test_update_item_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    item_update_data = ItemUpdate(description="Updated description")
+    item_update_data = WarehouseUpdate(description="Updated description")
     
     with pytest.raises(HTTPException) as excinfo:
         update_item(db, "nonexistent-uid", item_update_data)
@@ -121,7 +121,7 @@ def test_update_item_integrity_error():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**sample_item_data)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    item_update_data = ItemUpdate(description="Updated description")
+    item_update_data = WarehouseUpdate(description="Updated description")
     
     with pytest.raises(HTTPException) as excinfo:
         update_item(db, "123e4567-e89b-12d3-a456-426614174000", item_update_data)
