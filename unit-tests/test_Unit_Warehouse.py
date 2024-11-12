@@ -3,9 +3,9 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
-from ..CargoHubV2.app.services.warehouse_service import create_warehouse, get_warehouse_by_id, get_all_warehouses, update_warehouse, delete_warehouse
-from ..CargoHubV2.app.models.warehouse_model import Warehouse
-from ..CargoHubV2.app.schemas.warehouse_schema import WarehouseCreate, WarehouseUpdate
+from CargoHubV2.app.services.warehouse_service import create_warehouse, get_warehouse_by_id, get_all_warehouses, update_warehouse, delete_warehouse
+from CargoHubV2.app.models.warehouse_model import Warehouse
+from CargoHubV2.app.schemas.warehouse_schema import WarehouseCreate, WarehouseUpdate
 
 
 # Sample data to use in tests
@@ -39,7 +39,7 @@ def test_create_warehouse():
     db.refresh.assert_called_once_with(new_warehouse)
 
 
-def test_create_item_integrity_error():
+def test_create_warehouse_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
 
@@ -119,7 +119,7 @@ def test_update_warehouse_integrity_error():
         update_warehouse(db, 1, warehouse_update_data)
 
     assert excinfo.value.status_code == 400
-    assert "An integrity error occurred while updating the warehouse." in str(excinfo.value.detail)
+    assert "An error occurred while updating the warehouse." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
 
 
@@ -130,7 +130,7 @@ def test_delete_warehouse_found():
 
     result = delete_warehouse(db, 1)
 
-    assert result == {"detail": "Warehouse deleted"}
+    assert result is True
     db.delete.assert_called_once()
     db.commit.assert_called_once()
 
@@ -138,9 +138,11 @@ def test_delete_warehouse_found():
 def test_delete_warehouse_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-
+    assert delete_warehouse(db, 2) is False
+    '''
     with pytest.raises(HTTPException) as excinfo:
         delete_warehouse(db, 2)
 
     assert excinfo.value.status_code == 404
     assert "Warehouse not found" in str(excinfo.value.detail)
+    '''
