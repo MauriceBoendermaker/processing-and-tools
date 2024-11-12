@@ -2,7 +2,7 @@ name: Python application
  
 on:
   push:
-    branches: [ "Locations-endpoint-V2" ]
+    branches: [ "main" ]
  
 jobs:
   build:
