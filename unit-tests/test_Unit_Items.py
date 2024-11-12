@@ -3,9 +3,9 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
-from CargoHubV2.app.services.items_service import create_item, get_item, get_all_items, update_item, delete_item
-from CargoHubV2.app.models.items_model import Item
-from CargoHubV2.app.schemas.items_schema import ItemCreate, WarehouseUpdate
+from ..CargoHubV2.app.services.items_service import create_item, get_item, get_all_items, update_item, delete_item
+from ..CargoHubV2.app.models.items_model import Item
+from ..CargoHubV2.app.schemas.items_schema import ItemCreate, WarehouseUpdate
 
 
 # Sample data to use in tests
