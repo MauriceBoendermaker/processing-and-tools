@@ -39,7 +39,7 @@ def test_create_warehouse():
     db.refresh.assert_called_once_with(new_warehouse)
 
 
-def test_create_item_integrity_error():
+def test_create_warehouse_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
 
@@ -130,7 +130,7 @@ def test_delete_warehouse_found():
 
     result = delete_warehouse(db, 1)
 
-    assert result == {"detail": "Warehouse deleted"}
+    assert result is True
     db.delete.assert_called_once()
     db.commit.assert_called_once()
 
@@ -138,9 +138,11 @@ def test_delete_warehouse_found():
 def test_delete_warehouse_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-
+    assert delete_warehouse(db, 2) is False
+    '''
     with pytest.raises(HTTPException) as excinfo:
         delete_warehouse(db, 2)
 
     assert excinfo.value.status_code == 404
     assert "Warehouse not found" in str(excinfo.value.detail)
+    '''

@@ -34,7 +34,7 @@ def create_warehouse(db: Session, warehouse: WarehouseCreate):
     return db_warehouse
 
 
-def delete_warehouse(db: Session, id: int) -> bool:
+def delete_warehouse(db: Session, id: int):
     to_del = db.query(Warehouse).filter(Warehouse.id == id).first()
     if not to_del:
         return False
