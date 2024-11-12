@@ -53,10 +53,9 @@ class ItemResponse(ItemBase):
     created_at: datetime
     updated_at: datetime
 
-    # Optional nested fields for full details of each related model
-    item_group: Optional[ItemGroupSchema] = None
-    item_type: Optional[ItemTypeSchema] = None
-    item_line: Optional[ItemLineSchema] = None
+    item_group: int
+    item_type: int
+    item_line: int
 
     class Config:
         orm_mode = True
