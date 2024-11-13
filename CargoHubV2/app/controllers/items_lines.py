@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from CargoHubV2.app.schemas.item_lines_schema import ItemLineCreate, ItemLineUpdate, ItemLineResponse
+from CargoHubV2.app.schemas.items_lines_schema import ItemLineCreate, ItemLineUpdate, ItemLineResponse
 from CargoHubV2.app.database import get_db
-from CargoHubV2.app.services.item_lines_service import create_item_line, get_item_line, get_all_item_lines, update_item_line, delete_item_line
+from CargoHubV2.app.services.items_lines_service import create_item_line, get_item_line, get_all_item_lines, update_item_line, delete_item_line
 from typing import Optional, List
 
 router = APIRouter(
