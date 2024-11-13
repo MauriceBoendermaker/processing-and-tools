@@ -5,7 +5,7 @@ from ..database import Base
 
 
 class ItemLine(Base):
-    __tablename__ = "item_lines"
+    __tablename__ = "items_lines"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, index=True)

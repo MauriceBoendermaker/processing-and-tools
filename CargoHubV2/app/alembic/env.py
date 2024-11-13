@@ -1,16 +1,13 @@
 from logging.config import fileConfig
-
-from CargoHubV2.app.models import locations_model, warehouses_model
-from app.database import Base
-from app.models import (
-    items_model, items_groups_model, items_types_model, items_lines_model,
-    transfers_model  # Import all models/ !!!!!ANY NEW MODELS NEED TO BE ADDED HERE!!!!!!
-)
+from CargoHubV2.app.database import Base
+from CargoHubV2.app.models import items_model, locations_model, warehouses_model
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
+
+
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -2,9 +2,9 @@ import pytest
 from unittest.mock import MagicMock
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
-from services.location_service import create_location, get_all_locations, get_location_by_id, get_locations_by_warehouse_id, update_location, delete_location
-from models.location_model import Location
-from schemas.location_schema import LocationCreate, LocationUpdate
+from CargoHubV2.app.services.locations_service import create_location, get_all_locations, get_location_by_id, get_locations_by_warehouse_id, update_location, delete_location
+from CargoHubV2.app.models.locations_model import Location
+from CargoHubV2.app.schemas.locations_schema import LocationCreate, LocationUpdate
 
 
 location_sample_data = {
