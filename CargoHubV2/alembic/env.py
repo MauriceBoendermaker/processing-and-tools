@@ -1,6 +1,5 @@
 from logging.config import fileConfig
 
-from CargoHubV2.app.models import locations_model, warehouses_model
 from app.database import Base
 from app.models import (
     items_model, items_groups_model, items_types_model, items_lines_model,
