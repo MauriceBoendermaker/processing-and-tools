@@ -2,6 +2,11 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
+# Import related schemas
+from .items_groups_schema import ItemGroupResponse
+from .items_lines_schema import ItemLineResponse
+from .items_types_schema import ItemTypeResponse
+
 
 class ItemBase(BaseModel):
     uid: str
@@ -11,9 +16,9 @@ class ItemBase(BaseModel):
     upc_code: str
     model_number: str
     commodity_code: str
-    item_line: int
-    item_group: int
-    item_type: int
+    item_line: int  # Only ID for creation
+    item_group: int  # Only ID for creation
+    item_type: int  # Only ID for creation
     unit_purchase_quantity: int
     unit_order_quantity: int
     pack_order_quantity: int
@@ -47,6 +52,10 @@ class WarehouseUpdate(BaseModel):
 class ItemResponse(ItemBase):
     created_at: datetime
     updated_at: datetime
+
+    item_group: int
+    item_type: int
+    item_line: int
 
     class Config:
         orm_mode = True

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
-from CargoHubV2.app.services.transfer_service import create_transfer, get_transfer, get_all_transfers, update_transfer, delete_transfer
+from CargoHubV2.app.services.transfers_service import create_transfer, get_transfer, get_all_transfers, update_transfer, delete_transfer
 from CargoHubV2.app.models.transfers_model import Transfer
 from CargoHubV2.app.schemas.transfers_schema import TransferCreate, TransferUpdate
 

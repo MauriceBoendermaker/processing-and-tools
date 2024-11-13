@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from CargoHubV2.app.models.warehouse_model import Warehouse
-from CargoHubV2.app.schemas.warehouse_schema import WarehouseCreate, WarehouseUpdate
+from CargoHubV2.app.models.warehouses_model import Warehouse
+from CargoHubV2.app.schemas.warehouses_schema import WarehouseCreate, WarehouseUpdate
 from datetime import datetime
 from fastapi import HTTPException
 
