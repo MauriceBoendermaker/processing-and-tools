@@ -1,6 +1,4 @@
-# app/models/__init__.py
-
-from app.database import Base  # Import Base from database module
+from ..database import Base
 from .items_model import Item
 from .items_groups_model import ItemGroup
 from .items_types_model import ItemType

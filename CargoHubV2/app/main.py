@@ -3,6 +3,10 @@ from CargoHubV2.app.controllers import warehouses_controller
 from CargoHubV2.app.controllers import locations_controller
 from CargoHubV2.app.controllers import items_controller
 from CargoHubV2.app.controllers import transfers_controller
+from CargoHubV2.app.controllers import items_groups
+from CargoHubV2.app.controllers import items_lines
+from CargoHubV2.app.controllers import items_types
+
 
 app = FastAPI()
 # welke port hij runt kan je bij command aanpassen
@@ -13,6 +17,10 @@ app.include_router(warehouses_controller.router)
 app.include_router(locations_controller.router)
 app.include_router(items_controller.router)
 app.include_router(transfers_controller.router)
+app.include_router(items_types.router)
+app.include_router(items_groups.router)
+app.include_router(items_lines.router)
+
 
 
 @app.get("/")
