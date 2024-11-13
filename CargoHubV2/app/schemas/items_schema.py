@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import Optional
 
 # Import related schemas
-from .item_group_schema import ItemGroupSchema
-from .item_type_schema import ItemTypeSchema
-from .item_line_schema import ItemLineSchema
+from .items_groups_schema import ItemGroupSchema
+from .items_types_schema import ItemTypeSchema
+from .items_lines_schema import ItemLineSchema
 
 
 class ItemBase(BaseModel):

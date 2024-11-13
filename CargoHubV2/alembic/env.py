@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from app.database import Base
 from app.models import (
     items_model, items_groups_model, items_types_model, items_lines_model,
-    warehouse_model, location_model, transfers_model  # Import all models/ !!!!!ANY NEW MODELS NEED TO BE ADDED HERE!!!!!!
+    transfers_model  # Import all models/ !!!!!ANY NEW MODELS NEED TO BE ADDED HERE!!!!!!
 )
 
 from sqlalchemy import engine_from_config
