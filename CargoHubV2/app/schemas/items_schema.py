@@ -2,9 +2,9 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-from .items_groups_schema import ItemGroupResponse
-from .items_lines_schema import ItemLineResponse
-from .items_types_schema import ItemTypeResponse
+from .item_groups_schema import ItemGroupResponse
+from .item_lines_schema import ItemLineResponse
+from .item_types_schema import ItemTypeResponse
 
 
 class ItemBase(BaseModel):

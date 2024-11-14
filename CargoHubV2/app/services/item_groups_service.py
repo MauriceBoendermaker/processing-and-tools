@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from CargoHubV2.app.models.items_groups_model import ItemGroup
-from CargoHubV2.app.schemas.items_groups_schema import ItemGroupCreate, ItemGroupUpdate
+from CargoHubV2.app.models.item_groups_model import ItemGroup
+from CargoHubV2.app.schemas.item_groups_schema import ItemGroupCreate, ItemGroupUpdate
 from typing import List, Optional
 
 

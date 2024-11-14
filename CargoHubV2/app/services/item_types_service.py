@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from CargoHubV2.app.models.items_types_model import ItemType
-from CargoHubV2.app.schemas.items_types_schema import ItemTypeCreate, ItemTypeUpdate
+from CargoHubV2.app.models.item_types_model import ItemType
+from CargoHubV2.app.schemas.item_types_schema import ItemTypeCreate, ItemTypeUpdate
 from typing import List, Optional
 
 
