@@ -13,7 +13,7 @@ def create_item(db: Session, item_data: dict):
         db.commit()
         db.refresh(item)
     except IntegrityError:
-        db.rollback()  # Roll back the session if there's a conflict
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="An item with this code already exists."
