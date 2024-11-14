@@ -5,6 +5,7 @@ from CargoHubV2.app.schemas import locations_schema
 from CargoHubV2.app.database import get_db
 from typing import List
 
+
 router = APIRouter(
     prefix="/api/v2/locations",
     tags=["locations"]
