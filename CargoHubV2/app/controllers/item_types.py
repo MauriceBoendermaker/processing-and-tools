@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from CargoHubV2.app.schemas.items_types_schema import ItemTypeCreate, ItemTypeUpdate, ItemTypeResponse
 from CargoHubV2.app.database import get_db
-from CargoHubV2.app.services.items_types_service import create_item_type, get_item_type, get_all_item_types, update_item_type, delete_item_type
+from CargoHubV2.app.schemas.item_types_schema import ItemTypeCreate, ItemTypeUpdate, ItemTypeResponse
+from CargoHubV2.app.services.item_types_service import create_item_type, get_item_type, get_all_item_types, update_item_type, delete_item_type
 from typing import Optional, List
 
 
