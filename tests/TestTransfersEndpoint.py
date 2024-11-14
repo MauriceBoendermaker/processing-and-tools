@@ -1,15 +1,19 @@
 import unittest
 from httpx import Client
-from test_utils import match_date, check_id_exists
 from datetime import date
+from test_utils import match_date, check_id_exists
+
 
 class TestTransfersResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/transfers"
         self.client = Client()
+        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.test_body = {
-            "id": 119241,
+        self.TEST_ID = 119241
+
+        self.TEST_BODY = {
+            "id": self.TEST_ID,
             "reference": "TR119241",
             "transfer_from": None,
             "transfer_to": 9200,
@@ -25,7 +29,7 @@ class TestTransfersResource(unittest.TestCase):
         }
 
         self.ToPut = {
-            "id": 119241,
+            "id": self.TEST_ID,
             "reference": "TR119241",
             "transfer_from": 9200,
             "transfer_to": 9201,
@@ -40,11 +44,10 @@ class TestTransfersResource(unittest.TestCase):
             ]
         }
 
-        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
     # Test to create a transfer using POST
     def test_1_post_transfer(self):
-        response = self.client.post(self.baseUrl, json=self.test_body)
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 201)
 
     # Test to get all transfers using GET
@@ -52,24 +55,24 @@ class TestTransfersResource(unittest.TestCase):
         response = self.client.get(self.baseUrl)
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(check_id_exists(body, 119241))  # Checking the newly created ID 119241
+        self.assertTrue(check_id_exists(body, self.TEST_ID))  # Checking the newly created ID 119241
 
     # Test to get a single transfer by ID using GET
     def test_3_get_transfer_by_id(self):
-        response = self.client.get(f"{self.baseUrl}/119241")
+        response = self.client.get(f"{self.baseUrl}/{self.TEST_ID}")
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get("id"), 119241)
+        self.assertEqual(body.get("id"), self.TEST_ID)
         self.assertEqual(body.get("reference"), "TR119241")
         self.assertEqual(body.get("transfer_to"), 9200)
 
     # Test to update a transfer using PUT
     def test_4_put_transfer(self):
-        response = self.client.put(f"{self.baseUrl}/119241", json=self.ToPut)
+        response = self.client.put(f"{self.baseUrl}/{self.TEST_ID}", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
         # Fetch the updated transfer
-        response = self.client.get(f"{self.baseUrl}/119241")
+        response = self.client.get(f"{self.baseUrl}/{self.TEST_ID}")
         body = response.json()
         self.assertEqual(body.get("transfer_to"), 9201)
         self.assertEqual(body.get("transfer_status"), "In Progress")
@@ -77,12 +80,12 @@ class TestTransfersResource(unittest.TestCase):
 
     # Test to delete a transfer using DELETE
     def test_5_delete_transfer(self):
-        response = self.client.delete(f"{self.baseUrl}/119241")
+        response = self.client.delete(f"{self.baseUrl}/{self.TEST_ID}")
         self.assertEqual(response.status_code, 200)
 
         # Verify it was deleted
         response = self.client.get(self.baseUrl)
-        self.assertFalse(check_id_exists(response.json(), 119241))
+        self.assertFalse(check_id_exists(response.json(), self.TEST_ID))
 
     # Test unauthorized access by removing the API key
     def test_6_unauthorized(self):

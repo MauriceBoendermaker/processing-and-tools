@@ -9,7 +9,7 @@ from CargoHubV2.app.schemas.warehouses_schema import WarehouseCreate, WarehouseU
 
 
 # Sample data to use in tests
-sample_warehouse_data = {
+SAMPLE_WAREHOUSE_DATA = {
     "id": 1,
     "name": "test hub",
     "zip": "4002 AS",
@@ -30,7 +30,7 @@ sample_warehouse_data = {
 
 def test_create_warehouse():
     db = MagicMock()
-    warehouse_data = WarehouseCreate(**sample_warehouse_data)
+    warehouse_data = WarehouseCreate(**SAMPLE_WAREHOUSE_DATA)
 
     new_warehouse = create_warehouse(db, warehouse_data.model_dump())
 
@@ -43,7 +43,7 @@ def test_create_warehouse_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
 
-    warehouse_data = WarehouseCreate(**sample_warehouse_data)
+    warehouse_data = WarehouseCreate(**SAMPLE_WAREHOUSE_DATA)
 
     with pytest.raises(HTTPException) as excinfo:
         create_warehouse(db, warehouse_data.model_dump())
@@ -56,11 +56,11 @@ def test_create_warehouse_integrity_error():
 # Test for get_warehouse
 def test_single_warehouse_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Warehouse(**sample_warehouse_data)
+    db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
 
     result = get_warehouse_by_id(db, 1)
 
-    assert result.id == sample_warehouse_data["id"]
+    assert result.id == SAMPLE_WAREHOUSE_DATA["id"]
     db.query().filter().first.assert_called_once()
 
 
@@ -77,7 +77,7 @@ def test_get_warehouse_not_found():
 
 def test_get_all_warehouses():
     db = MagicMock()
-    db.query().all.return_value = [Warehouse(**sample_warehouse_data)]
+    db.query().all.return_value = [Warehouse(**SAMPLE_WAREHOUSE_DATA)]
 
     results = get_all_warehouses(db)
 
@@ -87,7 +87,7 @@ def test_get_all_warehouses():
 
 def test_update_warehouse_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Warehouse(**sample_warehouse_data)
+    db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
     warehouse_update_data = WarehouseUpdate(name="Updated name")
 
     updated_warehouse = update_warehouse(db, 1, warehouse_update_data)
@@ -111,7 +111,7 @@ def test_update_warehouse_not_found():
 
 def test_update_warehouse_integrity_error():
     db = MagicMock()
-    db.query().filter().first.return_value = Warehouse(**sample_warehouse_data)
+    db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
     warehouse_update_data = WarehouseUpdate(description="Updated description")
 
@@ -126,7 +126,7 @@ def test_update_warehouse_integrity_error():
 # Test for delete_warehouse
 def test_delete_warehouse_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Warehouse(**sample_warehouse_data)
+    db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
 
     result = delete_warehouse(db, 1)
 

@@ -37,7 +37,7 @@ def create_location(db: Session, location_data: LocationCreate):
         db.commit()
         db.refresh(location)
     except IntegrityError:
-        db.rollback()  # Roll back the session if there's a conflict
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A location with this code already exists."
