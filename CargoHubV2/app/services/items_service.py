@@ -13,7 +13,7 @@ def create_item(db: Session, item_data: dict):
         db.commit()
         db.refresh(item)
     except IntegrityError:
-        db.rollback()  # Roll back the session if there's a conflict
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="An item with this code already exists."
@@ -55,7 +55,6 @@ def update_item(db: Session, uid: str, item_data: WarehouseUpdate):
         item = db.query(Item).filter(Item.uid == uid).first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
-        # Use model_dump with exclude_unset
         update_data = item_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(item, key, value)

@@ -6,7 +6,6 @@ from fastapi import HTTPException
 
 
 def get_all_warehouses(db: Session):
-    # geeft alle warehouses
     return db.query(Warehouse).all()
 
 
@@ -15,7 +14,6 @@ def get_warehouse_by_id(db: Session, id: int):
 
 
 def create_warehouse(db: Session, warehouse: WarehouseCreate):
-    # voegt een nieuwe warehouse toe aan db
     db_warehouse = Warehouse(
         code=warehouse.code,
         name=warehouse.name,
@@ -30,7 +28,7 @@ def create_warehouse(db: Session, warehouse: WarehouseCreate):
     )
     db.add(db_warehouse)
     db.commit()
-    db.refresh(db_warehouse)  # Refresh om gegenereerde velden te krijgen (Id)
+    db.refresh(db_warehouse)
     return db_warehouse
 
 
