@@ -6,8 +6,7 @@ class TestItemGroupsResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/item_groups"
         self.client = Client()
-        self.client.headers = {"API_KEY": "a1b2c3d4e5",
-                               "content-type": "application/json"}
+        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.expected_body = {
             "id": 1,
@@ -53,8 +52,6 @@ class TestItemGroupsResource(unittest.TestCase):
     def test_5_get_item_group_server_error(self):
         response = self.client.get(f"{self.baseUrl}/999999999999999999999999")  # Using an extremely large ID
         self.assertEqual(response.status_code, 200)  # Expecting a 200 because api doesnt check if id exists correctly
-
-
 
 
 if __name__ == '__main__':
