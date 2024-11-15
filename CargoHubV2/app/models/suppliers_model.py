@@ -3,7 +3,7 @@ from datetime import datetime
 from ..database import Base
 
 
-class Suppliers(Base)
+class Suppliers(Base):
     __tablename__ = "suppliers"
 
     id = Column(Integer, primary_key=True, index=True)
