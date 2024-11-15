@@ -28,7 +28,7 @@ def create_supplier(db: Session, suppliers_data: SuppliersCreate):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while creating the supplier"
+            detail="An error occurred while creating the supplier"
         )
     return suppliers
 
@@ -42,7 +42,7 @@ def get_supplier(db: Session, id: int):
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while retrieving the supplier"
+            detail="An error occurred while retrieving the supplier"
         )
 
 
@@ -52,34 +52,9 @@ def get_all_suppliers(db: Session):
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while retrieving the suppliers"
+            detail="An error occurred while retrieving the suppliers"
         )
 
-
-# def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
-#     try:
-#         supplier = db.query(Supplier).filter(Supplier.id == id).first()
-#         if not supplier:
-#             raise HTTPException(status_code=404, detail="Supplier not found")
-#         update_data = supplier_data.model_dump(exclude_unset=True)
-#         for key, value in update_data.suppliers():
-#             setattr(supplier, key, value)
-#         supplier.updated_at = datetime.now()
-#         db.commit()
-#         db.refresh(supplier)
-#     except IntegrityError:
-#         db.rollback()
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail="An integrity error occured while updating the supplier"
-#         )
-#     except SQLAlchemyError:
-#         db.rollback()
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail="An error occured while updating the supplier"
-#         )
-#     return supplier
 
 def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
     to_update = db.query(Supplier).filter(Supplier.id == id).first()
