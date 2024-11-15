@@ -6,6 +6,7 @@ from CargoHubV2.app.controllers import transfers_controller
 from CargoHubV2.app.controllers import items_groups
 from CargoHubV2.app.controllers import items_lines
 from CargoHubV2.app.controllers import items_types
+from CargoHubV2.app.controllers import suppliers_controller
 
 
 app = FastAPI()
@@ -20,6 +21,7 @@ app.include_router(transfers_controller.router)
 app.include_router(items_types.router)
 app.include_router(items_groups.router)
 app.include_router(items_lines.router)
+app.include_router(suppliers_controller.router)
 
 
 
