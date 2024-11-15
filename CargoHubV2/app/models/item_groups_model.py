@@ -13,5 +13,4 @@ class ItemGroup(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    # Relationship to items
     items = relationship("Item", back_populates="item_group_rel")

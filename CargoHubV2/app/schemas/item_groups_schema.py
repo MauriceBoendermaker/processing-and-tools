@@ -2,18 +2,22 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-class ItemTypeBase(BaseModel):
+
+class ItemGroupBase(BaseModel):
     name: str
     description: Optional[str] = None
 
-class ItemTypeCreate(ItemTypeBase):
+
+class ItemGroupCreate(ItemGroupBase):
     pass
 
-class ItemTypeUpdate(BaseModel):
+
+class ItemGroupUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
 
-class ItemTypeResponse(ItemTypeBase):
+
+class ItemGroupResponse(ItemGroupBase):
     id: int
     created_at: datetime
     updated_at: datetime

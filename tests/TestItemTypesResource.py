@@ -2,13 +2,14 @@ import unittest
 from httpx import Client
 from test_utils import check_id_exists
 
+
 class TestItemTypesResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/item_types"
         self.client = Client()
         self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.expected_body = {
+        self.EXPECTED_BODY = {
             "id": 0,
             "name": "Laptop",
             "description": "",
@@ -23,9 +24,9 @@ class TestItemTypesResource(unittest.TestCase):
         body = response.json()
         
         self.assertEqual(response.status_code, 200)  # Status should be OK
-        self.assertEqual(body.get("id"), self.expected_body["id"])
-        self.assertEqual(body.get("name"), self.expected_body["name"])
-        self.assertEqual(body.get("description"), self.expected_body["description"])
+        self.assertEqual(body.get("id"), self.EXPECTED_BODY["id"])
+        self.assertEqual(body.get("name"), self.EXPECTED_BODY["name"])
+        self.assertEqual(body.get("description"), self.EXPECTED_BODY["description"])
 
     # Test 2: Try to get data for a non-existing item_type (should return 200)
     def test_2_get_non_existing_item_type(self):
@@ -47,6 +48,7 @@ class TestItemTypesResource(unittest.TestCase):
     def test_5_get_item_type_server_error(self):
         response = self.client.get(f"{self.baseUrl}/999999999999999999999999")  # Using an extremely large ID
         self.assertEqual(response.status_code, 200)  # Expecting a 200 because api doesnt handel requests correctly
+
 
 if __name__ == '__main__':
     unittest.main()

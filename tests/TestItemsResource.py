@@ -1,15 +1,16 @@
 import unittest
 from httpx import Client
-from test_utils import check_uid_exists
 from datetime import date
+from test_utils import check_uid_exists
 
 
 class TestItemsResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/items"
         self.client = Client()
+        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.test_body = {
+        self.TEST_BODY = {
             "uid": "P000001",
             "code": "sjQ23408K",
             "description": "Face-to-face clear-thinking complexity",
@@ -51,11 +52,10 @@ class TestItemsResource(unittest.TestCase):
             "updated_at": "2015-09-26 06:37:56"
         }
 
-        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
     # Tests
     def test_1_post_item(self):
-        response = self.client.post(self.baseUrl, json=self.test_body)
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 201)
 
     def test_2_get_items(self):
@@ -68,9 +68,9 @@ class TestItemsResource(unittest.TestCase):
         response = self.client.get(f"{self.baseUrl}/P000001")
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get("uid"), self.test_body["uid"])
-        self.assertEqual(body.get("description"), self.test_body["description"])
-        self.assertEqual(body.get("item_group"), self.test_body["item_group"])
+        self.assertEqual(body.get("uid"), self.TEST_BODY["uid"])
+        self.assertEqual(body.get("description"), self.TEST_BODY["description"])
+        self.assertEqual(body.get("item_group"), self.TEST_BODY["item_group"])
 
     def test_4_put_item(self):
         response = self.client.put(f"{self.baseUrl}/P000001", json=self.ToPut)

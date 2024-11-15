@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from CargoHubV2.app.controllers import warehouses_controller
-from CargoHubV2.app.controllers import locations_controller
+from CargoHubV2.app.controllers import item_groups
+from CargoHubV2.app.controllers import item_lines
+from CargoHubV2.app.controllers import item_types
 from CargoHubV2.app.controllers import items_controller
+from CargoHubV2.app.controllers import locations_controller
 from CargoHubV2.app.controllers import transfers_controller
-from CargoHubV2.app.controllers import items_groups
-from CargoHubV2.app.controllers import items_lines
-from CargoHubV2.app.controllers import items_types
 from CargoHubV2.app.controllers import suppliers_controller
+from CargoHubV2.app.controllers import warehouses_controller
 
 
 app = FastAPI()
@@ -14,15 +14,14 @@ app = FastAPI()
 # default port is localhost:8000
 
 # router van de controller gebruiken
-app.include_router(warehouses_controller.router)
-app.include_router(locations_controller.router)
+app.include_router(item_groups.router)
+app.include_router(item_lines.router)
+app.include_router(item_types.router)
 app.include_router(items_controller.router)
+app.include_router(locations_controller.router)
 app.include_router(transfers_controller.router)
-app.include_router(items_types.router)
-app.include_router(items_groups.router)
-app.include_router(items_lines.router)
 app.include_router(suppliers_controller.router)
-
+app.include_router(warehouses_controller.router)
 
 
 @app.get("/")
