@@ -6,7 +6,7 @@ class SuppliersBase(BaseModel):
     code: str
     name: str
     address: str
-    address_extra: str
+    address_extra: Optional[str] = None
     city: str
     zip_code: str
     province: str
@@ -33,6 +33,17 @@ class SuppliersUpdate(BaseModel):
 
 class SuppliersResponse(BaseModel):
     id: int
+    code: str
+    name: str
+    address: str
+    address_extra: Optional[str] = None
+    city: str
+    zip_code: str
+    province: str
+    country: str
+    contact_name: str
+    phonenumber: str
+    reference: str
     created_at: datetime
     updated_at: datetime
 

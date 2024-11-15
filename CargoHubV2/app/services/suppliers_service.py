@@ -7,7 +7,19 @@ from datetime import datetime
 
 
 def create_supplier(db: Session, suppliers_data: SuppliersCreate):
-    suppliers = Supplier(**suppliers_data)
+    suppliers = Supplier(
+        code=suppliers_data.code,
+        name=suppliers_data.name,
+        address=suppliers_data.address,
+        address_extra=suppliers_data.address_extra,
+        city=suppliers_data.city,
+        zip_code=suppliers_data.zip_code,
+        province=suppliers_data.province,
+        country=suppliers_data.country,
+        contact_name=suppliers_data.contact_name,
+        phonenumber=suppliers_data.phonenumber,
+        reference=suppliers_data.reference,
+    )
     db.add(suppliers)
     try:
         db.commit()
@@ -44,43 +56,52 @@ def get_all_suppliers(db: Session):
         )
 
 
+# def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
+#     try:
+#         supplier = db.query(Supplier).filter(Supplier.id == id).first()
+#         if not supplier:
+#             raise HTTPException(status_code=404, detail="Supplier not found")
+#         update_data = supplier_data.model_dump(exclude_unset=True)
+#         for key, value in update_data.suppliers():
+#             setattr(supplier, key, value)
+#         supplier.updated_at = datetime.now()
+#         db.commit()
+#         db.refresh(supplier)
+#     except IntegrityError:
+#         db.rollback()
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="An integrity error occured while updating the supplier"
+#         )
+#     except SQLAlchemyError:
+#         db.rollback()
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail="An error occured while updating the supplier"
+#         )
+#     return supplier
+
 def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
+    to_update = db.query(Supplier).filter(Supplier.id == id).first()
+    if not to_update:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+    for key, value in supplier_data.model_dump(exclude_unset=True).items():
+        setattr(to_update, key, value)
     try:
-        supplier = db.query(Supplier).filter(Supplier.id == id).first()
-        if not supplier:
-            raise HTTPException(status_code=404, detail="Supplier not found")
-        update_data = supplier_data.model_dump(exclude_unset=True)
-        for key, value in update_data.suppliers():
-            setattr(supplier, key, value)
-        supplier.updated_at = datetime.now()
         db.commit()
-        db.refresh(supplier)
+        db.refresh(to_update)
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="An integrity error occured while updating the supplier"
-        )
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while updating the supplier"
-        )
-    return supplier
+        raise HTTPException(status_code=400, detail="An integrity error occurred while updating the supplier.")
+    return to_update
+    
 
 
 def delete_supplier(db: Session, id: int):
-    try:
-        supplier = db.query(Supplier).filter(Supplier.id == id).first()
-        if not supplier:
-            raise HTTPException(status_code=404, detail="Supplier not found")
-        db.delete(supplier)
-        db.commit
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while deleting the supplier"
-        )
-    return {"detail": "Supplier deleted"}
+    supplier_to_delete = db.query(Supplier).filter(Supplier.id == id).first()
+    if not supplier_to_delete:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+    db.delete(supplier_to_delete)
+    db.commit()
+    return {"detail": "supplier deleted"}
+

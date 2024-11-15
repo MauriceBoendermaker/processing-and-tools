@@ -24,7 +24,7 @@ def get_suppliers(id: Optional[int] = None, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=SuppliersResponse)
 def create_supplier_endpoint(supplier_data: SuppliersCreate, db: Session = Depends(get_db)):
-    supplier = create_supplier(db, supplier_data.model_dump())
+    supplier = create_supplier(db, supplier_data)
     return supplier
 
 
