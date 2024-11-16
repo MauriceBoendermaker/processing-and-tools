@@ -9,7 +9,7 @@ from CargoHubV2.app.schemas.items_schema import ItemCreate, WarehouseUpdate
 
 
 # Sample data to use in tests
-sample_item_data = {
+SAMPLE_ITEM_DATA = {
     "uid": "123e4567-e89b-12d3-a456-426614174000",
     "code": "ITEM-TEST",
     "description": "Test item",
@@ -34,7 +34,7 @@ sample_item_data = {
 # Test for create_item
 def test_create_item():
     db = MagicMock()
-    item_data = ItemCreate(**sample_item_data)
+    item_data = ItemCreate(**SAMPLE_ITEM_DATA)
     
     # Simulate adding and committing the item without issues
     new_item = create_item(db, item_data.model_dump())
@@ -49,7 +49,7 @@ def test_create_item_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
     
-    item_data = ItemCreate(**sample_item_data)
+    item_data = ItemCreate(**SAMPLE_ITEM_DATA)
     
     with pytest.raises(HTTPException) as excinfo:
         create_item(db, item_data.model_dump())
@@ -62,11 +62,11 @@ def test_create_item_integrity_error():
 # Test for get_item
 def test_get_item_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Item(**sample_item_data)
+    db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
     
     result = get_item(db, "123e4567-e89b-12d3-a456-426614174000")
     
-    assert result.uid == sample_item_data["uid"]
+    assert result.uid == SAMPLE_ITEM_DATA["uid"]
     db.query().filter().first.assert_called_once()
 
 
@@ -84,7 +84,7 @@ def test_get_item_not_found():
 # Test for get_all_items
 def test_get_all_items():
     db = MagicMock()
-    db.query().all.return_value = [Item(**sample_item_data)]
+    db.query().all.return_value = [Item(**SAMPLE_ITEM_DATA)]
     
     results = get_all_items(db)
     
@@ -95,7 +95,7 @@ def test_get_all_items():
 # Test for update_item
 def test_update_item_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Item(**sample_item_data)
+    db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
     item_update_data = WarehouseUpdate(description="Updated description")
     
     updated_item = update_item(db, "123e4567-e89b-12d3-a456-426614174000", item_update_data)
@@ -119,7 +119,7 @@ def test_update_item_not_found():
 
 def test_update_item_integrity_error():
     db = MagicMock()
-    db.query().filter().first.return_value = Item(**sample_item_data)
+    db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
     item_update_data = WarehouseUpdate(description="Updated description")
     
@@ -134,7 +134,7 @@ def test_update_item_integrity_error():
 # Test for delete_item
 def test_delete_item_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Item(**sample_item_data)
+    db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
     
     result = delete_item(db, "123e4567-e89b-12d3-a456-426614174000")
     

@@ -1,15 +1,16 @@
 import unittest
 from httpx import Client
-from test_utils import match_date, check_id_exists
 from datetime import date
+from test_utils import match_date, check_id_exists
 
 
 class TestItemLinesResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/item_lines"
         self.client = Client()
+        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.test_body = {
+        self.TEST_BODY = {
             "id": 97,
             "name": "New Gadget Line",
             "description": "Latest gadget releases",
@@ -28,12 +29,10 @@ class TestItemLinesResource(unittest.TestCase):
         self.original = {"id": 95, "name": "Exhibition Equipment", "description": "",
                          "created_at": "2024-07-26 06:18:08", "updated_at": "2024-08-09 18:49:42"}
 
-        self.client.headers = {"API_KEY": "a1b2c3d4e5",
-                               "content-type": "application/json"}
 
     # POST is niet mogelijk voor item_lines
     def test_1_post_item_line(self):
-        response = self.client.post(self.baseUrl, json=self.test_body)
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 404)
 
     # Test to get all item lines using GET

@@ -6,4 +6,5 @@ from .items_lines_model import ItemLine
 from .warehouses_model import Warehouse
 from .locations_model import Location
 from .transfers_model import Transfer
+from .suppliers_model import Supplier
 # Import other models as needed

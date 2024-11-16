@@ -5,10 +5,10 @@ from logging.config import fileConfig
 # Add the root directory of the project to the path
 sys.path.append(abspath(dirname(dirname(__file__))))
 
-from app.models import Base, Item, ItemGroup, ItemType, ItemLine, Warehouse, Location, Transfer
+from app.models import Base, Item, ItemGroup, ItemType, ItemLine, Warehouse, Location, Transfer, Supplier
 from app.models import (
     items_model, items_groups_model, items_types_model, items_lines_model,
-    warehouses_model, locations_model, transfers_model  # Import all models
+    warehouses_model, locations_model, transfers_model, suppliers_model  # Import all models
 )
 
 from sqlalchemy import engine_from_config

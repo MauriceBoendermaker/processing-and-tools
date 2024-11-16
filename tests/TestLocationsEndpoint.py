@@ -1,14 +1,16 @@
 import unittest
 from httpx import Client
-from test_utils import match_date, check_id_exists
 from datetime import date
+from test_utils import match_date, check_id_exists
+
 
 class TestLocationResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v1/locations"
         self.client = Client()
+        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.test_body = {
+        self.TEST_BODY = {
             "id": 1,
             "warehouse_id": 1,
             "code": "A.1.0",
@@ -26,11 +28,10 @@ class TestLocationResource(unittest.TestCase):
             "updated_at": "2024-10-14 12:00:00"
         }
 
-        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
 
     # Test to create a location using POST
     def test_1_post_location(self):
-        response = self.client.post(self.baseUrl, json=self.test_body)
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 201)
 
     # Test to get all locations using GET
