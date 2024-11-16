@@ -7,7 +7,7 @@ sys.path.append(abspath(dirname(dirname(__file__))))
 
 from app.models import Base, Item, ItemGroup, ItemType, ItemLine, Warehouse, Location, Transfer, Supplier
 from app.models import (
-    items_model, items_groups_model, items_types_model, items_lines_model,
+    items_model, item_groups_model, item_types_model, item_lines_model,
     warehouses_model, locations_model, transfers_model, suppliers_model  # Import all models
 )
 
