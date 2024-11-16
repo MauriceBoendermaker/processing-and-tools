@@ -14,5 +14,5 @@ class Warehouse(Base):
     province = Column(String, index=True)
     country = Column(String, index=True)
     contact = Column(JSON, index=True)
-    created_at = Column(DateTime, index=True)
-    updated_at = Column(DateTime, index=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
