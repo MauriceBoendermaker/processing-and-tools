@@ -14,20 +14,9 @@ def get_warehouse_by_id(db: Session, id: int):
     return db.query(Warehouse).filter(Warehouse.id == id).first()
 
 
-def create_warehouse(db: Session, warehouse: WarehouseCreate):
+def create_warehouse(db: Session, warehouse: dict):
     # voegt een nieuwe warehouse toe aan db
-    db_warehouse = Warehouse(
-        code=warehouse.code,
-        name=warehouse.name,
-        address=warehouse.address,
-        zip=warehouse.zip,
-        city=warehouse.city,
-        province=warehouse.province,
-        country=warehouse.country,
-        contact=warehouse.contact,
-        created_at=datetime.now(),
-        updated_at=datetime.now()
-    )
+    db_warehouse = Warehouse(**warehouse)
     db.add(db_warehouse)
     db.commit()
     db.refresh(db_warehouse)  # Refresh om gegenereerde velden te krijgen (Id)
