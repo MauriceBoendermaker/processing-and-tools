@@ -30,7 +30,7 @@ class ItemCreate(ItemBase):
     pass
 
 
-class WarehouseUpdate(BaseModel):
+class ItemUpdate(BaseModel):
     code: Optional[str] = None
     description: Optional[str] = None
     short_description: Optional[str] = None
