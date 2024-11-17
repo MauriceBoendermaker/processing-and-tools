@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.items_model import Item
-from CargoHubV2.app.schemas.items_schema import ItemCreate, WarehouseUpdate
+from CargoHubV2.app.schemas.items_schema import ItemCreate, ItemUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
 
@@ -50,12 +50,11 @@ def get_all_items(db: Session):
         )
 
 
-def update_item(db: Session, uid: str, item_data: WarehouseUpdate):
+def update_item(db: Session, uid: str, item_data: ItemUpdate):
     try:
         item = db.query(Item).filter(Item.uid == uid).first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
-        # Use model_dump with exclude_unset
         update_data = item_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(item, key, value)
