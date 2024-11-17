@@ -14,6 +14,7 @@ def get_all_warehouses(db: Session):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving warehouses."
         )
+    return db.query(Warehouse).all()
 
 
 def get_warehouse_by_id(db: Session, id: int):

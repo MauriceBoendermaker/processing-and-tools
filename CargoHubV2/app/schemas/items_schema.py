@@ -15,9 +15,9 @@ class ItemBase(BaseModel):
     upc_code: str
     model_number: str
     commodity_code: str
-    item_line: int  # Only ID for creation
-    item_group: int  # Only ID for creation
-    item_type: int  # Only ID for creation
+    item_line: int
+    item_group: int
+    item_type: int
     unit_purchase_quantity: int
     unit_order_quantity: int
     pack_order_quantity: int
@@ -30,7 +30,7 @@ class ItemCreate(ItemBase):
     pass
 
 
-class WarehouseUpdate(BaseModel):
+class ItemUpdate(BaseModel):
     code: Optional[str] = None
     description: Optional[str] = None
     short_description: Optional[str] = None
