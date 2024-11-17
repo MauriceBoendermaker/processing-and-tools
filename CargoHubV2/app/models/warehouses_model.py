@@ -1,12 +1,13 @@
 from sqlalchemy import Column, Integer, String, JSON, DateTime
 from ..database import Base
+from datetime import datetime
 
 
 class Warehouse(Base):
     __tablename__ = "warehouses"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, index=True)
+    code = Column(String, unique=True, index=True)
     name = Column(String, index=True)
     address = Column(String, index=True)
     zip = Column(String, index=True)
