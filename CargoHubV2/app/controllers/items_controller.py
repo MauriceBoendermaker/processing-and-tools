@@ -27,7 +27,7 @@ def create_item_endpoint(
 def get_items(
     uid: Optional[str] = None,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    api_key: str = Header(...), #api key req
 ):
     validate_api_key("view", api_key, db)
     if uid:
@@ -43,7 +43,7 @@ def update_item_endpoint(
     uid: str,
     item_data: ItemUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    api_key: str = Header(...),#api key req
 ):
     validate_api_key("edit", api_key, db)
     item = update_item(db, uid, item_data)
@@ -56,7 +56,7 @@ def update_item_endpoint(
 def delete_item_endpoint(
     uid: str,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    api_key: str = Header(...), #api key req
 ):
     validate_api_key("delete", api_key, db)
     item = delete_item(db, uid)
