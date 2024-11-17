@@ -51,7 +51,7 @@ class TestInventoriesEndpoint(unittest.TestCase):
 
     def test_1_post_inventory(self):
         # Add the test inventory to be used in tests
-        response = self.client.post(self.baseUrl, json=self.)
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         if response.status_code not in [200, 201]:
             print(f"failed to add inventory: {response.status_code}, {response.text}")
 
