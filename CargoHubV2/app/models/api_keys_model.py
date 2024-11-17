@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Integer, DateTime, Boolean
-from sqlalchemy.dialects.sqlite import JSON  # Optional for permissions
+from sqlalchemy.dialects.sqlite import JSON  # Optional for permissions # kunnen we straks gebruiken om alle premissions in json op te slaan en dan door een methode kijken of een api-key die premission heeft
 from datetime import datetime
-from app.database import Base
+from ..database import Base
 
 class APIKey(Base):
     __tablename__ = "api_keys"
