@@ -7,7 +7,8 @@ class TransferBase(BaseModel):
     reference: str
     transfer_from: Optional[int] = None
     transfer_to: int
-    items: List[Dict[str, int]]
+    transfer_status: str
+    items: List[Dict]
 
 
 class TransferCreate(TransferBase):
@@ -18,7 +19,7 @@ class TransferUpdate(BaseModel):
     reference: Optional[str] = None
     transfer_from: Optional[int] = None
     transfer_to: Optional[int] = None
-    items: Optional[List[Dict[str, int]]] = None
+    items: Optional[List[Dict]] = None
     transfer_status: Optional[str] = None
 
 

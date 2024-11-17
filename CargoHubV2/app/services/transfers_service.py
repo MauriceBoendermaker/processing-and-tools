@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 def create_transfer(db: Session, transfer_data: TransferCreate):
-    transfer = Transfer(**transfer_data.dict(), transfer_status="Scheduled")
+    transfer = Transfer(**transfer_data.model_dump())
     db.add(transfer)
     try:
         db.commit()
@@ -65,7 +65,7 @@ def update_transfer(db: Session, transfer_id: int, transfer_data: TransferUpdate
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="An error occurred while updating the transfer."
+            detail="An integrity error occurred while updating the transfer."
         )
     except SQLAlchemyError:
         db.rollback()
