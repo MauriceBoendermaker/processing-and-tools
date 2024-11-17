@@ -49,7 +49,7 @@ def test_create_warehouse_integrity_error():
         create_warehouse(db, warehouse_data.model_dump())
 
     assert excinfo.value.status_code == 400
-    assert "A warehouse with this Id already exists." in str(excinfo.value.detail)
+    assert "A warehouse with this code already exists." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
 
 
@@ -72,7 +72,7 @@ def test_get_warehouse_not_found():
         get_warehouse_by_id(db, 2)
 
     assert excinfo.value.status_code == 404
-    assert "Item not found" in str(excinfo.value.detail)
+    assert "Warehouse not found" in str(excinfo.value.detail)
 
 
 def test_get_all_warehouses():
@@ -119,7 +119,7 @@ def test_update_warehouse_integrity_error():
         update_warehouse(db, 1, warehouse_update_data)
 
     assert excinfo.value.status_code == 400
-    assert "An error occurred while updating the warehouse." in str(excinfo.value.detail)
+    assert "An integrity error occurred while updating the warehouse." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
 
 
