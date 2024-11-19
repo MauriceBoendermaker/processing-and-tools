@@ -146,3 +146,26 @@ def test_update_client_not_found():
 
     assert excinfo.value.status_code == 404
     assert "Client not found" in str(excinfo.value.detail)
+
+
+def test_delete_client_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = Client(**SAMPLE_CLIENT_DATA)
+
+    result = delete_client(db, 1)
+
+    assert result is True
+    db.delete.assert_called_once()
+    db.commit.assert_called_once()
+
+
+def test_delete_client_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+
+    assert delete_client(db, 2) is False
+    # Uncomment the following lines if you want to raise an exception instead
+    # with pytest.raises(HTTPException) as excinfo:
+    #     delete_client(db, 2)
+    # assert excinfo.value.status_code == 404
+    # assert "Client not found" in str(excinfo.value.detail)
