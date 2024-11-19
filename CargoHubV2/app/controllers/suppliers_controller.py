@@ -16,13 +16,13 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[SuppliersResponse])
-def get_suppliers(id: Optional[int] = None, db: Session = Depends(get_db)):
+def get_suppliers(id: Optional[int] = None, offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     if id:
         supplier = get_supplier(db, id)
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
         return [supplier]
-    return get_all_suppliers(db)
+    return get_all_suppliers(db, offset=offset, limit=limit)
 
 
 @router.post("/", response_model=SuppliersResponse)
@@ -48,8 +48,8 @@ def delete_supplier_endpoint(id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{supplier_id}/items", response_model=List[items_schema.ItemBase])
-def get_items_by_supplier_id_endpoint(supplier_id: int, db: Session = Depends(get_db)):
-    items = suppliers_service.get_items_by_supplier_id(db, supplier_id)
+def get_items_by_supplier_id_endpoint(supplier_id: int, offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    items = suppliers_service.get_items_by_supplier_id(db, supplier_id, offset=offset, limit=limit)
     if not items:
         raise HTTPException(status_code=404, detail="No items found for this supplier ID")
     return items
