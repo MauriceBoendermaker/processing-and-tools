@@ -78,3 +78,13 @@ def test_update_shipment_found():
     assert updated_shipment.shipment_status == "Shipped"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_shipment)
+
+def test_delete_shipment_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = Shipment(**SAMPLE_SHIPMENT_DATA)
+
+    result = delete_shipment(db, 1)
+
+    assert result is True
+    db.delete.assert_called_once()
+    db.commit.assert_called_once()
