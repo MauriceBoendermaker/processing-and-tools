@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
 
@@ -20,3 +21,6 @@ class Supplier(Base):
     reference = Column(String)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    items = relationship("Item", back_populates="suppliers_rel")
+    

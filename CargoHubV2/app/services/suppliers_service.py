@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.suppliers_model import Supplier
+from CargoHubV2.app.models.items_model import Item
 from CargoHubV2.app.schemas.suppliers_schema import SuppliersCreate, SuppliersUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
@@ -46,9 +47,9 @@ def get_supplier(db: Session, id: int):
         )
 
 
-def get_all_suppliers(db: Session):
+def get_all_suppliers(db: Session, offset:int =0, limit:int = 100):
     try:
-        return db.query(Supplier).all()
+        return db.query(Supplier).offset(offset).limit(limit).all()
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -80,3 +81,12 @@ def delete_supplier(db: Session, id: int):
     db.commit()
     return {"detail": "supplier deleted"}
 
+
+def get_items_by_supplier_id(db: Session, supplier_id: int, offset: int = 0, limit: int = 100):
+    items = db.query(Item).filter(Item.supplier_id == supplier_id).offset(offset).limit(limit).all()
+    supplier = db.query(Supplier).filter(Supplier.id == supplier_id).first()
+    if not supplier:
+        raise HTTPException(status_code=404, detail="This supplier does not exist")
+    if not items:
+        raise HTTPException(status_code=404, detail="No Items found for this supplier")
+    return items
