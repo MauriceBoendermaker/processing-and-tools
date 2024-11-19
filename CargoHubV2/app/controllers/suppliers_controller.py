@@ -1,8 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from CargoHubV2.app.schemas.suppliers_schema import *
+from CargoHubV2.app.schemas import items_schema 
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.services.suppliers_service import * 
+# from CargoHubV2.app.services import items_service 
+from CargoHubV2.app.services import suppliers_service 
 from typing import Optional, List
 
 
@@ -42,3 +45,12 @@ def delete_supplier_endpoint(id: int, db: Session = Depends(get_db)):
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")
     return { "detail": "Supplier deleted"}
+
+
+@router.get("/{supplier_id}/items", response_model=List[items_schema.ItemBase])
+def get_items_by_supplier_id_endpoint(supplier_id: int, db: Session = Depends(get_db)):
+    items = suppliers_service.get_items_by_supplier_id(db, supplier_id)
+    if not items:
+        raise HTTPException(status_code=404, detail="No items found for this supplier ID")
+    return items
+
