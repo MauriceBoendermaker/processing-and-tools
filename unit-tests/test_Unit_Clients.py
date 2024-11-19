@@ -28,7 +28,7 @@ def test_create_client():
     db = MagicMock()
     client_data = ClientCreate(**SAMPLE_CLIENT_DATA)
 
-    new_client = create_client(db, client_data.model_dump())
+    new_client = create_client(db, client_data)
 
     db.add.assert_called_once()
     db.commit.assert_called_once()
