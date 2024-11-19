@@ -58,3 +58,12 @@ def test_get_shipment_by_id_not_found():
 
     assert excinfo.value.status_code == 404
     assert "Shipment not found" in str(excinfo.value.detail)
+
+def test_get_all_shipments():
+    db = MagicMock()
+    db.query().all.return_value = [Shipment(**SAMPLE_SHIPMENT_DATA)]
+
+    results = get_all_shipments(db)
+
+    assert len(results) == 1
+    db.query().all.assert_called_once()
