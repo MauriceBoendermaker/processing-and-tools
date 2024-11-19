@@ -7,6 +7,7 @@ from CargoHubV2.app.controllers import locations_controller
 from CargoHubV2.app.controllers import transfers_controller
 from CargoHubV2.app.controllers import suppliers_controller
 from CargoHubV2.app.controllers import warehouses_controller
+from CargoHubV2.app.controllers import load_controller
 
 
 app = FastAPI()
@@ -22,6 +23,7 @@ app.include_router(locations_controller.router)
 app.include_router(transfers_controller.router)
 app.include_router(suppliers_controller.router)
 app.include_router(warehouses_controller.router)
+app.include_router(load_controller.router)
 
 
 @app.get("/")
