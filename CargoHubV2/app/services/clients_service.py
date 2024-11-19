@@ -8,7 +8,10 @@ def get_all_clients(db: Session):
     return db.query(Client).all()
 
 def get_client_by_id(db: Session, id: int):
-    return db.query(Client).filter(Client.id == id).first()
+    client = db.query(Client).filter(Client.id == id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return client
 
 # Commented out due to missing orders_model
 # def get_orders_by_client_id(db: Session, client_id: int):
