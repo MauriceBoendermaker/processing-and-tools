@@ -55,3 +55,34 @@ def test_create_client_integrity_error():
     assert excinfo.value.status_code == 400
     assert "A client with this data already exists." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
+
+
+def test_get_client_by_id_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = Client(**SAMPLE_CLIENT_DATA)
+
+    result = get_client_by_id(db, 1)
+
+    assert result.id == SAMPLE_CLIENT_DATA["id"]
+    db.query().filter().first.assert_called_once()
+
+
+def test_get_client_by_id_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+
+    with pytest.raises(HTTPException) as excinfo:
+        get_client_by_id(db, 2)
+
+    assert excinfo.value.status_code == 404
+    assert "Client not found" in str(excinfo.value.detail)
+
+
+def test_get_all_clients():
+    db = MagicMock()
+    db.query().all.return_value = [Client(**SAMPLE_CLIENT_DATA)]
+
+    results = get_all_clients(db)
+
+    assert len(results) == 1
+    db.query().all.assert_called_once()
