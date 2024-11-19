@@ -33,8 +33,12 @@ def load(path: str, db: Session):
         data = json.load(json_file)
 
     for i in tqdm(data):
-        i["created_at"] = datetime.strptime(i["created_at"], "%Y-%m-%d %H:%M:%S")
-        i["updated_at"] = datetime.now()
+        if (path == "tranfers.json" or path == "shipments.json" or path == "orders.json"):
+            i["created_at"] = datetime.strptime(i["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+            i["updated_at"] = datetime.strptime(i["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
+        else:
+            i["created_at"] = datetime.strptime(i["created_at"], "%Y-%m-%d %H:%M:%S")
+            i["updated_at"] = datetime.now()
         obj = model_mapping[path](**i)
         db.add(obj)
 
