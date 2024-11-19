@@ -86,3 +86,39 @@ def test_get_all_clients():
 
     assert len(results) == 1
     db.query().all.assert_called_once()
+
+
+def test_get_orders_by_client_id_found():
+    db = MagicMock()
+    db.query(Client).filter().first.return_value = Client(**SAMPLE_CLIENT_DATA)
+    db.query(Order).filter().all.return_value = SAMPLE_ORDERS
+
+    result = get_orders_by_client_id(db, 1)
+
+    assert len(result) == 2
+    assert result[0]["id"] == SAMPLE_ORDERS[0]["id"]
+    db.query(Client).filter().first.assert_called_once()
+    db.query(Order).filter().all.assert_called_once()
+
+
+def test_get_orders_by_client_id_no_orders():
+    db = MagicMock()
+    db.query(Client).filter().first.return_value = Client(**SAMPLE_CLIENT_DATA)
+    db.query(Order).filter().all.return_value = []
+
+    with pytest.raises(HTTPException) as excinfo:
+        get_orders_by_client_id(db, 1)
+
+    assert excinfo.value.status_code == 404
+    assert "No orders found for this client" in str(excinfo.value.detail)
+
+
+def test_get_orders_by_client_id_not_found():
+    db = MagicMock()
+    db.query(Client).filter().first.return_value = None
+
+    with pytest.raises(HTTPException) as excinfo:
+        get_orders_by_client_id(db, 2)
+
+    assert excinfo.value.status_code == 404
+    assert "Client not found" in str(excinfo.value.detail)
