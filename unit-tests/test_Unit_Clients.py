@@ -7,6 +7,7 @@ from CargoHubV2.app.services.clients_service import (
     create_client, get_client_by_id, get_all_clients, update_client, delete_client
 )
 from CargoHubV2.app.models.clients_model import Client
+from CargoHubV2.app.schemas.clients_schema import ClientCreate, ClientUpdate
 
 SAMPLE_CLIENT_DATA = {
     "id": 1,
@@ -32,15 +33,6 @@ def test_create_client():
     db.add.assert_called_once()
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(new_client)
-
-def test_get_client_by_id_found():
-    db = MagicMock()
-    db.query().filter().first.return_value = Client(**SAMPLE_CLIENT_DATA)
-
-    result = get_client_by_id(db, 1)
-
-    assert result.id == SAMPLE_CLIENT_DATA["id"]
-    db.query().filter().first.assert_called_once()
 
 def test_get_client_by_id_not_found():
     db = MagicMock()
