@@ -67,3 +67,14 @@ def test_get_all_shipments():
 
     assert len(results) == 1
     db.query().all.assert_called_once()
+
+def test_update_shipment_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = Shipment(**SAMPLE_SHIPMENT_DATA)
+    update_data = ShipmentUpdate(shipment_status="Shipped")
+
+    updated_shipment = update_shipment(db, 1, update_data)
+
+    assert updated_shipment.shipment_status == "Shipped"
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(updated_shipment)
