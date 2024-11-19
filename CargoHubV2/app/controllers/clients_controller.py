@@ -21,9 +21,10 @@ def get_clients(db: Session = Depends(get_db), id: Optional[int] = None):
     clients = clients_service.get_all_clients(db)
     return clients
 
-@router.get("/{id}/orders", dependencies=[Depends(validate_api_key)])
-def get_orders_by_client_id(id: int, db: Session = Depends(get_db)):
-    return clients_service.get_orders_by_client_id(db, id)
+# Commented out due to missing orders_model
+# @router.get("/{id}/orders", dependencies=[Depends(validate_api_key)])
+# def get_orders_by_client_id(id: int, db: Session = Depends(get_db)):
+#     return clients_service.get_orders_by_client_id(db, id)
 
 @router.post("/", dependencies=[Depends(validate_api_key)])
 def create_client(client: clients_schema.ClientCreate, db: Session = Depends(get_db)):
