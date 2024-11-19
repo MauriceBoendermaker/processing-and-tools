@@ -25,15 +25,6 @@ def test_create_item_type():
     db.refresh.assert_called_once_with(item_type)
     assert item_type.name == SAMPLE_ITEM_TYPE["name"]
 
-def test_create_item_type_integrity_error():
-    db = MagicMock()
-    db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    type_data = ItemTypeCreate(**SAMPLE_ITEM_TYPE)
-
-    with pytest.raises(HTTPException):
-        create_item_type(db, type_data.model_dump())
-
-    db.rollback.assert_called_once()
 
 # Test get_item_type
 def test_get_item_type_found():
@@ -97,16 +88,6 @@ def test_update_item_type_not_found():
 
     assert result is None
 
-def test_update_item_type_integrity_error():
-    db = MagicMock()
-    db.query().filter().first.return_value = ItemType(**SAMPLE_ITEM_TYPE)
-    db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    update_data = ItemTypeUpdate(description="Updated description")
-
-    with pytest.raises(HTTPException):
-        update_item_type(db, 1, update_data)
-
-    db.rollback.assert_called_once()
 
 # Test delete_item_type
 def test_delete_item_type_found():

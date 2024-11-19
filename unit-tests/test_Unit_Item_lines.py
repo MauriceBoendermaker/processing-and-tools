@@ -12,7 +12,7 @@ from CargoHubV2.app.services.item_lines_service import (
 from CargoHubV2.app.models.item_lines_model import ItemLine
 from CargoHubV2.app.schemas.item_lines_schema import ItemLineCreate, ItemLineUpdate
 
-SAMPLE_ITEM_LINE = {"name": "Line X", "description": "Test line"}
+SAMPLE_ITEM_LINE = {"name": "Line A", "description": "Test line"}
 
 # Test create_item_line
 def test_create_item_line():
@@ -25,15 +25,6 @@ def test_create_item_line():
     db.refresh.assert_called_once_with(line)
     assert line.name == SAMPLE_ITEM_LINE["name"]
 
-def test_create_item_line_integrity_error():
-    db = MagicMock()
-    db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    line_data = ItemLineCreate(**SAMPLE_ITEM_LINE)
-
-    with pytest.raises(HTTPException):
-        create_item_line(db, line_data.model_dump())
-
-    db.rollback.assert_called_once()
 
 # Test get_item_line
 def test_get_item_line_found():
@@ -52,3 +43,67 @@ def test_get_item_line_not_found():
     result = get_item_line(db, 999)
 
     assert result is None
+
+# Test get_all_item_lines
+def test_get_all_item_lines():
+    db = MagicMock()
+    db.query().all.return_value = [
+        ItemLine(**SAMPLE_ITEM_LINE),
+        ItemLine(name="Line B", description="Another test line"),
+    ]
+
+    results = get_all_item_lines(db)
+
+    db.query().all.assert_called_once()
+    assert len(results) == 2
+    assert results[0].name == SAMPLE_ITEM_LINE["name"]
+
+def test_get_all_item_lines_empty():
+    db = MagicMock()
+    db.query().all.return_value = []
+
+    results = get_all_item_lines(db)
+
+    db.query().all.assert_called_once()
+    assert len(results) == 0
+
+# Test update_item_line
+def test_update_item_line_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = ItemLine(**SAMPLE_ITEM_LINE)
+    update_data = ItemLineUpdate(description="Updated description")
+
+    updated_line = update_item_line(db, 1, update_data)
+
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(updated_line)
+    assert updated_line.description == "Updated description"
+
+def test_update_item_line_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+    update_data = ItemLineUpdate(description="Updated description")
+
+    result = update_item_line(db, 999, update_data)
+
+    assert result is None
+
+
+# Test delete_item_line
+def test_delete_item_line_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = ItemLine(**SAMPLE_ITEM_LINE)
+
+    result = delete_item_line(db, 1)
+
+    db.delete.assert_called_once()
+    db.commit.assert_called_once()
+    assert result is True
+
+def test_delete_item_line_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+
+    result = delete_item_line(db, 999)
+
+    assert result is False

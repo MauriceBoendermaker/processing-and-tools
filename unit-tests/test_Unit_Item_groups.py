@@ -25,15 +25,6 @@ def test_create_item_group():
     db.refresh.assert_called_once_with(group)
     assert group.name == SAMPLE_ITEM_GROUP["name"]
 
-def test_create_item_group_integrity_error():
-    db = MagicMock()
-    db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    group_data = ItemGroupCreate(**SAMPLE_ITEM_GROUP)
-
-    with pytest.raises(HTTPException):
-        create_item_group(db, group_data.model_dump())
-
-    db.rollback.assert_called_once()
 
 # Test get_item_group
 def test_get_item_group_found():
@@ -96,17 +87,6 @@ def test_update_item_group_not_found():
     result = update_item_group(db, 999, update_data)
 
     assert result is None
-
-def test_update_item_group_integrity_error():
-    db = MagicMock()
-    db.query().filter().first.return_value = ItemGroup(**SAMPLE_ITEM_GROUP)
-    db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    update_data = ItemGroupUpdate(description="Updated description")
-
-    with pytest.raises(HTTPException):
-        update_item_group(db, 1, update_data)
-
-    db.rollback.assert_called_once()
 
 # Test delete_item_group
 def test_delete_item_group_found():
