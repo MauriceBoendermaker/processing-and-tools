@@ -33,7 +33,7 @@ def load(path: str, db: Session):
         data = json.load(json_file)
 
     for i in tqdm(data):
-        if (path == "tranfers.json" or path == "shipments.json" or path == "orders.json"):
+        if (path == "transfers.json" or path == "shipments.json" or path == "orders.json"):
             i["created_at"] = datetime.strptime(i["created_at"], "%Y-%m-%dT%H:%M:%SZ")
             i["updated_at"] = datetime.strptime(i["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
         else:
