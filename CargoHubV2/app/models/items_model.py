@@ -20,7 +20,7 @@ class Item(Base):
     unit_order_quantity = Column(Integer)
     pack_order_quantity = Column(Integer)
     supplier_id = Column(Integer, ForeignKey("suppliers.id"))
-    supplier_code = Column(String, ForeignKey("suppliers.code"))
+    supplier_code = Column(String)
     supplier_part_number = Column(String)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
@@ -29,5 +29,9 @@ class Item(Base):
     item_type_rel = relationship("ItemType", back_populates="items")
     item_line_rel = relationship("ItemLine", back_populates="items")
 
-    suppliers_rel = relationship("Supplier", back_populates="items")
-    
+    # Specify foreign_keys argument to disambiguate
+    suppliers_rel = relationship(
+        "Supplier",
+        back_populates="items",
+        foreign_keys=[supplier_id],  # Explicitly reference supplier_id
+    )
