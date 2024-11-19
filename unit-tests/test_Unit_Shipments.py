@@ -39,3 +39,22 @@ def test_create_shipment():
     db.add.assert_called_once()
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(new_shipment)
+
+def test_get_shipment_by_id_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = Shipment(**SAMPLE_SHIPMENT_DATA)
+
+    result = get_shipment_by_id(db, 1)
+
+    assert result.id == SAMPLE_SHIPMENT_DATA["id"]
+    db.query().filter().first.assert_called_once()
+
+def test_get_shipment_by_id_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+
+    with pytest.raises(HTTPException) as excinfo:
+        get_shipment_by_id(db, 2)
+
+    assert excinfo.value.status_code == 404
+    assert "Shipment not found" in str(excinfo.value.detail)
