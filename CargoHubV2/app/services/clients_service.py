@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from CargoHubV2.app.models.clients_model import Client
-from CargoHubV2.app.models.orders_model import Order  # Assuming orders exist
 from CargoHubV2.app.schemas.clients_schema import ClientCreate, ClientUpdate
 from datetime import datetime
 from fastapi import HTTPException
@@ -11,14 +10,15 @@ def get_all_clients(db: Session):
 def get_client_by_id(db: Session, id: int):
     return db.query(Client).filter(Client.id == id).first()
 
-def get_orders_by_client_id(db: Session, client_id: int):
-    client = db.query(Client).filter(Client.id == client_id).first()
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    orders = db.query(Order).filter((Order.ship_to == client_id) | (Order.bill_to == client_id)).all()
-    if not orders:
-        raise HTTPException(status_code=404, detail="No orders found for this client")
-    return orders
+# Commented out due to missing orders_model
+# def get_orders_by_client_id(db: Session, client_id: int):
+#     client = db.query(Client).filter(Client.id == client_id).first()
+#     if not client:
+#         raise HTTPException(status_code=404, detail="Client not found")
+#     orders = db.query(Order).filter((Order.ship_to == client_id) | (Order.bill_to == client_id)).all()
+#     if not orders:
+#         raise HTTPException(status_code=404, detail="No orders found for this client")
+#     return orders
 
 def create_client(db: Session, client: ClientCreate):
     db_client = Client(
