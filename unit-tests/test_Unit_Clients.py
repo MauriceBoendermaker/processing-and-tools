@@ -122,3 +122,27 @@ def test_get_orders_by_client_id_not_found():
 
     assert excinfo.value.status_code == 404
     assert "Client not found" in str(excinfo.value.detail)
+
+
+def test_update_client_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = Client(**SAMPLE_CLIENT_DATA)
+    update_data = ClientUpdate(name="Updated Name")
+
+    updated_client = update_client(db, 1, update_data)
+
+    assert updated_client.name == "Updated Name"
+    db.commit.assert_called_once()
+    db.refresh.assert_called_once_with(updated_client)
+
+
+def test_update_client_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+    update_data = ClientUpdate(name="Updated Name")
+
+    with pytest.raises(HTTPException) as excinfo:
+        update_client(db, 5, update_data)
+
+    assert excinfo.value.status_code == 404
+    assert "Client not found" in str(excinfo.value.detail)
