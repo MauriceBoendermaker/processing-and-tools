@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, JSON, DateTime
 from ..database import Base
+from sqlalchemy.orm import relationship
+from inventories_model import inventory_location_association
 
 
 class Location(Base):
