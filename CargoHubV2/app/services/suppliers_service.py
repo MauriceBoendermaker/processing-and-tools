@@ -47,7 +47,7 @@ def get_supplier(db: Session, id: int):
         )
 
 
-def get_all_suppliers(db: Session, offset:int =0, limit:int = 100):
+def get_all_suppliers(db: Session, offset: int = 0, limit: int = 100):
     try:
         return db.query(Supplier).offset(offset).limit(limit).all()
     except SQLAlchemyError:
