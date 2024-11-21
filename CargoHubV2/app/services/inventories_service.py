@@ -91,3 +91,15 @@ def delete_inventory(db: Session, id: int):
             detail="An error occurred while deleting the inventory."
         )
     return {"detail": "Iventory deleted"}
+
+
+# locations filter using inventory ID
+def get_locations_by_inventory(db: Session, inventory_id: int):
+    try:
+        return db.query(Inventory).filter(Inventory.id == inventory_id).first().locations
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while getting the locations."
+        )

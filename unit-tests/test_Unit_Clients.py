@@ -24,6 +24,7 @@ SAMPLE_CLIENT_DATA = {
     "updated_at": datetime.now()
 }
 
+
 def test_create_client():
     db = MagicMock()
     client_data = ClientCreate(**SAMPLE_CLIENT_DATA)
@@ -33,6 +34,7 @@ def test_create_client():
     db.add.assert_called_once()
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(new_client)
+
 
 def test_get_client_by_id_not_found():
     db = MagicMock()
@@ -44,6 +46,7 @@ def test_get_client_by_id_not_found():
     assert excinfo.value.status_code == 404
     assert "Client not found" in str(excinfo.value.detail)
 
+
 def test_get_all_clients():
     db = MagicMock()
     db.query().all.return_value = [Client(**SAMPLE_CLIENT_DATA)]
@@ -52,6 +55,7 @@ def test_get_all_clients():
 
     assert len(results) == 1
     db.query().all.assert_called_once()
+
 
 def test_update_client_found():
     db = MagicMock()
@@ -63,6 +67,7 @@ def test_update_client_found():
     assert updated_client.name == "Updated Name"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_client)
+
 
 def test_delete_client_found():
     db = MagicMock()

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 from CargoHubV2.app.database import get_db
-from CargoHubV2.app.schemas.inventories_schema import InventoryResponse, InventoryBase, InventoryCreate, InventoryUpdate
+from CargoHubV2.app.schemas.inventories_schema import InventoryResponse, InventoryCreate, InventoryUpdate
+from CargoHubV2.app.schemas.locations_schema import Location
 from CargoHubV2.app.services import inventories_service
 from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import Optional, List
@@ -63,3 +64,18 @@ def delete_inventory_endpoint(
     if not inven:
         raise HTTPException(status_code=404, detail="Inventory not found")
     return inven
+
+
+# locations waar een specifieke inventory is (filter)
+@router.get("/{id}/locations", response_model=List[Location])
+def get_locations_from(
+    id: int = None,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),  # api key req
+):
+    validate_api_key("view", api_key, db)
+    if id:
+        inven = inventories_service.get_inventory(db, id)
+        if not inven:
+            raise HTTPException(status_code=404, detail="Inventory not found")
+    return inventories_service.get_locations_by_inventory(db, id)
