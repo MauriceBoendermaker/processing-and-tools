@@ -12,6 +12,7 @@ def create_inventory(db: Session, inventory_data: dict):
     try:
         db.commit()
         db.refresh(inventory)
+        return inventory
     except IntegrityError:
         db.rollback()
         raise HTTPException(
