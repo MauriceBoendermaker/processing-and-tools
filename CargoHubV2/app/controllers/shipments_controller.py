@@ -1,38 +1,65 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
-from CargoHubV2.app.services import shipments_service
-from CargoHubV2.app.schemas import shipments_schema
-from CargoHubV2.app.services.api_keys_service import validate_api_key
 from CargoHubV2.app.database import get_db
-from typing import Optional
+from CargoHubV2.app.schemas.shipments_schema import *
+from CargoHubV2.app.services.shipments_service import *
+from CargoHubV2.app.services.api_keys_service import validate_api_key
+from typing import Optional, List
 
 router = APIRouter(
     prefix="/api/v2/shipments",
     tags=["shipments"]
 )
 
-@router.get("/", dependencies=[Depends(validate_api_key)])
-def get_shipments(db: Session = Depends(get_db), id: Optional[int] = None):
+
+@router.post("/", response_model=ShipmentResponse)
+def create_shipment_endpoint(
+    shipment_data: ShipmentCreate,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
+    validate_api_key("create", api_key, db)
+    shipment = create_shipment(db, shipment_data.model_dump())
+    return shipment
+
+
+@router.get("/", response_model=List[ShipmentResponse])
+def get_shipments(
+    id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
+    validate_api_key("view", api_key, db)
     if id:
-        shipment = shipments_service.get_shipment_by_id(db, id)
-        if shipment is None:
+        shipment = get_shipment(db, id)
+        if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
-        return shipment
-    return shipments_service.get_all_shipments(db)
+        return [shipment]
+    return get_all_shipments(db)
 
-@router.post("/", dependencies=[Depends(validate_api_key)])
-def create_shipment(shipment: shipments_schema.ShipmentCreate, db: Session = Depends(get_db)):
-    return shipments_service.create_shipment(db, shipment)
 
-@router.delete("/{id}", dependencies=[Depends(validate_api_key)])
-def delete_shipment(id: int, db: Session = Depends(get_db)):
-    success = shipments_service.delete_shipment(db, id)
-    if success:
-        return f"Shipment with id {id} deleted"
-    raise HTTPException(status_code=404, detail="Shipment not found")
+@router.put("/{id}", response_model=ShipmentResponse)
+def update_shipment_endpoint(
+    id: int,
+    shipment_data: ShipmentUpdate,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
+    validate_api_key("edit", api_key, db)
+    shipment = update_shipment(db, id, shipment_data)
+    if not shipment:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    return shipment
 
-@router.put("/{id}", dependencies=[Depends(validate_api_key)])
-def update_shipment(id: int, shipment_data: shipments_schema.ShipmentUpdate, db: Session = Depends(get_db)):
-    if shipment_data:
-        return shipments_service.update_shipment(db, id, shipment_data)
-    raise HTTPException(status_code=400, detail="Invalid request body")
+
+@router.delete("/{id}")
+def delete_shipment_endpoint(
+    id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
+    validate_api_key("delete", api_key, db)
+    shipment = delete_shipment(db, id)
+    if not shipment:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    return shipment
