@@ -4,7 +4,6 @@ from CargoHubV2.app.schemas.suppliers_schema import *
 from CargoHubV2.app.schemas import items_schema 
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.services.suppliers_service import * 
-# from CargoHubV2.app.services import items_service 
 from CargoHubV2.app.services import suppliers_service 
 from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import Optional, List
