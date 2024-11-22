@@ -16,7 +16,7 @@ inventory_location_association = Table(
 class Inventory(Base):
     __tablename__ = 'inventories'
     id = Column(Integer, primary_key=True)
-    item_id = Column(Integer, ForeignKey('item.uid'), unique=True, nullable=False)
+    item_id = Column(Integer, ForeignKey('items.uid'), unique=True, nullable=False)
     description = Column(String, nullable=True)
     item_reference = Column(String, unique=True)
     locations = Column(JSON)
