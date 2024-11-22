@@ -5,7 +5,7 @@ from ..database import Base
 
 
 class ItemGroup(Base):
-    __tablename__ = "items_groups"
+    __tablename__ = "item_groups"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, index=True)
