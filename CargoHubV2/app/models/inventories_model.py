@@ -32,5 +32,7 @@ class Inventory(Base):
     locations = relationship(
         "Location",
         secondary=inventory_location_association,
-        back_populates=None  # geen reverse relationship vanuit location
+        primaryjoin="Inventory.id == inventory_location.c.inventory_id",
+        secondaryjoin="Location.id == inventory_location.c.location_id",
+        viewonly=True
     )
