@@ -14,7 +14,7 @@ inventory_location_association = Table(
 class Inventory(Base):
     __tablename__ = 'inventories'
     id = Column(Integer, primary_key=True)
-    item_id = Column(Integer, ForeignKey('item.id'), unique=True, nullable=False)
+    item_id = Column(Integer, ForeignKey('item.uid'), unique=True, nullable=False)
     description = Column(String, nullable=True)
     item_reference = Column(String, unique=True)
     total_on_hand = Column(Integer)
@@ -26,7 +26,7 @@ class Inventory(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     # One-to-one relationship met Item (unidirectional)
-    item = relationship("Item", foreign_keys=[item_id], primaryjoin="Inventory.item_id == Item.id")
+    item = relationship("Item", foreign_keys=[item_id], primaryjoin="Inventory.item_id == Item.uid")
 
     # Many-to-many relationship met Location
     locations = relationship(
