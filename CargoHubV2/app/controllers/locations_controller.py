@@ -13,8 +13,8 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[locations_schema.Location])
-def get_all_locations(db: Session = Depends(get_db)):
-    return locations_service.get_all_locations(db)
+def get_all_locations(db: Session = Depends(get_db), offset = 0, limit = 100):
+    return locations_service.get_all_locations(db, offset=offset, limit=limit)
 
 
 @router.get("/{id}", response_model=locations_schema.Location)
@@ -26,7 +26,7 @@ def get_location_by_id(id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/warehouse/{warehouse_id}", response_model=List[locations_schema.Location])
-def get_locations_by_warehouse_id(warehouse_id: int, db: Session = Depends(get_db)):
+def get_locations_by_warehouse_id(warehouse_id: int, db: Session = Depends(get_db), offset = 0, limit = 100):
     locations = locations_service.get_locations_by_warehouse_id(db, warehouse_id)
     if not locations:
         raise HTTPException(status_code=404, detail="Location warehouse not found")
