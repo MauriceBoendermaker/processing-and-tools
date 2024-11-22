@@ -45,7 +45,7 @@ class ShipmentUpdate(BaseModel):
     total_package_weight: Optional[float] = None
     items: Optional[List[ShipmentItem]] = None
 
-class Shipment(ShipmentBase):
+class ShipmentResponse(ShipmentBase):
     id: int
     created_at: datetime
     updated_at: datetime
