@@ -13,14 +13,14 @@ router = APIRouter(
 
 
 @router.get("/")
-def get_warehouses(db: Session = Depends(get_db), id: Optional[int] = None):
+def get_warehouses(db: Session = Depends(get_db), id: Optional[int] = None, offset: int = 0, limit: int = 100):
 
     if id:
         warehouse = warehouses_service.get_warehouse_by_id(db, id)
         if warehouse is None:
             raise HTTPException(status_code=404, detail="Warehouse not found")
         return warehouse
-    warehouses = warehouses_service.get_all_warehouses(db)
+    warehouses = warehouses_service.get_all_warehouses(db, offset, limit)
     return warehouses
 
 
