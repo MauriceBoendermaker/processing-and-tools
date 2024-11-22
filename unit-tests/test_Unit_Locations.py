@@ -81,12 +81,23 @@ def test_get_location_warehouse_not_found():
     assert "Location warehouse not found" in str(excinfo.value.detail)
 
 
-def test_get_all_locations():
+def test_get_all_locations():    
+    # Mock the database session
     db = MagicMock()
-    db.query().all.return_value = [Location(**SAMPLE_LOCATION_DATA)]
-    results = get_all_locations(db)
+    
+    # Mock the query chain
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [Location(**SAMPLE_LOCATION_DATA)]
+    
+    # Call the function
+    results = get_all_locations(db, offset=0, limit=10)
+    
+    # Assertions
     assert len(results) == 1
-    db.query().all.assert_called_once()
+    db.query.assert_called_once()
+    mock_query.all.assert_called_once()
 
 
 def test_update_location_found():

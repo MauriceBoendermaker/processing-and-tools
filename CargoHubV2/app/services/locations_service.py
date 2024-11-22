@@ -6,8 +6,8 @@ from datetime import datetime
 from fastapi import HTTPException, status
 
 
-def get_all_locations(db: Session):
-    return db.query(Location).all()
+def get_all_locations(db: Session, offset: int = 0, limit: int = 100):
+    return db.query(Location).offset(offset).limit(limit).all()
 
 
 def get_location_by_id(db: Session, id: int):
@@ -17,8 +17,8 @@ def get_location_by_id(db: Session, id: int):
     return location
 
 
-def get_locations_by_warehouse_id(db: Session, warehouse_id: int):
-    locations = db.query(Location).filter(Location.warehouse_id == warehouse_id).all()
+def get_locations_by_warehouse_id(db: Session, warehouse_id: int, offset: int = 0, limit: int = 100):
+    locations = db.query(Location).filter(Location.warehouse_id == warehouse_id).offset(offset).limit(limit).all()
     if not locations:  # If no locations are found
         raise HTTPException(status_code=404, detail="Location warehouse not found")
     return locations

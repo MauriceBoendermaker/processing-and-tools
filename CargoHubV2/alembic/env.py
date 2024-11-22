@@ -6,7 +6,6 @@ from logging.config import fileConfig
 sys.path.append(abspath(dirname(dirname(__file__))))
 
 from app.models import Base
-
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
@@ -14,7 +13,6 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
