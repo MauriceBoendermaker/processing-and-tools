@@ -26,7 +26,7 @@ class Inventory(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     # One-to-one relationship met Item (unidirectional)
-    item = relationship("Item")
+    item = relationship("Item", foreign_keys=[item_id], primaryjoin="Inventory.item_id == Item.id")
 
     # Many-to-many relationship met Location
     locations = relationship(
