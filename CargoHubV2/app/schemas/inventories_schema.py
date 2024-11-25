@@ -17,7 +17,7 @@ class InventoryBase(BaseModel):
 
 
 class InventoryCreate(InventoryBase):
-    item_id: int  # verplichte field om item te linken
+    item_id: str  # verplichte field om item te linken
 
 
 class InventoryUpdate(BaseModel):
@@ -34,7 +34,7 @@ class InventoryUpdate(BaseModel):
 
 class InventoryResponse(InventoryBase):
     id: int
-    item_id: int
+    item_id: str
     created_at: datetime
     updated_at: datetime
 

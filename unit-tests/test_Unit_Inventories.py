@@ -17,7 +17,7 @@ from CargoHubV2.app.schemas.inventories_schema import InventoryCreate, Inventory
 inventory_sample_data = {
         "id": 1,
         "item_id": "P000001",
-        "description": "test inventory",
+        "description": "updated",
         "item_reference": "sjQ23408K",
         "locations": [
             1,
@@ -37,7 +37,7 @@ inventory_sample_data = {
 def test_create_inventory():
     db = MagicMock()
     inventory_data = InventoryCreate(**inventory_sample_data)
-    new_inventory = create_inventory(db, inventory_data)
+    new_inventory = create_inventory(db, inventory_data.model_dump())
     db.add.assert_called_once()
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(new_inventory)
@@ -48,9 +48,9 @@ def test_create_inventory_integrity_error():
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
     inventory_data = InventoryCreate(**inventory_sample_data)
     with pytest.raises(HTTPException) as excinfo:
-        create_inventory(db, inventory_data)
-    assert excinfo.value.status_code == 500
-    assert "An integrity error occurred while creating the inventory" in str(excinfo.value.detail)
+        create_inventory(db, inventory_data.model_dump())
+    assert excinfo.value.status_code == 400
+    assert "An inventory with this code already exists." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
 
 
@@ -68,7 +68,7 @@ def test_get_inventory_not_found():
     with pytest.raises(HTTPException) as excinfo:
         get_inventory(db, 999)
     assert excinfo.value.status_code == 404
-    assert "Inventory not found" in str(excinfo.value.detail)
+    assert "inventory not found" in str(excinfo.value.detail)
 
 
 def test_get_all_inventories():
@@ -94,9 +94,9 @@ def test_get_all_inventories():
 def test_update_inventory_found():
     db = MagicMock()
     db.query().filter().first.return_value = Inventory(**inventory_sample_data)
-    inventory_update_data = InventoryUpdate(name="Updated inventory")
+    inventory_update_data = InventoryUpdate(description="Updated inventory")
     updated_inventory = update_inventory(db, 1, inventory_update_data)
-    assert updated_inventory.name == "Updated inventory"
+    assert updated_inventory.description == "Updated inventory"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_inventory)
 
@@ -104,10 +104,9 @@ def test_update_inventory_found():
 def test_update_inventory_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    inventory_update_data = InventoryUpdate(name="Updated inventory")
+    inventory_update_data = InventoryUpdate(description="Updated inventory")
     with pytest.raises(HTTPException) as excinfo:
-        update_inventory
-        (db, 999, inventory_update_data)
+        update_inventory(db, 999, inventory_update_data)
     assert excinfo.value.status_code == 404
     assert "Inventory not found" in str(excinfo.value.detail)
 
