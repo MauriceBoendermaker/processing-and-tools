@@ -30,6 +30,7 @@ SAMPLE_SHIPMENT_DATA = {
     "updated_at": datetime.now()
 }
 
+
 def test_create_shipment():
     db = MagicMock()
     shipment_data = ShipmentCreate(**SAMPLE_SHIPMENT_DATA)
@@ -40,24 +41,27 @@ def test_create_shipment():
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(new_shipment)
 
+
 def test_get_shipment_by_id_found():
     db = MagicMock()
     db.query().filter().first.return_value = Shipment(**SAMPLE_SHIPMENT_DATA)
 
-    result = get_shipment_by_id(db, 1)
+    result = get_shipment(db, 1)
 
     assert result.id == SAMPLE_SHIPMENT_DATA["id"]
     db.query().filter().first.assert_called_once()
+
 
 def test_get_shipment_by_id_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
 
     with pytest.raises(HTTPException) as excinfo:
-        get_shipment_by_id(db, 2)
+        get_shipment(db, 2)
 
     assert excinfo.value.status_code == 404
     assert "Shipment not found" in str(excinfo.value.detail)
+
 
 def test_get_all_shipments():
     db = MagicMock()
@@ -67,6 +71,7 @@ def test_get_all_shipments():
 
     assert len(results) == 1
     db.query().all.assert_called_once()
+
 
 def test_update_shipment_found():
     db = MagicMock()
@@ -78,6 +83,7 @@ def test_update_shipment_found():
     assert updated_shipment.shipment_status == "Shipped"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_shipment)
+
 
 def test_delete_shipment_found():
     db = MagicMock()
