@@ -15,21 +15,23 @@ from CargoHubV2.app.schemas.inventories_schema import InventoryCreate, Inventory
 
 # Sample inventory data
 inventory_sample_data = {
-    "id": 1,
-    "code": "SUP001",
-    "name": "inventory One",
-    "address": "123 Main St",
-    "address_extra": "Suite 100",
-    "city": "Metropolis",
-    "zip_code": "12345",
-    "province": "Central",
-    "country": "Fictionland",
-    "contact_name": "John Doe",
-    "phonenumber": "555-1234",
-    "reference": "REF001",
-    "created_at": "2024-11-15T12:00:00",
-    "updated_at": "2024-11-15T12:00:00"
-}
+        "id": 1,
+        "item_id": "P000001",
+        "description": "test inventory",
+        "item_reference": "sjQ23408K",
+        "locations": [
+            1,
+            2,
+            3
+        ],
+        "total_on_hand": 262,
+        "total_expected": 0,
+        "total_ordered": 80,
+        "total_allocated": 41,
+        "total_available": 141,
+        "created_at": "2015-02-19 16:08:24",
+        "updated_at": "2024-09-17T19:06:56.366055Z"
+    }
 
 
 def test_create_inventory():
