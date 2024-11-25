@@ -35,7 +35,7 @@ def test_create_shipment():
     db = MagicMock()
     shipment_data = ShipmentCreate(**SAMPLE_SHIPMENT_DATA)
 
-    new_shipment = create_shipment(db, shipment_data)
+    new_shipment = create_shipment(db, shipment_data.model_dump())
 
     db.add.assert_called_once()
     db.commit.assert_called_once()
@@ -91,6 +91,6 @@ def test_delete_shipment_found():
 
     result = delete_shipment(db, 1)
 
-    assert result is True
+    assert result == {'detail': 'Shipment deleted'}
     db.delete.assert_called_once()
     db.commit.assert_called_once()
