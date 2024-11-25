@@ -8,7 +8,7 @@ from CargoHubV2.app.services.orders_service import (
     get_all_orders,
     update_order,
     delete_order,
-    get_order_items
+    get_items_in_order
 )
 from CargoHubV2.app.models.orders_model import Order
 from CargoHubV2.app.schemas.orders_schema import OrderCreate, OrderUpdate
@@ -119,7 +119,7 @@ def test_delete_order_not_found():
 def test_get_order_items_found():
     db = MagicMock()
     db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
-    result = get_order_items(db, 1)
+    result = get_items_in_order(db, 1)
     assert len(result) == len(SAMPLE_ORDER_DATA["items"])
     db.query().filter().first.assert_called_once()
 
@@ -127,6 +127,6 @@ def test_get_order_items_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
     with pytest.raises(HTTPException) as excinfo:
-        get_order_items(db, 99)
+        get_items_in_order(db, 99)
     assert excinfo.value.status_code == 404
     assert "Order not found" in str(excinfo.value.detail)

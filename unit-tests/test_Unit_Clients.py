@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
 from CargoHubV2.app.services.clients_service import (
-    create_client, get_client_by_id, get_all_clients, update_client, delete_client
+    create_client, get_client, get_all_clients, update_client, delete_client
 )
 from CargoHubV2.app.models.clients_model import Client
 from CargoHubV2.app.schemas.clients_schema import ClientCreate, ClientUpdate
@@ -41,7 +41,7 @@ def test_get_client_by_id_not_found():
     db.query().filter().first.return_value = None
 
     with pytest.raises(HTTPException) as excinfo:
-        get_client_by_id(db, 2)
+        get_client(db, 2)
 
     assert excinfo.value.status_code == 404
     assert "Client not found" in str(excinfo.value.detail)

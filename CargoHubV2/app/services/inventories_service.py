@@ -40,7 +40,7 @@ def get_inventory(db: Session, id: int):
         )
 
 
-def get_all_iventories(db: Session, offset: int = 0, limit: int = 100):
+def get_all_inventories(db: Session, offset: int = 0, limit: int = 100):
     try:
         return db.query(Inventory).offset(offset).limit(limit).all()
     except SQLAlchemyError:
@@ -54,7 +54,7 @@ def update_inventory(db: Session, id: int, inven_data: InventoryUpdate):
     try:
         inventory = db.query(Inventory).filter(Inventory.id == id).first()
         if not inventory:
-            raise HTTPException(status_code=404, detail="inventory not found")
+            raise HTTPException(status_code=404, detail="Inventory not found")
 
         update_data = inven_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
@@ -90,7 +90,7 @@ def delete_inventory(db: Session, id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the inventory."
         )
-    return {"detail": "Iventory deleted"}
+    return {"detail": "inventory deleted"}
 
 
 # locations filter using inventory ID
