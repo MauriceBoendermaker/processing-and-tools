@@ -16,7 +16,7 @@ def create_order(db: Session, order_data: dict):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="An order with this ID already exists."
+            detail="An order with this reference already exists."
         )
     except SQLAlchemyError:
         db.rollback()
@@ -49,6 +49,11 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
     try:
         db.commit()
         db.refresh(order)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="order already exists.")
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
@@ -77,5 +82,5 @@ def delete_order(db: Session, id: int):
 def get_items_in_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id).first()
     if not order or not order.items:
-        raise HTTPException(status_code=404, detail="Items not found for this order")
+        raise HTTPException(status_code=404, detail="no items found for this order")
     return order.items
