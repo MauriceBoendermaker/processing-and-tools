@@ -5,7 +5,7 @@ from ..database import Base
 
 
 class ItemType(Base):
-    __tablename__ = "items_types"
+    __tablename__ = "item_types"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, index=True)
