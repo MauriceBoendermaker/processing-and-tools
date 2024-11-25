@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from fastapi import HTTPException
 from datetime import datetime
 from CargoHubV2.app.services.shipments_service import (
-    create_shipment, get_shipment_by_id, get_all_shipments, update_shipment, delete_shipment
+    create_shipment, get_shipment, get_all_shipments, update_shipment, delete_shipment
 )
 from CargoHubV2.app.models.shipments_model import Shipment
 from CargoHubV2.app.schemas.shipments_schema import ShipmentCreate, ShipmentUpdate
