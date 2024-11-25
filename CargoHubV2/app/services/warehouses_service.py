@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
-def get_all_warehouses(db: Session, offset, limit):
+def get_all_warehouses(db: Session, offset=0, limit=100):
     try:
         return db.query(Warehouse).offset(offset).limit(limit).all()
     except SQLAlchemyError:

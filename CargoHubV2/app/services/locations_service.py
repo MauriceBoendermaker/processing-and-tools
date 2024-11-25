@@ -19,7 +19,7 @@ def get_location_by_id(db: Session, id: int):
 
 def get_locations_by_warehouse_id(db: Session, warehouse_id: int, offset: int = 0, limit: int = 100):
     locations = db.query(Location).filter(Location.warehouse_id == warehouse_id).offset(offset).limit(limit).all()
-    if not locations:  # If no locations are found
+    if len(locations) == 0:  # If no locations are found
         raise HTTPException(status_code=404, detail="Location warehouse not found")
     return locations
 

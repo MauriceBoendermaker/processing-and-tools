@@ -11,12 +11,7 @@ SAMPLE_LOCATION_DATA = {
     "id": 1,
     "warehouse_id": 100,
     "code": "B.5.2",
-    "name":
-    {
-        "Row": "B",
-        "Rack": "5",
-        "Shelf": "2"
-    }
+    "name": "Row: B, Rack: 5, Shelf: 2"
 }
 
 
@@ -63,13 +58,13 @@ def test_get_location_warehouse_found():
     location = Location(**SAMPLE_LOCATION_DATA)
     # Mock the database session
     db = MagicMock()
-    db.query().filter().all.return_value = [location]  # Return a list of locations
+    db.query().filter().offset().limit().all.return_value = [location]  # Return a list of locations
     # Call the service function
     result = get_locations_by_warehouse_id(db, 100)
     # Assert that the warehouse_id matches the expected value
     assert result[0].warehouse_id == SAMPLE_LOCATION_DATA["warehouse_id"]
     # Ensure that the mock method was called correctly
-    db.query().filter().all.assert_called_once()
+    db.query().filter().offset().limit().all.assert_called_once()
 
 
 def test_get_location_warehouse_not_found():

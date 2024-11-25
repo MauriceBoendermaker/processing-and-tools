@@ -29,7 +29,7 @@ def test_create_client():
     db = MagicMock()
     client_data = ClientCreate(**SAMPLE_CLIENT_DATA)
 
-    new_client = create_client(db, client_data)
+    new_client = create_client(db, client_data.model_dump())
 
     db.add.assert_called_once()
     db.commit.assert_called_once()
@@ -75,6 +75,6 @@ def test_delete_client_found():
 
     result = delete_client(db, 1)
 
-    assert result is True
+    assert result == {'detail': 'Client deleted'}
     db.delete.assert_called_once()
     db.commit.assert_called_once()
