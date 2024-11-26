@@ -3,6 +3,7 @@ from CargoHubV2.app.models.item_types_model import ItemType
 from CargoHubV2.app.schemas.item_types_schema import ItemTypeCreate, ItemTypeUpdate
 from typing import List, Optional
 
+#need to add the api key check
 
 def create_item_type(db: Session, item_type_data: dict) -> ItemType:
     item_type = ItemType(**item_type_data)
