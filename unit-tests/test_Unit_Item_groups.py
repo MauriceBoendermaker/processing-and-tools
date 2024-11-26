@@ -11,6 +11,7 @@ from CargoHubV2.app.services.item_groups_service import (
 )
 from CargoHubV2.app.models.item_groups_model import ItemGroup
 from CargoHubV2.app.schemas.item_groups_schema import ItemGroupCreate, ItemGroupUpdate
+# USE RELATIVE PATH
 
 SAMPLE_ITEM_GROUP = {"name": "Group A", "description": "Test group"}
 
