@@ -3,7 +3,7 @@ from CargoHubV2.app.models.item_groups_model import ItemGroup
 from CargoHubV2.app.schemas.item_groups_schema import ItemGroupCreate, ItemGroupUpdate
 from typing import List, Optional
 
-
+#need to add the api key check
 def create_item_group(db: Session, item_group_data: dict) -> ItemGroup:
     item_group = ItemGroup(**item_group_data)
     db.add(item_group)
