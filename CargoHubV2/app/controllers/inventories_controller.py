@@ -49,10 +49,10 @@ def update_inventory_endpoint(
     api_key: str = Header(...),  # api key req
 ):
     validate_api_key("edit", api_key, db)
-    inven = inventories_service.update_inventory(db, id, inven_data)
+    inven = inventories_service.update_inventory(db, id, inven_data.model_dump(exclude_unset=True))
     if not inven:
         raise HTTPException(status_code=404, detail="inventory not found")
-    return f"{inven} updated"
+    return inven
 
 
 @router.delete("/{id}")

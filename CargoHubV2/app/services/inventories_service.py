@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.inspection import inspect
 from CargoHubV2.app.models.inventories_model import Inventory
-from CargoHubV2.app.schemas.inventories_schema import InventoryUpdate
+from CargoHubV2.app.schemas.inventories_schema import InventoryUpdate, InventoryResponse
 from fastapi import HTTPException, status
 from datetime import datetime
 
@@ -50,16 +51,16 @@ def get_all_inventories(db: Session, offset: int = 0, limit: int = 100):
         )
 
 
-def update_inventory(db: Session, id: int, inven_data: InventoryUpdate):
+def update_inventory(db: Session, id: int, inven_data: dict):
     try:
         inventory = db.query(Inventory).filter(Inventory.id == id).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="Inventory not found")
 
-        update_data = inven_data.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
+        for key, value in inven_data.items():
             setattr(inventory, key, value)
         inventory.updated_at = datetime.now()
+
         db.commit()
         db.refresh(inventory)
     except IntegrityError:
@@ -74,7 +75,7 @@ def update_inventory(db: Session, id: int, inven_data: InventoryUpdate):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while updating the inventory."
         )
-    return inventory
+    return InventoryResponse.model_validate(inventory)
 
 
 def delete_inventory(db: Session, id: int):
