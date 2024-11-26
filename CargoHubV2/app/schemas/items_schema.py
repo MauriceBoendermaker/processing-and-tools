@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
+from .item_groups_schema import ItemGroupResponse
+from .item_lines_schema import ItemLineResponse
+from .item_types_schema import ItemTypeResponse
+
 
 class ItemBase(BaseModel):
     uid: str
@@ -26,7 +30,7 @@ class ItemCreate(ItemBase):
     pass
 
 
-class WarehouseUpdate(BaseModel):
+class ItemUpdate(BaseModel):
     code: Optional[str] = None
     description: Optional[str] = None
     short_description: Optional[str] = None
@@ -47,6 +51,10 @@ class WarehouseUpdate(BaseModel):
 class ItemResponse(ItemBase):
     created_at: datetime
     updated_at: datetime
+
+    item_group: int
+    item_type: int
+    item_line: int
 
     class Config:
         orm_mode = True

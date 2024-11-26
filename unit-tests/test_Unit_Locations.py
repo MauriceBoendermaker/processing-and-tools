@@ -2,27 +2,22 @@ import pytest
 from unittest.mock import MagicMock
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
-from CargoHubV2.app.services.location_service import create_location, get_all_locations, get_location_by_id, get_locations_by_warehouse_id, update_location, delete_location
-from CargoHubV2.app.models.location_model import Location
-from CargoHubV2.app.schemas.location_schema import LocationCreate, LocationUpdate
+from CargoHubV2.app.services.locations_service import create_location, get_all_locations, get_location_by_id, get_locations_by_warehouse_id, update_location, delete_location
+from CargoHubV2.app.models.locations_model import Location
+from CargoHubV2.app.schemas.locations_schema import LocationCreate, LocationUpdate
 
 
-location_sample_data = {
+SAMPLE_LOCATION_DATA = {
     "id": 1,
     "warehouse_id": 100,
     "code": "B.5.2",
-    "name":
-    {
-        "Row": "B",
-        "Rack": "5",
-        "Shelf": "2"
-    }
+    "name": "Row: B, Rack: 5, Shelf: 2"
 }
 
 
 def test_create_location():
     db = MagicMock()
-    location_data = LocationCreate(**location_sample_data)
+    location_data = LocationCreate(**SAMPLE_LOCATION_DATA)
     # Pass the LocationCreate object to create_location, not the dict
     new_location = create_location(db, location_data)
     db.add.assert_called_once()
@@ -33,7 +28,7 @@ def test_create_location():
 def test_create_location_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    location_data = LocationCreate(**location_sample_data)
+    location_data = LocationCreate(**SAMPLE_LOCATION_DATA)
     with pytest.raises(HTTPException) as excinfo:
         create_location(db, location_data)
     assert excinfo.value.status_code == 400
@@ -43,9 +38,9 @@ def test_create_location_integrity_error():
 
 def test_get_location_id_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Location(**location_sample_data)
+    db.query().filter().first.return_value = Location(**SAMPLE_LOCATION_DATA)
     result = get_location_by_id(db, 1)
-    assert result.id == location_sample_data["id"]
+    assert result.id == SAMPLE_LOCATION_DATA["id"]
     db.query().filter().first.assert_called_once()
 
 
@@ -60,16 +55,16 @@ def test_get_location_id_not_found():
 
 def test_get_location_warehouse_found():
     # Create a Location instance with the sample data
-    location = Location(**location_sample_data)
+    location = Location(**SAMPLE_LOCATION_DATA)
     # Mock the database session
     db = MagicMock()
-    db.query().filter().all.return_value = [location]  # Return a list of locations
+    db.query().filter().offset().limit().all.return_value = [location]  # Return a list of locations
     # Call the service function
     result = get_locations_by_warehouse_id(db, 100)
     # Assert that the warehouse_id matches the expected value
-    assert result[0].warehouse_id == location_sample_data["warehouse_id"]
+    assert result[0].warehouse_id == SAMPLE_LOCATION_DATA["warehouse_id"]
     # Ensure that the mock method was called correctly
-    db.query().filter().all.assert_called_once()
+    db.query().filter().offset().limit().all.assert_called_once()
 
 
 def test_get_location_warehouse_not_found():
@@ -81,17 +76,28 @@ def test_get_location_warehouse_not_found():
     assert "Location warehouse not found" in str(excinfo.value.detail)
 
 
-def test_get_all_locations():
+def test_get_all_locations():    
+    # Mock the database session
     db = MagicMock()
-    db.query().all.return_value = [Location(**location_sample_data)]
-    results = get_all_locations(db)
+    
+    # Mock the query chain
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [Location(**SAMPLE_LOCATION_DATA)]
+    
+    # Call the function
+    results = get_all_locations(db, offset=0, limit=10)
+    
+    # Assertions
     assert len(results) == 1
-    db.query().all.assert_called_once()
+    db.query.assert_called_once()
+    mock_query.all.assert_called_once()
 
 
 def test_update_location_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Location(**location_sample_data)
+    db.query().filter().first.return_value = Location(**SAMPLE_LOCATION_DATA)
     location_update_data = LocationUpdate(code="Updated code")
     updated_location = update_location(db, "B.5.2", location_update_data)
     assert updated_location.code == "Updated code"
@@ -111,7 +117,7 @@ def test_update_location_not_found():
 
 def test_update_location_integrity_error():
     db = MagicMock()
-    db.query().filter().first.return_value = Location(**location_sample_data)
+    db.query().filter().first.return_value = Location(**SAMPLE_LOCATION_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
     location_update_data = LocationUpdate(code="Updated code")
     with pytest.raises(HTTPException) as excinfo:
@@ -123,7 +129,7 @@ def test_update_location_integrity_error():
 
 def test_delete_location_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Location(**location_sample_data)
+    db.query().filter().first.return_value = Location(**SAMPLE_LOCATION_DATA)
     result = delete_location(db, "B.5.2")
     assert result == {"detail": "location deleted"}
     db.delete.assert_called_once()

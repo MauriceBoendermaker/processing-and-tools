@@ -3,12 +3,12 @@ from unittest.mock import MagicMock
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
-from CargoHubV2.app.services.transfer_service import create_transfer, get_transfer, get_all_transfers, update_transfer, delete_transfer
+from CargoHubV2.app.services.transfers_service import create_transfer, get_transfer, get_all_transfers, update_transfer, delete_transfer
 from CargoHubV2.app.models.transfers_model import Transfer
 from CargoHubV2.app.schemas.transfers_schema import TransferCreate, TransferUpdate
 
 # Sample data to use in tests
-sample_transfer_data = {
+SAMPLE_TRANSFER_DATA = {
     "id": 1,
     "reference": "TR00001",
     "transfer_from": 9229,
@@ -22,7 +22,7 @@ sample_transfer_data = {
 
 def test_create_transfer():
     db = MagicMock()
-    transfer_data = TransferCreate(**sample_transfer_data)
+    transfer_data = TransferCreate(**SAMPLE_TRANSFER_DATA)
 
     new_transfer = create_transfer(db, transfer_data)
 
@@ -35,7 +35,7 @@ def test_create_transfer_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
 
-    transfer_data = TransferCreate(**sample_transfer_data)
+    transfer_data = TransferCreate(**SAMPLE_TRANSFER_DATA)
 
     with pytest.raises(HTTPException) as excinfo:
         create_transfer(db, transfer_data)
@@ -47,11 +47,11 @@ def test_create_transfer_integrity_error():
 
 def test_get_transfer_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Transfer(**sample_transfer_data)
+    db.query().filter().first.return_value = Transfer(**SAMPLE_TRANSFER_DATA)
 
     result = get_transfer(db, 1)
 
-    assert result.id == sample_transfer_data["id"]
+    assert result.id == SAMPLE_TRANSFER_DATA["id"]
     db.query().filter().first.assert_called_once()
 
 
@@ -68,7 +68,7 @@ def test_get_transfer_not_found():
 
 def test_get_all_transfers():
     db = MagicMock()
-    db.query().all.return_value = [Transfer(**sample_transfer_data)]
+    db.query().all.return_value = [Transfer(**SAMPLE_TRANSFER_DATA)]
 
     results = get_all_transfers(db)
 
@@ -78,7 +78,7 @@ def test_get_all_transfers():
 
 def test_update_transfer_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Transfer(**sample_transfer_data)
+    db.query().filter().first.return_value = Transfer(**SAMPLE_TRANSFER_DATA)
     transfer_update_data = TransferUpdate(transfer_status="Processed")
 
     updated_transfer = update_transfer(db, 1, transfer_update_data)
@@ -102,7 +102,7 @@ def test_update_transfer_not_found():
 
 def test_update_transfer_integrity_error():
     db = MagicMock()
-    db.query().filter().first.return_value = Transfer(**sample_transfer_data)
+    db.query().filter().first.return_value = Transfer(**SAMPLE_TRANSFER_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
     transfer_update_data = TransferUpdate(transfer_status="Processed")
 
@@ -116,7 +116,7 @@ def test_update_transfer_integrity_error():
 
 def test_delete_transfer_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Transfer(**sample_transfer_data)
+    db.query().filter().first.return_value = Transfer(**SAMPLE_TRANSFER_DATA)
 
     result = delete_transfer(db, 1)
 
