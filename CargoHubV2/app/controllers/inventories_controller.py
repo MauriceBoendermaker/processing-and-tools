@@ -29,6 +29,8 @@ def get_inventories(
     id: Optional[int] = None,
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # api key req
+    offset=0,
+    limit=100
 ):
     validate_api_key("view", api_key, db)
     if id:
@@ -36,7 +38,7 @@ def get_inventories(
         if not inven:
             raise HTTPException(status_code=404, detail="Inventory not found")
         return [inven]
-    return inventories_service.get_all_inventories(db)
+    return inventories_service.get_all_inventories(db, offset, limit)
 
 
 @router.put("/{id}", response_model=InventoryResponse)
