@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.items_model import Item
-from CargoHubV2.app.schemas.items_schema import ItemCreate, ItemUpdate
+from CargoHubV2.app.schemas.items_schema import ItemUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
 
