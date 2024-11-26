@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from CargoHubV2.app.models.item_lines_model import ItemLine
-from CargoHubV2.app.schemas.item_lines_schema import ItemLineCreate, ItemLineUpdate
+from CargoHubV2.app.schemas.item_lines_schema import ItemLineUpdate
 from typing import List, Optional
 
 #need to add the api key check
