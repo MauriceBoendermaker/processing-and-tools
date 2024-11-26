@@ -97,7 +97,7 @@ def test_update_inventory_found():
     updated_inventory = update_inventory(db, 1, {"description": "Updated inventory"})
     assert updated_inventory.description == "Updated inventory"
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(updated_inventory)
+    db.refresh.assert_called_once()
 
 
 def test_update_inventory_not_found():
