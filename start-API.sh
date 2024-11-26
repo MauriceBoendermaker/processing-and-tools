@@ -1,0 +1,1 @@
+uvicorn CargoHubV2.app.main:app --port 3000

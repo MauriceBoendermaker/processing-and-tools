@@ -6,15 +6,14 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
-def get_all_warehouses(db: Session):
+def get_all_warehouses(db: Session, offset=0, limit=100):
     try:
-        return db.query(Warehouse).all()
+        return db.query(Warehouse).offset(offset).limit(limit).all()
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving warehouses."
         )
-    return db.query(Warehouse).all()
 
 
 def get_warehouse_by_id(db: Session, id: int):

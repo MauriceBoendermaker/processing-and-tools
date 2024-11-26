@@ -77,12 +77,12 @@ def test_get_warehouse_not_found():
 
 def test_get_all_warehouses():
     db = MagicMock()
-    db.query().all.return_value = [Warehouse(**SAMPLE_WAREHOUSE_DATA)]
+    db.query().offset().limit().all.return_value = [Warehouse(**SAMPLE_WAREHOUSE_DATA)]
 
     results = get_all_warehouses(db)
 
     assert len(results) == 1
-    db.query().all.assert_called_once()
+    db.query().offset().limit().all.assert_called_once()
 
 
 def test_update_warehouse_found():

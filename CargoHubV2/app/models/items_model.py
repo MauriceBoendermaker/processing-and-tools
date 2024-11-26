@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
 
+
 class Item(Base):
     __tablename__ = "items"
 
@@ -13,9 +14,9 @@ class Item(Base):
     upc_code = Column(String)
     model_number = Column(String)
     commodity_code = Column(String)
-    item_line = Column(Integer, ForeignKey("items_lines.id"))  # Foreign Key to ItemLine
-    item_group = Column(Integer, ForeignKey("items_groups.id"))  # Foreign Key to ItemGroup
-    item_type = Column(Integer, ForeignKey("items_types.id"))  # Foreign Key to ItemType
+    item_line = Column(Integer, ForeignKey("item_lines.id"))  # Foreign Key to ItemLine
+    item_group = Column(Integer, ForeignKey("item_groups.id"))  # Foreign Key to ItemGroup
+    item_type = Column(Integer, ForeignKey("item_types.id"))  # Foreign Key to ItemType
     unit_purchase_quantity = Column(Integer)
     unit_order_quantity = Column(Integer)
     pack_order_quantity = Column(Integer)

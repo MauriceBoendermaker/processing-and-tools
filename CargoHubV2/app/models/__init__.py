@@ -8,4 +8,7 @@ from .locations_model import Location
 from .transfers_model import Transfer
 from .suppliers_model import Supplier
 from .api_keys_model import APIKey
-# Import other models as needed
+from .inventories_model import Inventory
+from .clients_model import Client
+from .shipments_model import Shipment
+from .orders_model import Order

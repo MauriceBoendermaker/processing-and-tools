@@ -70,11 +70,24 @@ def test_get_supplier_not_found():
 
 
 def test_get_all_suppliers():
+    
+    # Mock the database session
     db = MagicMock()
-    db.query().all.return_value = [Supplier(**supplier_sample_data)]
-    results = get_all_suppliers(db)
+    
+    # Mock the query chain
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [Supplier(**supplier_sample_data)]
+    
+    # Call the function
+    results = get_all_suppliers(db, offset=0, limit=10)
+    
+    # Assertions
     assert len(results) == 1
-    db.query().all.assert_called_once()
+    db.query.assert_called_once()
+    mock_query.all.assert_called_once()
+
 
 
 def test_update_supplier_found():
