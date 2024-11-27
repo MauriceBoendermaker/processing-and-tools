@@ -21,8 +21,8 @@ def validate_api_key(required_permission: str, x_api_key: str = Depends(), db: S
     if not x_api_key or x_api_key != admin:
         raise HTTPException(status_code=403, detail="Invalid or missing API key")
 
-    
-    
+
+
     api_key = db.query(APIKey).filter(APIKey.key == x_api_key, APIKey.is_active == True).first()
 
     '''
