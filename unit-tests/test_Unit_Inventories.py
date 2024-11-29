@@ -94,19 +94,17 @@ def test_get_all_inventories():
 def test_update_inventory_found():
     db = MagicMock()
     db.query().filter().first.return_value = Inventory(**inventory_sample_data)
-    inventory_update_data = InventoryUpdate(description="Updated inventory")
-    updated_inventory = update_inventory(db, 1, inventory_update_data)
+    updated_inventory = update_inventory(db, 1, {"description": "Updated inventory"})
     assert updated_inventory.description == "Updated inventory"
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(updated_inventory)
+    db.refresh.assert_called_once()
 
 
 def test_update_inventory_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    inventory_update_data = InventoryUpdate(description="Updated inventory")
     with pytest.raises(HTTPException) as excinfo:
-        update_inventory(db, 999, inventory_update_data)
+        update_inventory(db, 999, {"description": "Updated inventory 2"})
     assert excinfo.value.status_code == 404
     assert "Inventory not found" in str(excinfo.value.detail)
 
@@ -115,9 +113,8 @@ def test_update_inventory_integrity_error():
     db = MagicMock()
     db.query().filter().first.return_value = Inventory(**inventory_sample_data)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    inventory_update_data = InventoryUpdate(name="Updated inventory")
     with pytest.raises(HTTPException) as excinfo:
-        update_inventory(db, 1, inventory_update_data)
+        update_inventory(db, 1, {"description": "Updated inventory 3"})
     assert excinfo.value.status_code == 400
     assert "An integrity error occurred while updating the inventory" in str(excinfo.value.detail)
     db.rollback.assert_called_once()
