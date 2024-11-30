@@ -119,7 +119,7 @@ def test_update_warehouse_integrity_error():
         update_warehouse(db, 1, warehouse_update_data)
 
     assert excinfo.value.status_code == 400
-    assert "An integrity error occurred while updating the warehouse." in str(excinfo.value.detail)
+    assert "The code you gave in the body, already exists" in str(excinfo.value.detail)
     db.rollback.assert_called_once()
 
 

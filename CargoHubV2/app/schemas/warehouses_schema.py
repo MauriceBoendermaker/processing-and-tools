@@ -29,7 +29,7 @@ class WarehouseCreate(WarehouseBase):
     pass
 
 
-class Warehouse(WarehouseBase):
+class WarehouseResponse(WarehouseBase):
     id: int
     created_at: datetime
     updated_at: datetime

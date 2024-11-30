@@ -7,9 +7,7 @@ import httpx
 def match_date(date_str, to_match):
 
     # huidige format waarin de API datums aanmaakt
-    parsed_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    parsed_date = parsed_date.date()
-
+    parsed_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
     return parsed_date == to_match
 
 
@@ -34,3 +32,10 @@ def get_response_time(url):
     print(response)
     # response tijd naar milliseconde
     return (eind - start) * 1000
+
+
+def check_code_exists(json, target_code):
+    for item in json:
+        if item["code"] == target_code:
+            return True
+    return False

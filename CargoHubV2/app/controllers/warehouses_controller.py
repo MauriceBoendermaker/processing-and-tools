@@ -16,14 +16,14 @@ router = APIRouter(
 @router.get("/")
 def get_warehouses(
     db: Session = Depends(get_db),
-    id: Optional[int] = None,
+    code: Optional[str] = None,
     offset: int = 0,
     limit: int = 100,
         api_key: str = Header(...)):
 
     validate_api_key("view", api_key, db)
-    if id:
-        warehouse = warehouses_service.get_warehouse_by_id(db, id)
+    if code:
+        warehouse = warehouses_service.get_warehouse_by_code(db, code)
         if warehouse is None:
             raise HTTPException(status_code=404, detail="Warehouse not found")
         return warehouse
@@ -34,32 +34,34 @@ def get_warehouses(
 @router.post("/")
 def create_warehouse(warehouse: warehouses_schema.WarehouseCreate, db: Session = Depends(get_db), api_key: str = Header(...)):
     validate_api_key("create", api_key, db)
-    db_warehouse = warehouses_service.create_warehouse(db, warehouse)
+    db_warehouse = warehouses_service.create_warehouse(
+        db, warehouse.model_dump())
+
     if db_warehouse is None:
         raise HTTPException(status_code=400, detail="Warehouse already exists")
     return db_warehouse
 
 
-@router.delete("/{id}")
+@router.delete("/{code}")
 def delete_warehouse(
-    id: int, db: Session = Depends(get_db),
+    code: str, db: Session = Depends(get_db),
         api_key: str = Header(...)):
 
     validate_api_key("delete", api_key, db)
-    succes = warehouses_service.delete_warehouse(db, id)
+    succes = warehouses_service.delete_warehouse(db, code)
     if succes:
-        return f"warehouse with id {id} deleted"
+        return f"warehouse with code {code} deleted"
     raise HTTPException(status_code=404, detail="Warehouse not found")
 
 
 @router.put("/{id}")
 def update_warehouse(
-    id: int,
+    code: str,
     warehouse_data: warehouses_schema.WarehouseUpdate,
     db: Session = Depends(get_db),
         api_key: str = Header(...)):
 
     validate_api_key("edit", api_key, db)
     if warehouse_data:
-        return warehouses_service.update_warehouse(db, id, warehouse_data)
+        return warehouses_service.update_warehouse(db, code, warehouse_data.model_dump(exclude_unset=True))
     raise HTTPException(status_code=400, detail="invalid request body")
