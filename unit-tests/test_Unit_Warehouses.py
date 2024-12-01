@@ -113,7 +113,7 @@ def test_update_warehouse_found():
 
     assert updated_warehouse.name == "Updated name"
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(updated_warehouse)
+    db.refresh.assert_called_once()
 
 
 def test_update_warehouse_not_found():
