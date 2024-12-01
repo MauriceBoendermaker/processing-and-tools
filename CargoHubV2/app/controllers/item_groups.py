@@ -19,13 +19,19 @@ def create_item_group_endpoint(item_group_data: ItemGroupCreate, db: Session = D
 
 
 @router.get("/", response_model=List[ItemGroupResponse])
-def get_item_groups(id: Optional[int] = None, db: Session = Depends(get_db)):
+def get_item_groups(
+    id: Optional[int] = None, 
+    offset: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db)
+):
     if id:
         item_group = get_item_group(db, id)
         if not item_group:
             raise HTTPException(status_code=404, detail="Item group not found")
         return [item_group]  # Wrap in a list to match response model
-    return get_all_item_groups(db)
+    return get_all_item_groups(db, offset, limit)
+
 
 
 @router.put("/{id}", response_model=ItemGroupResponse)
