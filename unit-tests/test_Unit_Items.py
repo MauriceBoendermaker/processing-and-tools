@@ -130,7 +130,6 @@ def test_update_item_integrity_error():
     db.rollback.assert_called_once()
 
 
-# Test for delete_item
 def test_delete_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
