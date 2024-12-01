@@ -54,7 +54,7 @@ def delete_warehouse(
     raise HTTPException(status_code=404, detail="Warehouse not found")
 
 
-@router.put("/{id}")
+@router.put("/{code}")
 def update_warehouse(
     code: str,
     warehouse_data: warehouses_schema.WarehouseUpdate,

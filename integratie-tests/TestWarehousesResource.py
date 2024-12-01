@@ -52,7 +52,7 @@ class TestWarehouseResource(unittest.TestCase):
     def test_1_post_warehouse_integrity_error(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 400)
-        self.assertIn(response.json().get("detail"), "exists")
+        self.assertIn("exists", response.json().get("detail"))
 
     def test_2_get_warehouses(self):
         response = self.client.get(self.baseUrl)
@@ -75,7 +75,7 @@ class TestWarehouseResource(unittest.TestCase):
         response = self.client.get(f"{self.baseUrl}?code=non-existing-code")
         body = response.json()
         self.assertEqual(response.status_code, 404)
-        self.assertIn(body.get("detail"), "not found")
+        self.assertIn("not found", body.get("detail"))
 
     def test_4_put_warehouse(self):
         response = self.client.put(f"{self.baseUrl}{self.TEST_CODE}", json=self.ToPut)
@@ -92,10 +92,10 @@ class TestWarehouseResource(unittest.TestCase):
         self.assertTrue(match_date(body.get('updated_at'), date.today()))
 
     def test_4_put_warehouse_notfound(self):
-        response = self.client.put(f"{self.baseUrl}non-existing-code")
+        response = self.client.put(f"{self.baseUrl}non-existing-code", json=self.ToPut)
         body = response.json()
         self.assertEqual(response.status_code, 404)
-        self.assertIn(body.get("detail"), "not found")
+        self.assertIn("not found", body.get("detail"))
 
     def test_5_delete_warehouse(self):
         # teardown/cleanup

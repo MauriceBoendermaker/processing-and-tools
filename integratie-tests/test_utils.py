@@ -6,7 +6,14 @@ import httpx
 # handige functies voor bij het testen
 def match_date(date_str, to_match):
 
-    # huidige format waarin de API datums aanmaakt
+    # format zonder tijdzone, met microseconden
+    parsed_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%f").date()
+    return parsed_date == to_match
+
+
+def match_date_timezone(date_str, to_match):
+
+    # format met timezone
     parsed_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
     return parsed_date == to_match
 

@@ -76,9 +76,9 @@ def update_warehouse(db: Session, code: str, warehouse_data: dict) -> WarehouseR
         if not to_update:
             raise HTTPException(status_code=404, detail="Warehouse not found")
 
-        for key, value in warehouse_data.model_dump(exclude_unset=True).items():
+        for key, value in warehouse_data.items():
             setattr(to_update, key, value)
-        to_update.updated_at = datetime.now
+        to_update.updated_at = datetime.now()
         db.commit()
         db.refresh(to_update)
     except IntegrityError:
