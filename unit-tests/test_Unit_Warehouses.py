@@ -27,6 +27,24 @@ SAMPLE_WAREHOUSE_DATA = {
     "updated_at": datetime.now()
   }
 
+update_data = {
+    "id": 1,
+    "name": "Updated name",
+    "zip": "4002 AS",
+    "province": "Friesland",
+    "contact": {
+      "name": "Fem Keijzer",
+      "phone": "(078) 0013363",
+      "email": "blamore@example.net"
+    },
+    "code": "YQZZNL56",
+    "address": "Wijnhaven 107",
+    "city": "Rotterdam",
+    "country": "NL",
+    "created_at": datetime.now(),
+    "updated_at": datetime.now()
+  }
+
 
 def test_create_warehouse():
     db = MagicMock()
@@ -88,7 +106,7 @@ def test_get_all_warehouses():
 def test_update_warehouse_found():
     db = MagicMock()
     db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
-    warehouse_update_data = WarehouseUpdate(**SAMPLE_WAREHOUSE_DATA, name="Updated name")
+    warehouse_update_data = WarehouseUpdate(**update_data)
 
     updated_warehouse = update_warehouse(
         db, SAMPLE_WAREHOUSE_DATA["code"], warehouse_update_data.model_dump())
@@ -101,7 +119,7 @@ def test_update_warehouse_found():
 def test_update_warehouse_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    warehouse_update_data = WarehouseUpdate(name="Updated name")
+    warehouse_update_data = WarehouseUpdate(**update_data)
 
     with pytest.raises(HTTPException) as excinfo:
         update_warehouse(db, "onzin", warehouse_update_data.model_dump())
@@ -114,10 +132,12 @@ def test_update_warehouse_integrity_error():
     db = MagicMock()
     db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    warehouse_update_data = WarehouseUpdate(description="Updated description")
+    warehouse_update_data = WarehouseUpdate(**update_data)
 
     with pytest.raises(HTTPException) as excinfo:
-        update_warehouse(db, SAMPLE_WAREHOUSE_DATA["code"], warehouse_update_data)
+        update_warehouse(
+            db, SAMPLE_WAREHOUSE_DATA["code"],
+            warehouse_update_data.model_dump())
 
     assert excinfo.value.status_code == 400
     assert "The code you gave in the body, already exists" in str(excinfo.value.detail)
