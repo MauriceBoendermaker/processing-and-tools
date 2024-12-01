@@ -26,8 +26,10 @@ def create_item_endpoint(
 @router.get("/", response_model=List[ItemResponse])
 def get_items(
     uid: Optional[str] = None,
+    offset: int = 0,
+    limit: int = 100,
     db: Session = Depends(get_db),
-    api_key: str = Header(...), #api key req
+    api_key: str = Header(...),  # api key req
 ):
     validate_api_key("view", api_key, db)
     if uid:
@@ -35,7 +37,8 @@ def get_items(
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         return [item]
-    return get_all_items(db)
+    return get_all_items(db, offset, limit)
+
 
 
 @router.put("/{uid}", response_model=ItemResponse)

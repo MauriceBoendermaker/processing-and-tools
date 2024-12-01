@@ -8,7 +8,6 @@ from CargoHubV2.app.models.items_model import Item
 from CargoHubV2.app.schemas.items_schema import ItemCreate, ItemUpdate
 
 
-# Sample data to use in tests
 SAMPLE_ITEM_DATA = {
     "uid": "123e4567-e89b-12d3-a456-426614174000",
     "code": "ITEM-TEST",
@@ -31,7 +30,6 @@ SAMPLE_ITEM_DATA = {
 }
 
 
-# Test for create_item
 def test_create_item():
     db = MagicMock()
     item_data = ItemCreate(**SAMPLE_ITEM_DATA)
@@ -60,7 +58,6 @@ def test_create_item_integrity_error():
     db.rollback.assert_called_once()
 
 
-# Test for get_item
 def test_get_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
@@ -82,7 +79,6 @@ def test_get_item_not_found():
     assert "Item not found" in str(excinfo.value.detail)
 
 
-# Test for get_all_items
 def test_get_all_items():
     db = MagicMock()
     db.query().all.return_value = [Item(**SAMPLE_ITEM_DATA)]
@@ -93,7 +89,6 @@ def test_get_all_items():
     db.query().all.assert_called_once()
 
 
-# Test for update_item
 def test_update_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
@@ -135,7 +130,6 @@ def test_update_item_integrity_error():
     db.rollback.assert_called_once()
 
 
-# Test for delete_item
 def test_delete_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
