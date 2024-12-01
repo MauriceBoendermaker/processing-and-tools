@@ -17,8 +17,9 @@ router = APIRouter(
 def create_item_group_endpoint(
     item_group_data: ItemGroupCreate,
     db: Session = Depends(get_db),
+    api_key: str = Header(...),  # API key required
 ):
-    validate_api_key("create", )
+    validate_api_key("create", api_key, db)
     item_group = create_item_group(db, item_group_data.model_dump())
     return item_group
 
