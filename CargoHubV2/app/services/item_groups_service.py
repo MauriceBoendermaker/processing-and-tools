@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from CargoHubV2.app.models.item_groups_model import ItemGroup
 from CargoHubV2.app.schemas.item_groups_schema import ItemGroupUpdate
 from typing import List, Optional
+from sqlalchemy.exc import SQLAlchemyError
+from fastapi import HTTPException, status
 
 #need to add the api key check
 def create_item_group(db: Session, item_group_data: dict) -> ItemGroup:
@@ -16,8 +18,15 @@ def get_item_group(db: Session, id: int) -> Optional[ItemGroup]:
     return db.query(ItemGroup).filter(ItemGroup.id == id).first()
 
 
-def get_all_item_groups(db: Session) -> List[ItemGroup]:
-    return db.query(ItemGroup).all()
+def get_all_item_groups(db: Session, offset: int = 0, limit: int = 100) -> List[ItemGroup]:
+    try:
+        return db.query(ItemGroup).offset(offset).limit(limit).all()
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving item groups."
+        )
+
 
 
 def update_item_group(db: Session, id: int, item_group_data: ItemGroupUpdate) -> Optional[ItemGroup]:
