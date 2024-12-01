@@ -58,9 +58,9 @@ def test_single_warehouse_found():
     db = MagicMock()
     db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
 
-    result = get_warehouse_by_id(db, 1)
+    result = get_warehouse_by_code(db, SAMPLE_WAREHOUSE_DATA["code"])
 
-    assert result.id == SAMPLE_WAREHOUSE_DATA["id"]
+    assert result.code == SAMPLE_WAREHOUSE_DATA["code"]
     db.query().filter().first.assert_called_once()
 
 
@@ -69,7 +69,7 @@ def test_get_warehouse_not_found():
     db.query().filter().first.return_value = None
 
     with pytest.raises(HTTPException) as excinfo:
-        get_warehouse_by_id(db, 2)
+        get_warehouse_by_code(db, "onzin")
 
     assert excinfo.value.status_code == 404
     assert "Warehouse not found" in str(excinfo.value.detail)
@@ -90,7 +90,8 @@ def test_update_warehouse_found():
     db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
     warehouse_update_data = WarehouseUpdate(name="Updated name")
 
-    updated_warehouse = update_warehouse(db, 1, warehouse_update_data)
+    updated_warehouse = update_warehouse(
+        db, SAMPLE_WAREHOUSE_DATA["code"], warehouse_update_data)
 
     assert updated_warehouse.name == "Updated name"
     db.commit.assert_called_once()
@@ -103,7 +104,7 @@ def test_update_warehouse_not_found():
     warehouse_update_data = WarehouseUpdate(name="Updated name")
 
     with pytest.raises(HTTPException) as excinfo:
-        update_warehouse(db, 5, warehouse_update_data)
+        update_warehouse(db, "onzin", warehouse_update_data)
 
     assert excinfo.value.status_code == 404
     assert "Warehouse not found" in str(excinfo.value.detail)
@@ -116,7 +117,7 @@ def test_update_warehouse_integrity_error():
     warehouse_update_data = WarehouseUpdate(description="Updated description")
 
     with pytest.raises(HTTPException) as excinfo:
-        update_warehouse(db, 1, warehouse_update_data)
+        update_warehouse(db, SAMPLE_WAREHOUSE_DATA["code"], warehouse_update_data)
 
     assert excinfo.value.status_code == 400
     assert "The code you gave in the body, already exists" in str(excinfo.value.detail)
@@ -128,7 +129,7 @@ def test_delete_warehouse_found():
     db = MagicMock()
     db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
 
-    result = delete_warehouse(db, 1)
+    result = delete_warehouse(db, SAMPLE_WAREHOUSE_DATA["code"])
 
     assert result is True
     db.delete.assert_called_once()
@@ -138,7 +139,7 @@ def test_delete_warehouse_found():
 def test_delete_warehouse_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    assert delete_warehouse(db, 2) is False
+    assert delete_warehouse(db, "onzin") is False
     '''
     with pytest.raises(HTTPException) as excinfo:
         delete_warehouse(db, 2)
