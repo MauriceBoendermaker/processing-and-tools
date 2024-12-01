@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
-from CargoHubV2.app.services.warehouses_service import create_warehouse, get_warehouse_by_id, get_all_warehouses, update_warehouse, delete_warehouse
+from CargoHubV2.app.services.warehouses_service import create_warehouse, get_warehouse_by_code, get_all_warehouses, update_warehouse, delete_warehouse
 from CargoHubV2.app.models.warehouses_model import Warehouse
 from CargoHubV2.app.schemas.warehouses_schema import WarehouseCreate, WarehouseUpdate
 
