@@ -91,7 +91,7 @@ def test_update_warehouse_found():
     warehouse_update_data = WarehouseUpdate(name="Updated name")
 
     updated_warehouse = update_warehouse(
-        db, SAMPLE_WAREHOUSE_DATA["code"], warehouse_update_data)
+        db, SAMPLE_WAREHOUSE_DATA["code"], warehouse_update_data.model_dump())
 
     assert updated_warehouse.name == "Updated name"
     db.commit.assert_called_once()
@@ -104,7 +104,7 @@ def test_update_warehouse_not_found():
     warehouse_update_data = WarehouseUpdate(name="Updated name")
 
     with pytest.raises(HTTPException) as excinfo:
-        update_warehouse(db, "onzin", warehouse_update_data)
+        update_warehouse(db, "onzin", warehouse_update_data.model_dump())
 
     assert excinfo.value.status_code == 404
     assert "Warehouse not found" in str(excinfo.value.detail)
@@ -139,7 +139,11 @@ def test_delete_warehouse_found():
 def test_delete_warehouse_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    assert delete_warehouse(db, "onzin") is False
+    with pytest.raises(HTTPException) as excinfo:
+        delete_warehouse(db, "onzin")
+    assert excinfo.value.status_code == 404
+    assert "not found" in str(excinfo.value.detail)
+
     '''
     with pytest.raises(HTTPException) as excinfo:
         delete_warehouse(db, 2)
