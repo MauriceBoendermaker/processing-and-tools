@@ -40,14 +40,15 @@ def get_item(db: Session, uid: str):
         )
 
 
-def get_all_items(db: Session):
+def get_all_items(db: Session, offset: int = 0, limit: int = 10):
     try:
-        return db.query(Item).all()
+        return db.query(Item).offset(offset).limit(limit).all()
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving items."
         )
+
 
 
 def update_item(db: Session, uid: str, item_data: ItemUpdate):
