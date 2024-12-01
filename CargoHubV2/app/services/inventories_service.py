@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.inspection import inspect
 from CargoHubV2.app.models.inventories_model import Inventory
 from CargoHubV2.app.schemas.inventories_schema import InventoryUpdate, InventoryResponse
 from fastapi import HTTPException, status

@@ -43,6 +43,12 @@ async def root():
 async def stat():
     return {"status": "originele data hebben en controllers maken"}
 
+
+@app.on_event("shutdown")
+async def shutdown():
+    # Close any resources (e.g., database connections, files, sockets) here
+    print("Shutting down gracefully...")
+
 '''
 
 # script voor migrations voor later
