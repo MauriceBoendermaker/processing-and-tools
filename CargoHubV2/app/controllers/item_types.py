@@ -19,13 +19,19 @@ def create_item_type_endpoint(item_type_data: ItemTypeCreate, db: Session = Depe
 
 
 @router.get("/", response_model=List[ItemTypeResponse])
-def get_item_types(id: Optional[int] = None, db: Session = Depends(get_db)):
+def get_item_types(
+    id: Optional[int] = None, 
+    offset: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db)
+):
     if id:
         item_type = get_item_type(db, id)
         if not item_type:
             raise HTTPException(status_code=404, detail="Item type not found")
         return [item_type]  # Wrap in a list to match response model
-    return get_all_item_types(db)
+    return get_all_item_types(db, offset, limit)
+
 
 
 @router.put("/{id}", response_model=ItemTypeResponse)
