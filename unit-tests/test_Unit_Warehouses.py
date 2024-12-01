@@ -88,7 +88,7 @@ def test_get_all_warehouses():
 def test_update_warehouse_found():
     db = MagicMock()
     db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
-    warehouse_update_data = WarehouseUpdate(name="Updated name")
+    warehouse_update_data = WarehouseUpdate(**SAMPLE_WAREHOUSE_DATA, name="Updated name")
 
     updated_warehouse = update_warehouse(
         db, SAMPLE_WAREHOUSE_DATA["code"], warehouse_update_data.model_dump())
