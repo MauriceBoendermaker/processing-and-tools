@@ -47,16 +47,26 @@ def test_get_item_line_not_found():
 # Test get_all_item_lines
 def test_get_all_item_lines():
     db = MagicMock()
-    db.query().all.return_value = [
+    
+    # Mock the full chain of method calls
+    db.query.return_value.offset.return_value.limit.return_value.all.return_value = [
         ItemLine(**SAMPLE_ITEM_LINE),
         ItemLine(name="Line B", description="Another test line"),
     ]
 
+    # Call the function
     results = get_all_item_lines(db)
 
-    db.query().all.assert_called_once()
+    # Assert that the chain of calls is correct
+    db.query.assert_called_once_with(ItemLine)  # Assert ItemLine is passed to query
+    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
+    db.query().offset().limit.assert_called_once_with(100)  # Assert limit is called with 100
+    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+
+    # Check the results
     assert len(results) == 2
     assert results[0].name == SAMPLE_ITEM_LINE["name"]
+
 
 def test_get_all_item_lines_empty():
     db = MagicMock()
