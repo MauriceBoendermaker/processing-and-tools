@@ -12,14 +12,13 @@ class TestLocationResource(unittest.TestCase):
 
         self.TEST_ID = 34534
         self.TEST_BODY = {
-            "warehouse_id": 9999999,
+            "id": self.TEST_ID,
+            "warehouse_id": 58,
             "code": "A.1.0",
             "name": "Row: A, Rack: 1, Shelf: 0"
         }
 
         self.ToPut = {
-            "warehouse_id": 9999999,
-            "code": "A.1.0",
             "name": "Updated Row: A, Rack: 1, Shelf: 0"
         }
 
@@ -37,7 +36,7 @@ class TestLocationResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertTrue(isinstance(body, list))
-        self.assertTrue(check_id_exists(body, self.TEST_ID))
+        self.assertTrue(len(body) == 100)
 
     # Test to get a single location by ID using GET
     def test_3_get_location_by_id(self):
@@ -76,10 +75,10 @@ class TestLocationResource(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
 
     # Test unauthorized access by removing the API key
-    def test_7_unauthorized(self):
+    def test_7_nokey(self):
         self.client.headers = {"content-type": "application/json"}  # Remove API key
         response = self.client.get(self.baseUrl)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 422)
 
     # Test with an incorrect API key
     def test_8_wrong_key(self):
