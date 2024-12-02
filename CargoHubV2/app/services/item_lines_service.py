@@ -1,15 +1,24 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.item_lines_model import ItemLine
 from CargoHubV2.app.schemas.item_lines_schema import ItemLineCreate, ItemLineUpdate
 from typing import List, Optional
+from fastapi import HTTPException, status
 
 
 def create_item_line(db: Session, item_line_data: dict) -> ItemLine:
     item_line = ItemLine(**item_line_data)
     db.add(item_line)
-    db.commit()
-    db.refresh(item_line)
-    return item_line
+    try:
+        db.commit()
+        db.refresh(item_line)
+        return item_line
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Item line already exists"
+        )
 
 
 def get_item_line(db: Session, id: int) -> Optional[ItemLine]:

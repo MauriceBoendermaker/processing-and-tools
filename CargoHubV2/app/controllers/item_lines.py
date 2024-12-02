@@ -7,7 +7,7 @@ from typing import Optional, List
 
 
 router = APIRouter(
-    prefix="/api/v2/item-lines",
+    prefix="/api/v2/item_lines",
     tags=["item_lines"]
 )
 
@@ -18,13 +18,13 @@ def create_item_line_endpoint(item_line_data: ItemLineCreate, db: Session = Depe
     return item_line
 
 
-@router.get("/", response_model=List[ItemLineResponse])
+@router.get("/")
 def get_item_lines(id: Optional[int] = None, db: Session = Depends(get_db)):
     if id:
         item_line = get_item_line(db, id)
         if not item_line:
             raise HTTPException(status_code=404, detail="Item line not found")
-        return [item_line]  # Wrap in a list to match response model
+        return item_line
     return get_all_item_lines(db)
 
 
