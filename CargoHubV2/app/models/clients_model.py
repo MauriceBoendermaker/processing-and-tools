@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from ..database import Base
+from datetime import datetime
 
 class Client(Base):
     __tablename__ = "clients"
@@ -14,5 +15,5 @@ class Client(Base):
     contact_name = Column(String, index=True)
     contact_phone = Column(String, index=True)
     contact_email = Column(String, index=True)
-    created_at = Column(DateTime, index=True)
-    updated_at = Column(DateTime, index=True)
+    created_at = Column(DateTime, index=True, default=datetime.now)
+    updated_at = Column(DateTime, index=True, default=datetime.now, onupdate=datetime.now)

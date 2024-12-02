@@ -4,15 +4,15 @@ from typing import Optional
 
 
 class ClientBase(BaseModel):
-    name: str
-    address: str
-    city: str
-    zip_code: str
-    province: str
-    country: str
-    contact_name: str
-    contact_phone: str
-    contact_email: str
+    name: str = None
+    address: str = None
+    city: str = None
+    zip_code: str = None
+    province: str = None
+    country: str = None
+    contact_name: str = None
+    contact_phone: str = None
+    contact_email: str = None
 
 
 class ClientCreate(ClientBase):
@@ -36,5 +36,6 @@ class ClientResponse(ClientBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
