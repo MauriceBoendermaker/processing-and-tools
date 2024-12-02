@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.clients_model import Client
-from CargoHubV2.app.schemas.clients_schema import ClientCreate, ClientUpdate
+from CargoHubV2.app.schemas.clients_schema import ClientResponse, ClientUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
 
@@ -24,7 +24,7 @@ def create_client(db: Session, client_data: dict):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while creating the client."
         )
-    return client
+    return ClientResponse.model_validate(client)
 
 
 def get_client(db: Session, client_id: int):
@@ -73,7 +73,7 @@ def update_client(db: Session, client_id: int, client_data: ClientUpdate):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while updating the client."
         )
-    return client
+    return ClientResponse.model_validate(client)
 
 
 def delete_client(db: Session, client_id: int):
