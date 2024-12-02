@@ -34,9 +34,9 @@ def create_supplier(db: Session, suppliers_data: SuppliersCreate):
     return suppliers
 
 
-def get_supplier(db: Session, id: int):
+def get_supplier(db: Session, code: str):
     try:
-        supplier = db.query(Supplier).filter(Supplier.id == id).first()
+        supplier = db.query(Supplier).filter(Supplier.code == code).first()
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
         return supplier
@@ -57,8 +57,8 @@ def get_all_suppliers(db: Session, offset: int = 0, limit: int = 100):
         )
 
 
-def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
-    to_update = db.query(Supplier).filter(Supplier.id == id).first()
+def update_supplier(db: Session, code: str, supplier_data: SuppliersUpdate):
+    to_update = db.query(Supplier).filter(Supplier.code == code).first()
     if not to_update:
         raise HTTPException(status_code=404, detail="Supplier not found")
     for key, value in supplier_data.model_dump(exclude_unset=True).items():
@@ -70,11 +70,10 @@ def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
         db.rollback()
         raise HTTPException(status_code=400, detail="An integrity error occurred while updating the supplier.")
     return to_update
-    
 
 
-def delete_supplier(db: Session, id: int):
-    supplier_to_delete = db.query(Supplier).filter(Supplier.id == id).first()
+def delete_supplier(db: Session, code: str):
+    supplier_to_delete = db.query(Supplier).filter(Supplier.code == code).first()
     if not supplier_to_delete:
         raise HTTPException(status_code=404, detail="Supplier not found")
     db.delete(supplier_to_delete)

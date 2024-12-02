@@ -15,9 +15,9 @@ class ItemBase(BaseModel):
     upc_code: str
     model_number: str
     commodity_code: str
-    item_line: int
-    item_group: int
-    item_type: int
+    item_line: int = None
+    item_group: int = None
+    item_type: int = None
     unit_purchase_quantity: int
     unit_order_quantity: int
     pack_order_quantity: int
