@@ -40,7 +40,7 @@ def get_item(db: Session, code: str):
         )
 
 
-def get_all_items(db: Session, offset: int = 0, limit: int = 10):
+def get_all_items(db: Session, offset: int = 0, limit: int = 100):
     try:
         return db.query(Item).offset(offset).limit(limit).all()
     except SQLAlchemyError:

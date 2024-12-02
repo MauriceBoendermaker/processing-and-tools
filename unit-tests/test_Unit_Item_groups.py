@@ -45,28 +45,49 @@ def test_get_item_group_not_found():
 
     assert result is None
 
-# Test get_all_item_groups
 def test_get_all_item_groups():
     db = MagicMock()
-    db.query().all.return_value = [
+
+    # Mock the full chain of method calls
+    db.query.return_value.offset.return_value.limit.return_value.all.return_value = [
         ItemGroup(**SAMPLE_ITEM_GROUP),
         ItemGroup(name="Group B", description="Another test group"),
     ]
 
+    # Call the function
     results = get_all_item_groups(db)
 
-    db.query().all.assert_called_once()
+    # Assert that the chain of calls is correct
+    # Assert ItemGroup is passed to query
+    db.query.assert_called_once_with(ItemGroup)
+    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
+    db.query().offset().limit.assert_called_once_with(100)  # Assert limit is called with 100
+    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+
+    # Check the results
     assert len(results) == 2
     assert results[0].name == SAMPLE_ITEM_GROUP["name"]
 
+
 def test_get_all_item_groups_empty():
     db = MagicMock()
-    db.query().all.return_value = []
 
+    # Mock the full chain of method calls
+    db.query.return_value.offset.return_value.limit.return_value.all.return_value = []
+
+    # Call the function
     results = get_all_item_groups(db)
 
-    db.query().all.assert_called_once()
-    assert len(results) == 0
+    # Assert that the chain of calls is correct
+    # Assert ItemGroup is passed to query
+    db.query.assert_called_once_with(ItemGroup)
+    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
+    db.query().offset().limit.assert_called_once_with(100)  # Assert limit is called with 100
+    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+
+    # Check the results
+    assert len(results) == 0  # Assert the returned list is empty
+
 
 # Test update_item_group
 def test_update_item_group_found():

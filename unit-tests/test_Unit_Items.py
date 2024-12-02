@@ -81,12 +81,26 @@ def test_get_item_not_found():
 
 def test_get_all_items():
     db = MagicMock()
-    db.query().all.return_value = [Item(**SAMPLE_ITEM_DATA)]
 
+    # Mock the full chain of method calls
+    db.query.return_value.offset.return_value.limit.return_value.all.return_value = [
+        Item(**SAMPLE_ITEM_DATA)
+    ]
+
+    # Call the function
     results = get_all_items(db)
 
+    # Assert that the chain of calls is correct
+    # Assert Item is passed to query
+    db.query.assert_called_once_with(Item)
+    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
+    db.query().offset().limit.assert_called_once_with(100)  # Assert limit is called with 100
+    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+
+    # Check the results
     assert len(results) == 1
-    db.query().all.assert_called_once()
+    assert results[0].code == SAMPLE_ITEM_DATA["code"]  # Corrected key to "code"
+
 
 
 def test_update_item_found():
