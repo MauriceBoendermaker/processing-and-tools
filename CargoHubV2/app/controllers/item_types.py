@@ -7,9 +7,10 @@ from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import Optional, List
 
 router = APIRouter(
-    prefix="/api/v2/item-types",
+    prefix="/api/v2/item_types",  # Use underscore (_) instead of hyphen (-)
     tags=["item_types"]
 )
+
 
 @router.post("/", response_model=ItemTypeResponse)
 def create_item_type_endpoint(
@@ -20,6 +21,7 @@ def create_item_type_endpoint(
     validate_api_key("create", api_key, db)
     item_type = create_item_type(db, item_type_data.model_dump())
     return item_type
+
 
 @router.get("/", response_model=List[ItemTypeResponse])
 def get_item_types(
@@ -37,6 +39,7 @@ def get_item_types(
         return [item_type]  # Wrap in a list to match response model
     return get_all_item_types(db, offset, limit)
 
+
 @router.put("/{id}", response_model=ItemTypeResponse)
 def update_item_type_endpoint(
     id: int,
@@ -49,6 +52,7 @@ def update_item_type_endpoint(
     if not item_type:
         raise HTTPException(status_code=404, detail="Item type not found")
     return item_type
+
 
 @router.delete("/{id}")
 def delete_item_type_endpoint(

@@ -1,53 +1,83 @@
 import unittest
 from httpx import Client
-from test_utils import check_id_exists
+from datetime import date
+from test_utils import match_date, check_id_exists
 
 
 class TestItemTypesResource(unittest.TestCase):
     def setUp(self):
-        self.baseUrl = "http://localhost:3000/api/v1/item_types"
+        self.baseUrl = "http://localhost:3000/api/v2/item_types/"
         self.client = Client()
-        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.EXPECTED_BODY = {
-            "id": 0,
-            "name": "Laptop",
-            "description": "",
-            "created_at": "2001-11-02 23:02:40",
-            "updated_at": "2008-07-01 04:09:17"
+        self.TEST_BODY = {
+            "id": 100,
+            "name": "Tester",
+            "description": "Electronics category",
+            "created_at": "2024-10-14 12:00:00",
+            "updated_at": "2024-10-14 12:00:00",
         }
 
+        self.ToPut = {
+            "name": "Updated Laptop",
+            "description": "Updated electronics category",
+        }
 
-    # Test 1: Get data for an existing item_type (valid data)
-    def test_1_get_item_type(self):
-        response = self.client.get(f"{self.baseUrl}/0")
+        self.original = {"id": 1, "name": "Desktop", "description": "Computers and accessories",
+                         "created_at": "2024-07-26 06:18:08", "updated_at": "2024-08-09 18:49:42"}
+
+    # Test to POST a new item type
+    def test_1_post_item_type(self):
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
+        self.assertIn(response.status_code, [200, 201])
+
+    # Test to get all item types using GET
+    def test_2_get_item_types(self):
+        response = self.client.get(self.baseUrl)
         body = response.json()
-        
-        self.assertEqual(response.status_code, 200)  # Status should be OK
-        self.assertEqual(body.get("id"), self.EXPECTED_BODY["id"])
-        self.assertEqual(body.get("name"), self.EXPECTED_BODY["name"])
-        self.assertEqual(body.get("description"), self.EXPECTED_BODY["description"])
+        self.assertEqual(response.status_code, 200)
 
-    # Test 2: Try to get data for a non-existing item_type (should return 200)
-    def test_2_get_non_existing_item_type(self):
-        response = self.client.get(f"{self.baseUrl}/99999")  # Non-existing ID
-        self.assertEqual(response.status_code, 200)  # Expecting 200 as api doesnt handel it correctly
+    # Test to get a single item type by ID using GET
+    def test_3_get_item_type_by_id(self):
+        response = self.client.get(f"{self.baseUrl}?id=100")  # Query parameter for ID
+        body = response.json()
+        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(body[0].get("id"), 100)  # Response is a list with a single item
+        self.assertEqual(body[0].get("name"), self.TEST_BODY["name"])
+        self.assertEqual(body[0].get("description"), self.TEST_BODY["description"])
 
-    # Test 3: Unauthorized access (missing API key)
-    def test_3_get_item_type_unauthorized(self):
-        self.client.headers = {"content-type": "application/json"}  # No API_KEY
-        response = self.client.get(f"{self.baseUrl}/1")
-        self.assertEqual(response.status_code, 401)  # Expecting 401 Unauthorized
+    # Test to update an item type using PUT
+    def test_4_put_item_type(self):
+        response = self.client.put(f"{self.baseUrl}100", json=self.ToPut)
+        self.assertEqual(response.status_code, 200)
 
-    # Test 4: Get with invalid data type in URL (expecting 400 Bad Request)
-    def test_4_get_item_type_invalid_id(self):
-        response = self.client.get(f"{self.baseUrl}/invalid_id")
-        self.assertEqual(response.status_code, 500)  # Expecting a 500 server error
+        # Fetch the updated item type
+        response = self.client.get(f"{self.baseUrl}?id=100")
+        body = response.json()
+        self.assertEqual(body[0].get("name"), "Updated Laptop")
+        self.assertEqual(body[0].get("description"), "Updated electronics category")
+        self.assertTrue(match_date(body[0].get('updated_at'), date.today()))
 
-    # Test 5: Simulate server error (expecting 500 Internal Server Error)
-    def test_5_get_item_type_server_error(self):
-        response = self.client.get(f"{self.baseUrl}/999999999999999999999999")  # Using an extremely large ID
-        self.assertEqual(response.status_code, 200)  # Expecting a 200 because api doesnt handel requests correctly
+    # Test to delete an item type using DELETE
+    def test_5_delete_item_type(self):
+        response = self.client.delete(f"{self.baseUrl}100")
+        self.assertEqual(response.status_code, 200)
+
+        # Verify it was deleted
+        response = self.client.get(self.baseUrl)
+        self.assertFalse(check_id_exists(response.json(), 100))
+
+    # Test unauthorized access by removing the API key
+    def test_6_no_key(self):
+        self.client.headers = {"content-type": "application/json"}
+        response = self.client.get(self.baseUrl)
+        self.assertEqual(response.status_code, 422)
+
+    # Test with a wrong API key
+    def test_7_wrong_key(self):
+        self.client.headers = {"api-key": "nope", "content-type": "application/json"}
+        response = self.client.get(self.baseUrl )
+        self.assertEqual(response.status_code, 403)
 
 
 if __name__ == '__main__':
