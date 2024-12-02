@@ -24,7 +24,7 @@ def create_inventory(
     return inv
 
 
-@router.get("/", response_model=List[InventoryResponse])
+@router.get("/")
 def get_inventories(
     item_reference: Optional[str] = None,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ def get_inventories(
         inven = inventories_service.get_inventory(db, item_reference)
         if not inven:
             raise HTTPException(status_code=404, detail="Inventory not found")
-        return [inven]
+        return inven
     return inventories_service.get_all_inventories(db, offset, limit)
 
 

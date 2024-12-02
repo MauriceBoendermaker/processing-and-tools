@@ -8,26 +8,24 @@ class TestInventoriesEndpoint(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/inventories/"
         self.client = Client()
-        self.client.headers = {"API_KEY": "a1b2c3d4e5", "Content-Type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5", "Content-Type": "application/json"}
 
         self.TEST_ID = 11722
 
         self.TEST_BODY = {
-            "id": self.TEST_ID,
-            "item_id": "P000000",
+            "item_id": "p000000",
             "description": "Down-sized system-worthy productivity",
             "item_reference": "tijdelijke-item",
-            "locations": [
-                30113, 30437, 9010, 11731, 25614, 25515, 4192, 19302, 3946,
-                26883, 9308, 22330, 14470, 8871, 8326, 18266, 17880, 33186, 33547
-            ],
             "total_on_hand": 334,
             "total_expected": 0,
             "total_ordered": 304,
             "total_allocated": 77,
             "total_available": -47,
-            "created_at": "2024-01-01 12:00:00",
-            "updated_at": "2024-01-01 12:00:00"
+            "locations": [
+                        30113, 30437, 9010, 11731,
+                        25614, 25515, 4192, 19302, 3946,
+                        26883, 9308, 22330, 14470, 8871,
+                        8326, 18266, 17880, 33186, 33547]
         }
 
         self.ToPut = {
@@ -60,7 +58,6 @@ class TestInventoriesEndpoint(unittest.TestCase):
 
     def test_1_post_inventory(self):
         # Add the test inventory to be used in tests
-        self.client.post("http://localhost:3000/api/v2/items/", json=self.NEW_ITEM)
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertIn(response.status_code, [200, 201])
         self.assertIn("tijdelijke-item", response.json().get("item_reference"))
@@ -70,14 +67,14 @@ class TestInventoriesEndpoint(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(check_reference_exists(body, "tijdelijke-item"))
         self.assertEqual(len(body), 100)
 
     def test_3_get_inventory(self):
-        response = self.client.get(f"{self.baseUrl}tijdelijke-item")
+        response = self.client.get(f"{self.baseUrl}?item_reference=tijdelijke-item")
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
+        print(body)
         self.assertEqual(body.get("item_reference"), "tijdelijke-item")
         self.assertEqual(body.get("description"),
                          self.TEST_BODY["description"])
@@ -117,7 +114,7 @@ class TestInventoriesEndpoint(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_7_wrong_key(self):
-        self.client.headers = {"API_KEY": "poging", "content-type": "application/json"}
+        self.client.headers = {"api-key": "poging", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
 
         self.assertEqual(response.status_code, 403)

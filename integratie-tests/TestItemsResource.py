@@ -6,12 +6,12 @@ from test_utils import check_uid_exists, check_code_exists
 
 class TestItemsResource(unittest.TestCase):
     def setUp(self):
-        self.baseUrl = "http://localhost:3000/api/v1/items/"
+        self.baseUrl = "http://localhost:3000/api/v2/items/"
         self.client = Client()
-        self.client.headers = {"API_KEY": "a1b2c3d4e5", "content-type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.TEST_BODY = {
-            "uid": "P000001",
+            "uid": "P0",
             "code": "tijdelijke-item",
             "description": "Face-to-face clear-thinking complexity",
             "short_description": "must",
@@ -49,7 +49,7 @@ class TestItemsResource(unittest.TestCase):
         self.assertTrue(check_code_exists(body, "tijdelijke-item"))
 
     def test_3_get_item(self):
-        response = self.client.get(f"{self.baseUrl}tijdelijke-item")
+        response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get("code"), self.TEST_BODY["tijdelijke-item"])
@@ -78,7 +78,7 @@ class TestItemsResource(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_7_wrong_key(self):
-        self.client.headers = {"API_KEY": "poging", "content-type": "application/json"}
+        self.client.headers = {"api-key": "poging", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 403)
 

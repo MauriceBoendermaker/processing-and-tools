@@ -17,7 +17,7 @@ def create_inventory(db: Session, inventory_data: dict):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="An inventory with this code already exists."
+            detail="An inventory with this item reference already exists."
         )
     except SQLAlchemyError:
         db.rollback()
