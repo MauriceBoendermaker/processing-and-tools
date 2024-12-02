@@ -8,7 +8,7 @@ from typing import Optional, List
 
 
 router = APIRouter(
-    prefix="/api/v2/item-groups",
+    prefix="/api/v2/item_groups",
     tags=["item_groups"]
 )
 
