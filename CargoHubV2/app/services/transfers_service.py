@@ -40,9 +40,9 @@ def get_transfer(db: Session, transfer_id: int):
         )
 
 
-def get_all_transfers(db: Session):
+def get_all_transfers(db: Session, offset: int, limit: int):
     try:
-        return db.query(Transfer).all()
+        return db.query(Transfer).offset(offset).limit(limit).all()
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
