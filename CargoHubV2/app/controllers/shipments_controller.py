@@ -23,7 +23,7 @@ def create_shipment_endpoint(
     return shipment
 
 
-@router.get("/", response_model=List[ShipmentResponse])
+@router.get("/")
 def get_shipments(
     id: Optional[int] = None,
     db: Session = Depends(get_db),
@@ -34,7 +34,7 @@ def get_shipments(
         shipment = get_shipment(db, id)
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
-        return [shipment]
+        return shipment
     return get_all_shipments(db)
 
 
