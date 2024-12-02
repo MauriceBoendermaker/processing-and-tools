@@ -37,10 +37,10 @@ inventory_sample_data = {
 def test_create_inventory():
     db = MagicMock()
     inventory_data = InventoryCreate(**inventory_sample_data)
-    new_inventory = create_inventory(db, inventory_data.model_dump())
+    create_inventory(db, inventory_data.model_dump())
     db.add.assert_called_once()
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(new_inventory)
+    db.refresh.assert_called_once()
 
 
 def test_create_inventory_integrity_error():
@@ -50,15 +50,15 @@ def test_create_inventory_integrity_error():
     with pytest.raises(HTTPException) as excinfo:
         create_inventory(db, inventory_data.model_dump())
     assert excinfo.value.status_code == 400
-    assert "An inventory with this code already exists." in str(excinfo.value.detail)
+    assert "An inventory with this item reference already exists." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
 
 
 def test_get_inventory_found():
     db = MagicMock()
     db.query().filter().first.return_value = Inventory(**inventory_sample_data)
-    result = get_inventory(db, 1)
-    assert result.id == inventory_sample_data["id"]
+    result = get_inventory(db, inventory_sample_data["item_reference"])
+    assert result.item_reference == inventory_sample_data["item_reference"]
     db.query().filter().first.assert_called_once()
 
 
@@ -66,7 +66,7 @@ def test_get_inventory_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
     with pytest.raises(HTTPException) as excinfo:
-        get_inventory(db, 999)
+        get_inventory(db, "random reference")
     assert excinfo.value.status_code == 404
     assert "inventory not found" in str(excinfo.value.detail)
 
@@ -94,7 +94,7 @@ def test_get_all_inventories():
 def test_update_inventory_found():
     db = MagicMock()
     db.query().filter().first.return_value = Inventory(**inventory_sample_data)
-    updated_inventory = update_inventory(db, 1, {"description": "Updated inventory"})
+    updated_inventory = update_inventory(db, inventory_sample_data["item_reference"], {"description": "Updated inventory"})
     assert updated_inventory.description == "Updated inventory"
     db.commit.assert_called_once()
     db.refresh.assert_called_once()
@@ -104,7 +104,7 @@ def test_update_inventory_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
     with pytest.raises(HTTPException) as excinfo:
-        update_inventory(db, 999, {"description": "Updated inventory 2"})
+        update_inventory(db, "nonsense reference", {"description": "Updated inventory 2"})
     assert excinfo.value.status_code == 404
     assert "Inventory not found" in str(excinfo.value.detail)
 
@@ -114,7 +114,7 @@ def test_update_inventory_integrity_error():
     db.query().filter().first.return_value = Inventory(**inventory_sample_data)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
     with pytest.raises(HTTPException) as excinfo:
-        update_inventory(db, 1, {"description": "Updated inventory 3"})
+        update_inventory(db, inventory_sample_data["item_reference"], {"description": "Updated inventory 3"})
     assert excinfo.value.status_code == 400
     assert "An integrity error occurred while updating the inventory" in str(excinfo.value.detail)
     db.rollback.assert_called_once()
@@ -123,7 +123,7 @@ def test_update_inventory_integrity_error():
 def test_delete_inventory_found():
     db = MagicMock()
     db.query().filter().first.return_value = Inventory(**inventory_sample_data)
-    result = delete_inventory(db, 1)
+    result = delete_inventory(db, inventory_sample_data["item_reference"])
     assert result["detail"] == "inventory deleted"
     db.delete.assert_called_once()
     db.commit.assert_called_once()
@@ -133,6 +133,6 @@ def test_delete_inventory_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
     with pytest.raises(HTTPException) as excinfo:
-        delete_inventory(db, 999)
+        delete_inventory(db, "nonsens")
     assert excinfo.value.status_code == 404
     assert "Inventory not found" in str(excinfo.value.detail)

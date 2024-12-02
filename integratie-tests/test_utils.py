@@ -46,3 +46,10 @@ def check_code_exists(json, target_code):
         if item["code"] == target_code:
             return True
     return False
+
+
+def check_reference_exists(json, target_reference):
+    for item in json:
+        if item["item_reference"] == target_reference:
+            return True
+    return False

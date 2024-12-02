@@ -27,9 +27,9 @@ def create_item(db: Session, item_data: dict):
     return item
 
 
-def get_item(db: Session, uid: str):
+def get_item(db: Session, code: str):
     try:
-        item = db.query(Item).filter(Item.uid == uid).first()
+        item = db.query(Item).filter(Item.code == code).first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         return item
@@ -50,9 +50,9 @@ def get_all_items(db: Session):
         )
 
 
-def update_item(db: Session, uid: str, item_data: ItemUpdate):
+def update_item(db: Session, code: str, item_data: ItemUpdate):
     try:
-        item = db.query(Item).filter(Item.uid == uid).first()
+        item = db.query(Item).filter(Item.code == code).first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         update_data = item_data.model_dump(exclude_unset=True)
@@ -76,9 +76,9 @@ def update_item(db: Session, uid: str, item_data: ItemUpdate):
     return item
 
 
-def delete_item(db: Session, uid: str):
+def delete_item(db: Session, code: str):
     try:
-        item = db.query(Item).filter(Item.uid == uid).first()
+        item = db.query(Item).filter(Item.code == code).first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         db.delete(item)
