@@ -52,7 +52,7 @@ class TestItemsResource(unittest.TestCase):
         response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item")
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get("code"), self.TEST_BODY["tijdelijke-item"])
+        self.assertEqual(body.get("code"), self.TEST_BODY["code"])
         self.assertEqual(body.get("description"), self.TEST_BODY["description"])
         self.assertEqual(body.get("item_group"), self.TEST_BODY["item_group"])
 
@@ -60,7 +60,7 @@ class TestItemsResource(unittest.TestCase):
         response = self.client.put(f"{self.baseUrl}tijdelijke-item", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(f"{self.baseUrl}tijdelijke-item")
+        response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item")
         body = response.json()
         self.assertEqual(body.get("short_description"), self.ToPut["short_description"])
         self.assertEqual(body.get("description"), self.ToPut["description"])

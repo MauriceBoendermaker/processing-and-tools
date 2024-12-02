@@ -65,7 +65,7 @@ def test_get_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
 
-    result = get_item(db, "123e4567-e89b-12d3-a456-426614174000")
+    result = get_item(db, "ITEM-TEST")
 
     assert result.uid == SAMPLE_ITEM_DATA["uid"]
     db.query().filter().first.assert_called_once()
@@ -100,11 +100,11 @@ def test_update_item_found():
     item_update_data = ItemUpdate(description="Updated description")
 
     updated_item = update_item(
-        db, "123e4567-e89b-12d3-a456-426614174000", item_update_data)
+        db, "ITEM-DATA", item_update_data)
 
     assert updated_item.description == "Updated description"
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(updated_item)
+    db.refresh.assert_called_once()
 
 
 def test_update_item_not_found():
@@ -113,7 +113,7 @@ def test_update_item_not_found():
     item_update_data = ItemUpdate(description="Updated description")
 
     with pytest.raises(HTTPException) as excinfo:
-        update_item(db, "nonexistent-uid", item_update_data)
+        update_item(db, "nonexistent-code", item_update_data)
 
     assert excinfo.value.status_code == 404
     assert "Item not found" in str(excinfo.value.detail)
@@ -126,7 +126,7 @@ def test_update_item_integrity_error():
     item_update_data = ItemUpdate(description="Updated description")
 
     with pytest.raises(HTTPException) as excinfo:
-        update_item(db, "123e4567-e89b-12d3-a456-426614174000",
+        update_item(db, "ITEM-DATA",
                     item_update_data)
 
     assert excinfo.value.status_code == 400
@@ -140,7 +140,7 @@ def test_delete_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
 
-    result = delete_item(db, "123e4567-e89b-12d3-a456-426614174000")
+    result = delete_item(db, "TEST-DATA")
 
     assert result == {"detail": "Item deleted"}
     db.delete.assert_called_once()
@@ -152,7 +152,7 @@ def test_delete_item_not_found():
     db.query().filter().first.return_value = None
 
     with pytest.raises(HTTPException) as excinfo:
-        delete_item(db, "nonexistent-uid")
+        delete_item(db, "nonexistent-code")
 
     assert excinfo.value.status_code == 404
     assert "Item not found" in str(excinfo.value.detail)

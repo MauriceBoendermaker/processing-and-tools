@@ -23,7 +23,7 @@ def create_item_endpoint(
     return item
 
 
-@router.get("/", response_model=List[ItemResponse])
+@router.get("/")
 def get_items(
     code: Optional[str] = None,
     db: Session = Depends(get_db),
@@ -34,7 +34,7 @@ def get_items(
         item = get_item(db, code)
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
-        return [item]
+        return item
     return get_all_items(db)
 
 
