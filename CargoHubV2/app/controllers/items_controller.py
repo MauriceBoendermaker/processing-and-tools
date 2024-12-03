@@ -27,6 +27,10 @@ def create_item_endpoint(
 @router.get("/")
 def get_items(
     code: Optional[str] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: str = "name",  # Default sort field
+    order: str = "asc",  # Default order
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # api key req
 ):
@@ -36,7 +40,8 @@ def get_items(
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         return item
-    return get_all_items(db)
+    return get_all_items(db, offset, limit, sort_by, order)
+
 
 
 @router.put("/{code}", response_model=ItemResponse)
