@@ -59,7 +59,7 @@ async def shutdown():
 async def api_key_middleware(request: Request, call_next):
     try:
         x_api_key = request.headers.get("api-key")
-        if request.url.path == "/docs":
+        if request.url.path == "/docs" or request.url.path == "/openapi.json":
             return await call_next(request)
         response: Response = await call_next(request)
 
