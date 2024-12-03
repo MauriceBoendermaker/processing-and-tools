@@ -49,7 +49,7 @@ def update_item_group_endpoint(
     id: int,
     item_group_data: ItemGroupUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("edit", api_key, db)
     item_group = update_item_group(db, id, item_group_data)
@@ -62,7 +62,7 @@ def update_item_group_endpoint(
 def delete_item_group_endpoint(
     id: int,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("delete", api_key, db)
     item_group = delete_item_group(db, id)
