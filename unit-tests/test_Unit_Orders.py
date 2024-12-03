@@ -8,7 +8,8 @@ from CargoHubV2.app.services.orders_service import (
     get_all_orders,
     update_order,
     delete_order,
-    get_items_in_order
+    get_items_in_order,
+    get_packinglist_for_order
 )
 from CargoHubV2.app.models.orders_model import Order
 from CargoHubV2.app.schemas.orders_schema import OrderCreate, OrderUpdate
@@ -19,6 +20,7 @@ SAMPLE_ORDER_DATA = {
     "id": 1,
     "source_id": 33,
     "order_date": dt.now(datetime.timezone.utc),
+    "request_date": dt.now(datetime.timezone.utc),
     "reference": "ORD00001",
     "order_status": "Delivered",
     "warehouse_id": 1,
@@ -28,6 +30,7 @@ SAMPLE_ORDER_DATA = {
     "total_surcharge": 77.6,
     "created_at": "2019-04-03T11:33:15Z",
     "updated_at": "2019-04-05T07:33:15Z",
+    "shipping_notes": "Handle with care",
     "items": [
         {"item_id": "P007435", "amount": 23},
         {"item_id": "P009557", "amount": 1}
@@ -136,3 +139,46 @@ def test_get_order_items_not_found():
         get_items_in_order(db, 99)
     assert excinfo.value.status_code == 404
     assert "no items found for this order" in str(excinfo.value.detail)
+
+
+def test_get_packinglist_for_order_success():
+    db = MagicMock()
+    db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
+    
+    result = get_packinglist_for_order(db, 1)
+    
+    expected_result = [{
+        "Warehouse": SAMPLE_ORDER_DATA["warehouse_id"],
+        "Order picker": SAMPLE_ORDER_DATA["source_id"],
+        "Order date": SAMPLE_ORDER_DATA["order_date"],
+        "Picked before": SAMPLE_ORDER_DATA["request_date"],
+        "Shipping notes": SAMPLE_ORDER_DATA["shipping_notes"],
+        "Items to be picked": SAMPLE_ORDER_DATA["items"]
+    }]
+    
+    assert result == expected_result
+    db.query().filter().first.assert_called_once()
+
+def test_get_packinglist_for_order_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+    
+    with pytest.raises(HTTPException) as excinfo:
+        get_packinglist_for_order(db, 99)
+    
+    assert excinfo.value.status_code == 404
+    assert "Order not found" in str(excinfo.value.detail)
+    db.query().filter().first.assert_called_once()
+
+def test_get_packinglist_for_order_no_items():
+    db = MagicMock()
+    order_data_no_items = SAMPLE_ORDER_DATA.copy()
+    order_data_no_items["items"] = []
+    db.query().filter().first.return_value = Order(**order_data_no_items)
+    
+    with pytest.raises(HTTPException) as excinfo:
+        get_packinglist_for_order(db, 1)
+    
+    assert excinfo.value.status_code == 404
+    assert "No items found in the packing list" in str(excinfo.value.detail)
+    db.query().filter().first.assert_called_once()
