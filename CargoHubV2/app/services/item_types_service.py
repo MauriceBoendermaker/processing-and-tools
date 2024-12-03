@@ -27,7 +27,7 @@ def get_all_item_types(
     db: Session,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "name",  # Default sort by "name"
+    sort_by: Optional[str] = "id",  # Default sort by "name"
     order: Optional[str] = "asc"     # Default order is ascending
 ) -> List[ItemType]:
     try:
