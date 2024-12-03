@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from CargoHubV2.app.models.orders_model import Order
+from CargoHubV2.app.models.shipments_model import Shipment
 from CargoHubV2.app.schemas.orders_schema import OrderUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
@@ -116,3 +117,10 @@ def get_packinglist_for_order(db: Session, order_id: int):
         raise HTTPException(status_code=404, detail="No items found in the packing list")
 
     return packing_list_id
+
+
+def get_shipments_by_order_id(db: Session, order_id:int):
+    shipment = db.query(Shipment).filter(Shipment.order_id == order_id).all()
+    if not shipment:
+        raise HTTPException(status_code=404, detail="No Shipment found with this order")
+    return shipment
