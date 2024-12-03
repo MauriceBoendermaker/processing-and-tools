@@ -50,7 +50,7 @@ def update_item_endpoint(
     code: str,
     item_data: ItemUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # api key req
+    api_key: str = Header(...),
 ):
     validate_api_key("edit", api_key, db)
     item = update_item(db, code, item_data)
@@ -63,7 +63,7 @@ def update_item_endpoint(
 def delete_item_endpoint(
     code: str,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # api key req
+    api_key: str = Header(...),
 ):
     validate_api_key("delete", api_key, db)
     item = delete_item(db, code)
