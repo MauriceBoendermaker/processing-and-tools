@@ -29,7 +29,7 @@ def get_items(
     code: Optional[str] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: str = "name",  # Default sort field
+    sort_by: str = "id",  # Default sort field
     order: str = "asc",  # Default order
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # api key req
