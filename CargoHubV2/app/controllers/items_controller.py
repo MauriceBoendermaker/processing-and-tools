@@ -29,10 +29,10 @@ def get_items(
     code: Optional[str] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: str = "id",  # Default sort field
-    order: str = "asc",  # Default order
+    sort_by: Optional[str] = None,  # Optional sorting parameter
+    order: Optional[str] = "asc",  # Default order is ascending
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # api key req
+    api_key: str = Header(...),  # API key required
 ):
     validate_api_key("view", api_key, db)
     if code:
@@ -40,7 +40,9 @@ def get_items(
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         return item
-    return get_all_items(db, offset, limit, sort_by, order)
+    # Pass sort_by and order to the service; defaults are handled there
+    return get_all_items(db, offset, limit, sort_by or "id", order)
+
 
 
 

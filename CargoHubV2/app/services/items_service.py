@@ -6,6 +6,7 @@ from CargoHubV2.app.services.sorting_service import apply_sorting
 
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
 
 
 def create_item(db: Session, item_data: dict):
@@ -42,7 +43,7 @@ def get_item(db: Session, code: str):
         )
 
 
-def get_all_items(db: Session, offset: int = 0, limit: int = 100, sort_by: str = "name", order: str = "asc"):
+def get_all_items(db: Session, offset: int = 0, limit: int = 100, sort_by: Optional[str] = "id", order: Optional[str] = "asc"):
     try:
         query = db.query(Item)
         sorted_query = apply_sorting(query, Item, sort_by, order)
