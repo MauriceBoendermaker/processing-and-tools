@@ -29,7 +29,7 @@ def get_item_lines(
     id: Optional[int] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "id",  # Default sort by "id"
+    sort_by: Optional[str] = "id",  
     order: Optional[str] = "asc",  # Default order is ascending
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # API key required
