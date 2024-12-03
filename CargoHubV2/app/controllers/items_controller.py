@@ -40,7 +40,6 @@ def get_items(
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         return item
-    # Pass sort_by and order to the service; defaults are handled there
     return get_all_items(db, offset, limit, sort_by or "id", order)
 
 
