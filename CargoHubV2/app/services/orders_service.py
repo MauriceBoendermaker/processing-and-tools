@@ -38,6 +38,22 @@ def get_all_orders(db: Session):
     return db.query(Order).all()
 
 
+def get_packinglist_for_order(db: Session, order_id: int):
+    # Fetch the order and directly access its packing list
+    order = db.query(Order).filter(Order.id == order_id).first()
+    
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # Assuming the packing list is a list of dictionaries or objects stored within the order
+    packing_list = order.items  # Example: order.packing_list
+    
+    if not packing_list:
+        raise HTTPException(status_code=404, detail="No items found in the packing list")
+
+    return packing_list
+    
+
 def update_order(db: Session, id: int, order_data: OrderUpdate):
     order = db.query(Order).filter(Order.id == id).first()
     if not order:
