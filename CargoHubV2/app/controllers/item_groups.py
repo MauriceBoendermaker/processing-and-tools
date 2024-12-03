@@ -39,7 +39,7 @@ def get_item_groups(
         item_group = get_item_group(db, id)
         if not item_group:
             raise HTTPException(status_code=404, detail="Item group not found")
-        return [item_group]  # Wrap in a list to match response model
+        return [item_group]
     return get_all_item_groups(db, offset, limit, sort_by, order)
 
 
