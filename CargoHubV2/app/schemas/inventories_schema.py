@@ -11,6 +11,7 @@ class InventoryBase(BaseModel):
     total_ordered: int = None
     total_allocated: int = None
     total_available: int = None
+    locations: list[int] = None
 
     class Config:
         orm_mode = True

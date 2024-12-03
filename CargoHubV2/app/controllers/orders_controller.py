@@ -30,7 +30,7 @@ def create_order_endpoint(
     return order
 
 
-@router.get("/", response_model=List[OrderResponse])
+@router.get("/")
 def get_orders(
     id: Optional[int] = None,
     db: Session = Depends(get_db),
@@ -41,7 +41,7 @@ def get_orders(
         order = get_order(db, id)
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
-        return [order]
+        return order
     return get_all_orders(db)
 
 

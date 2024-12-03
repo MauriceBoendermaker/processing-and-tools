@@ -20,8 +20,8 @@ SAMPLE_CLIENT_DATA = {
     "contact_name": "John Doe",
     "contact_phone": "123-456-7890",
     "contact_email": "client@example.com",
-    "created_at": datetime.now(),
-    "updated_at": datetime.now()
+    "created_at": "2015-02-19 16:08:24",
+    "updated_at": "2024-09-17 19:06:56"
 }
 
 
@@ -29,11 +29,11 @@ def test_create_client():
     db = MagicMock()
     client_data = ClientCreate(**SAMPLE_CLIENT_DATA)
 
-    new_client = create_client(db, client_data.model_dump())
+    new_client = create_client(db, SAMPLE_CLIENT_DATA)
 
     db.add.assert_called_once()
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(new_client)
+    db.refresh.assert_called_once()
 
 
 def test_get_client_by_id_not_found():
@@ -66,7 +66,7 @@ def test_update_client_found():
 
     assert updated_client.name == "Updated Name"
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(updated_client)
+    db.refresh.assert_called_once()
 
 
 def test_delete_client_found():

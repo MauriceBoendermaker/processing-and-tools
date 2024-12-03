@@ -23,46 +23,43 @@ def create_item_endpoint(
     return item
 
 
-@router.get("/", response_model=List[ItemResponse])
+@router.get("/")
 def get_items(
-    uid: Optional[str] = None,
-    offset: int = 0,
-    limit: int = 100,
+    code: Optional[str] = None,
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # api key req
 ):
     validate_api_key("view", api_key, db)
-    if uid:
-        item = get_item(db, uid)
+    if code:
+        item = get_item(db, code)
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
-        return [item]
-    return get_all_items(db, offset, limit)
+        return item
+    return get_all_items(db)
 
 
-
-@router.put("/{uid}", response_model=ItemResponse)
+@router.put("/{code}", response_model=ItemResponse)
 def update_item_endpoint(
-    uid: str,
+    code: str,
     item_data: ItemUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),#api key req
+    api_key: str = Header(...),  # api key req
 ):
     validate_api_key("edit", api_key, db)
-    item = update_item(db, uid, item_data)
+    item = update_item(db, code, item_data)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return item
 
 
-@router.delete("/{uid}")
+@router.delete("/{code}")
 def delete_item_endpoint(
-    uid: str,
+    code: str,
     db: Session = Depends(get_db),
-    api_key: str = Header(...), #api key req
+    api_key: str = Header(...),  # api key req
 ):
     validate_api_key("delete", api_key, db)
-    item = delete_item(db, uid)
+    item = delete_item(db, code)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return {"detail": "Item deleted"}

@@ -15,6 +15,8 @@ from CargoHubV2.app.schemas.item_lines_schema import ItemLineCreate, ItemLineUpd
 SAMPLE_ITEM_LINE = {"name": "Line A", "description": "Test line"}
 
 # Test create_item_line
+
+
 def test_create_item_line():
     db = MagicMock()
     line_data = ItemLineCreate(**SAMPLE_ITEM_LINE)
@@ -36,6 +38,7 @@ def test_get_item_line_found():
     db.query().filter().first.assert_called_once()
     assert result.name == SAMPLE_ITEM_LINE["name"]
 
+
 def test_get_item_line_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
@@ -45,27 +48,53 @@ def test_get_item_line_not_found():
     assert result is None
 
 # Test get_all_item_lines
+
+
 def test_get_all_item_lines():
     db = MagicMock()
-    db.query().all.return_value = [
+
+    # Mock the full chain of method calls
+    db.query.return_value.offset.return_value.limit.return_value.all.return_value = [
         ItemLine(**SAMPLE_ITEM_LINE),
         ItemLine(name="Line B", description="Another test line"),
     ]
 
+    # Call the function
     results = get_all_item_lines(db)
 
-    db.query().all.assert_called_once()
+    # Assert that the chain of calls is correct
+    # Assert ItemLine is passed to query
+    db.query.assert_called_once_with(ItemLine)
+    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
+    db.query().offset().limit.assert_called_once_with(
+        100)  # Assert limit is called with 100
+    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+
+    # Check the results
     assert len(results) == 2
     assert results[0].name == SAMPLE_ITEM_LINE["name"]
 
+
 def test_get_all_item_lines_empty():
     db = MagicMock()
-    db.query().all.return_value = []
 
+    # Mock the full chain of method calls
+    db.query.return_value.offset.return_value.limit.return_value.all.return_value = []
+
+    # Call the function
     results = get_all_item_lines(db)
 
-    db.query().all.assert_called_once()
-    assert len(results) == 0
+    # Assert that the chain of calls is correct
+    # Assert ItemLine is passed to query
+    db.query.assert_called_once_with(ItemLine)
+    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
+    db.query().offset().limit.assert_called_once_with(
+        100)  # Assert limit is called with 100
+    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+
+    # Check the results
+    assert len(results) == 0  # Assert the returned list is empty
+
 
 # Test update_item_line
 def test_update_item_line_found():
@@ -78,6 +107,7 @@ def test_update_item_line_found():
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_line)
     assert updated_line.description == "Updated description"
+
 
 def test_update_item_line_not_found():
     db = MagicMock()
@@ -99,6 +129,7 @@ def test_delete_item_line_found():
     db.delete.assert_called_once()
     db.commit.assert_called_once()
     assert result is True
+
 
 def test_delete_item_line_not_found():
     db = MagicMock()

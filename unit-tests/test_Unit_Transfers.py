@@ -68,12 +68,12 @@ def test_get_transfer_not_found():
 
 def test_get_all_transfers():
     db = MagicMock()
-    db.query().all.return_value = [Transfer(**SAMPLE_TRANSFER_DATA)]
+    db.query().offset().limit().all.return_value = [Transfer(**SAMPLE_TRANSFER_DATA)]
 
-    results = get_all_transfers(db)
+    results = get_all_transfers(db, 0, 100)
 
     assert len(results) == 1
-    db.query().all.assert_called_once()
+    db.query().offset().limit().all.assert_called_once()
 
 
 def test_update_transfer_found():
