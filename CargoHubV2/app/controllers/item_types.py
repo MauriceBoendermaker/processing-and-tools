@@ -29,7 +29,7 @@ def get_item_types(
     id: Optional[int] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "name",
+    sort_by: Optional[str] = "id",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
     api_key: str = Header(...),
