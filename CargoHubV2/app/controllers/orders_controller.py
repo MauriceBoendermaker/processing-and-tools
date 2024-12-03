@@ -2,16 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.schemas.orders_schema import OrderResponse, OrderCreate, OrderUpdate
-from CargoHubV2.app.services.orders_service import (
-    create_order,
-    get_order,
-    get_all_orders,
-    update_order,
-    delete_order,
-    get_items_in_order,
-    get_packinglist_for_order,
-    get_shipments_by_order_id
-)
+from CargoHubV2.app.services.orders_service import *
 from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import List, Optional
 
