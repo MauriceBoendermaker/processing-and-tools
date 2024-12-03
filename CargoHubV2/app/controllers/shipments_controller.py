@@ -63,3 +63,16 @@ def delete_shipment_endpoint(
     if not shipment:
         raise HTTPException(status_code=404, detail="Shipment not found")
     return shipment
+
+
+@router.get("/{shipment_id}/orders")
+def get_orders_linked_with_shipment(
+    shipment_id:int,
+    db:Session = Depends(get_db),
+    api_key:str = Header(...)
+):
+    validate_api_key("view", api_key, db)
+    order = get_orders_by_shipment_id(db, shipment_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="No orders found")
+    return order
