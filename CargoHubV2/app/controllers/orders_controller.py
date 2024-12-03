@@ -9,7 +9,8 @@ from CargoHubV2.app.services.orders_service import (
     update_order,
     delete_order,
     get_items_in_order,
-    get_packinglist_for_order
+    get_packinglist_for_order,
+    get_shipments_by_order_id
 )
 from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import List, Optional
@@ -97,3 +98,16 @@ def get_pack_list(
     if not packlist:
         raise HTTPException(status_code=404, detail="Packlist not found")
     return packlist
+
+
+@router.get("/{order_id}/shipments")
+def get_shipments_linked_with_order(
+    order_id:int,
+    db: Session = Depends(get_db),
+    api_key:str = Header(...)
+    ):
+    validate_api_key("view", api_key, db)
+    shipment = get_shipments_by_order_id(db, order_id)
+    if not shipment:
+        raise HTTPException(status_code=404, detail="No shipments found")
+    return shipment
