@@ -46,12 +46,28 @@ def get_packinglist_for_order(db: Session, order_id: int):
         raise HTTPException(status_code=404, detail="Order not found")
 
     # Assuming the packing list is a list of dictionaries or objects stored within the order
-    packing_list = order.items  # Example: order.packing_list
+    source_id = order.source_id
+    packing_list = order.items
+    shipping_notes = order.shipping_notes
+    order_date = order.order_date
+    request_date = order.request_date
+    warehouse_id =  order.warehouse_id
     
+    packing_list_id = [
+            {
+                "Warehouse":warehouse_id,
+                "Order picker":source_id,
+                "Order date":order_date,
+                "Picked before":request_date,
+                "Shipping notes":shipping_notes,
+                "Items to be picked": packing_list
+            }
+            ]
+
     if not packing_list:
         raise HTTPException(status_code=404, detail="No items found in the packing list")
 
-    return packing_list
+    return packing_list_id
     
 
 def update_order(db: Session, id: int, order_data: OrderUpdate):
