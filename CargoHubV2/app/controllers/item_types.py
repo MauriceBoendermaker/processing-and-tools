@@ -29,6 +29,8 @@ def get_item_types(
     id: Optional[int] = None,
     offset: int = 0,
     limit: int = 100,
+    sort_by: Optional[str] = "name",  # Default sort by "name"
+    order: Optional[str] = "asc",     # Default order is ascending
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
@@ -38,7 +40,8 @@ def get_item_types(
         if not item_type:
             raise HTTPException(status_code=404, detail="Item type not found")
         return [item_type]
-    return get_all_item_types(db, offset, limit)
+    return get_all_item_types(db, offset, limit, sort_by, order)
+
 
 
 @router.put("/{id}", response_model=ItemTypeResponse)
