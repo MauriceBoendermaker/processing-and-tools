@@ -2,7 +2,7 @@ from sqlalchemy.orm import Query
 from sqlalchemy.exc import SQLAlchemyError
 
 def apply_sorting(query: Query, model, sort_by: str = "id", order: str = "asc") -> Query:
-    
+    #You can change the sortby from id to anything in the database or anything the model has as a prop
     try:
         # Validate that the column exists in the model
         if not hasattr(model, sort_by):
