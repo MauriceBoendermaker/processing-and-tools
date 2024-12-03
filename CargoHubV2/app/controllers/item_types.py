@@ -16,7 +16,7 @@ router = APIRouter(
 def create_item_type_endpoint(
     item_type_data: ItemTypeCreate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("create", api_key, db)
     item_type = create_item_type(db, item_type_data.model_dump())
@@ -29,14 +29,14 @@ def get_item_types(
     offset: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("view", api_key, db)
     if id:
         item_type = get_item_type(db, id)
         if not item_type:
             raise HTTPException(status_code=404, detail="Item type not found")
-        return [item_type]  # Wrap in a list to match response model
+        return [item_type]
     return get_all_item_types(db, offset, limit)
 
 
@@ -45,7 +45,7 @@ def update_item_type_endpoint(
     id: int,
     item_type_data: ItemTypeUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("edit", api_key, db)
     item_type = update_item_type(db, id, item_type_data)
@@ -58,7 +58,7 @@ def update_item_type_endpoint(
 def delete_item_type_endpoint(
     id: int,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("delete", api_key, db)
     item_type = delete_item_type(db, id)

@@ -17,7 +17,7 @@ router = APIRouter(
 def create_item_endpoint(
     item_data: ItemCreate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...), #tijdelijk nodig om te controleren dat alles goed werkt en dat je niet zonder api key kan requesten. 
+    api_key: str = Header(...),
 ):
     validate_api_key("create", api_key, db)
     item = create_item(db, item_data.model_dump())
