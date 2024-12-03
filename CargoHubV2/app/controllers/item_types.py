@@ -29,8 +29,8 @@ def get_item_types(
     id: Optional[int] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "name",  # Default sort by "name"
-    order: Optional[str] = "asc",     # Default order is ascending
+    sort_by: Optional[str] = "name",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
