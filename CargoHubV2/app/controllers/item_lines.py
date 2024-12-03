@@ -32,14 +32,14 @@ def get_item_lines(
     sort_by: Optional[str] = "id",  
     order: Optional[str] = "asc",  
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("view", api_key, db)
     if id:
         item_line = get_item_line(db, id)
         if not item_line:
             raise HTTPException(status_code=404, detail="Item line not found")
-        return [item_line]  # Wrap single result in a list for consistency
+        return [item_line]
     return get_all_item_lines(db, offset, limit, sort_by, order)
 
 
