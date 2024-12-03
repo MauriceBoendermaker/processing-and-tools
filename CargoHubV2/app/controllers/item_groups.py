@@ -29,6 +29,8 @@ def get_item_groups(
     id: Optional[int] = None,
     offset: int = 0,
     limit: int = 100,
+    sort_by: Optional[str] = "id",  # Default sort by "id"
+    order: Optional[str] = "asc",  # Default order is ascending
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # API key required
 ):
@@ -38,7 +40,8 @@ def get_item_groups(
         if not item_group:
             raise HTTPException(status_code=404, detail="Item group not found")
         return [item_group]  # Wrap in a list to match response model
-    return get_all_item_groups(db, offset, limit)
+    return get_all_item_groups(db, offset, limit, sort_by, order)
+
 
 
 @router.put("/{id}", response_model=ItemGroupResponse)
