@@ -29,4 +29,4 @@ def generate_general_report(
     offset: int = 0,
     api_key: str = Header(...),
         limit: int = 100):
-    return generate_general_report(db, year_to_report, month_to_report, offset, limit)
+    return reporting_service.general_report(db, year_to_report, month_to_report, offset, limit)
