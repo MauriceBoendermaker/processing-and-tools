@@ -59,9 +59,10 @@ async def shutdown():
 
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
+    excluded = ["/favicon.ico", "/openapi.json", "/docs"]
     try:
         x_api_key = request.headers.get("api-key")
-        if request.url.path == "/docs" or request.url.path == "/openapi.json":
+        if request.url.path in excluded or "/get-pdf" in request.url.path:
             return await call_next(request)
         response: Response = await call_next(request)
 

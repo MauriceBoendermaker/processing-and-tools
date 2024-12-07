@@ -1,10 +1,33 @@
 from datetime import datetime
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, FastAPI
 from sqlalchemy.orm import Session
 from sqlalchemy import extract
 from CargoHubV2.app.models.orders_model import Order
 from itertools import chain
 import json
+import pdfkit
+from fastapi.responses import FileResponse, JSONResponse
+from pathlib import Path
+
+PDF_DIR = Path("generated_pdfs")
+PDF_DIR.mkdir(exist_ok=True)
+
+
+def generate_pdf(content: dict):
+    try:
+        pdf_content = json.dumps(content, indent=4)
+
+        pdf_filename = f"report_for_{content.get("warehouse", "all")}_month_{content.get("target_month")}.pdf"
+        pdf_path = PDF_DIR/pdf_filename
+
+        pdfkit.from_string(pdf_content, str(pdf_path))
+
+        # link naar de pdf
+        pdf_url = f"http://127.0.0.1:3000/api/v2/reports/get-pdf/{pdf_filename}"
+
+        return JSONResponse({"message": "report PDF generated successfully.", "pdf_url": pdf_url})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating PDF, {e}")
 
 
 def reporter(
@@ -21,6 +44,7 @@ def reporter(
         else:
             rauw.append([])
 
+    # chain maakt van een nested lijst een enkele lijst met alle inhoud
     items_totaal = sum(item["amount"] for item in list(chain.from_iterable(rauw)))
 
     if warehouse_id == -1:
@@ -30,8 +54,8 @@ def reporter(
                 "total_revenue": f"{sum(order.total_amount for order in orders)}",
                 "total_discount": f"{sum(order.total_discount for order in orders)}",
                 "total_tax": f"{sum(order.total_tax for order in orders)}",
-                "total_surcharge": f"{sum(order.total_surcharge for order in orders)}",
-                f"orders__during_{target_year}-{target_month}": orders}
+                "total_surcharge": f"{sum(order.total_surcharge for order in orders)}"}
+# f"orders__during_{target_year}-{target_month}": orders
 
     return {"warehouse": f"{warehouse_id}",
             "target_month": f"{target_year}-{target_month}",
@@ -40,8 +64,8 @@ def reporter(
             "total_revenue": f"{sum(order.total_amount for order in orders)}",
             "total_discount": f"{sum(order.total_discount for order in orders)}",
             "total_tax": f"{sum(order.total_tax for order in orders)}",
-            "total_surcharge": f"{sum(order.total_surcharge for order in orders)}",
-            f"orders_for_warehouse-{warehouse_id}_during_{target_year}-{target_month}": orders}
+            "total_surcharge": f"{sum(order.total_surcharge for order in orders)}"}
+# f"orders_for_warehouse-{warehouse_id}_during_{target_year}-{target_month}": orders
 
 
 def general_report(db: Session, target_year: int, target_month: int, offset: int, limit: int):
