@@ -19,16 +19,17 @@ def get_warehouses(
     code: Optional[str] = None,
     offset: int = 0,
     limit: int = 100,
-        api_key: str = Header(...)):
-
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
+    api_key: str = Header(...),
+):
     validate_api_key("view", api_key, db)
     if code:
         warehouse = warehouses_service.get_warehouse_by_code(db, code)
         if warehouse is None:
             raise HTTPException(status_code=404, detail="Warehouse not found")
-        return warehouse
-    warehouses = warehouses_service.get_all_warehouses(db, offset, limit)
-    return warehouses
+        return [warehouse]
+    return warehouses_service.get_all_warehouses(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.post("/")
