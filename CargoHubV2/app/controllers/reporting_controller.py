@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.services import reporting_service
@@ -18,7 +19,8 @@ def generate_report_by_warehouse(
     api_key: str = Header(...),
         month_to_report: int = 9):
 
-    return reporting_service.report_for_warehouse(db, warehouse_id, year_to_report, month_to_report)
+    response = reporting_service.report_for_warehouse(db, warehouse_id, year_to_report, month_to_report)
+    return response
 
 
 @router.get("/")
@@ -29,4 +31,6 @@ def generate_general_report(
     offset: int = 0,
     api_key: str = Header(...),
         limit: int = 100):
-    return reporting_service.general_report(db, year_to_report, month_to_report, offset, limit)
+
+    response = reporting_service.general_report(db, year_to_report, month_to_report, offset, limit)
+    return response

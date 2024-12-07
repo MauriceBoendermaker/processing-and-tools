@@ -5,6 +5,7 @@ from sqlalchemy import extract
 from CargoHubV2.app.models.orders_model import Order
 from itertools import chain
 import json
+import pdfkit
 
 
 def reporter(
@@ -25,22 +26,22 @@ def reporter(
 
     if warehouse_id == -1:
         return {"target_month": f"{target_year}-{target_month}",
-                "orders_done": len(orders),
-                "amount_of_items_sold": items_totaal,
-                "total_revenue": sum(order.total_amount for order in orders),
-                "total_discount": sum(order.total_discount for order in orders),
-                "total_tax": sum(order.total_tax for order in orders),
-                "total_surcharge": sum(order.total_surcharge for order in orders),
+                "orders_done": f"{len(orders)}",
+                "amount_of_items_sold": f"{items_totaal}",
+                "total_revenue": f"{sum(order.total_amount for order in orders)}",
+                "total_discount": f"{sum(order.total_discount for order in orders)}",
+                "total_tax": f"{sum(order.total_tax for order in orders)}",
+                "total_surcharge": f"{sum(order.total_surcharge for order in orders)}",
                 f"orders__during_{target_year}-{target_month}": orders}
 
-    return {"warehouse": warehouse_id,
+    return {"warehouse": f"{warehouse_id}",
             "target_month": f"{target_year}-{target_month}",
-            "orders_done": len(orders),
-            "amount_of_items_sold": items_totaal,
-            "total_revenue": sum(order.total_amount for order in orders),
-            "total_discount": sum(order.total_discount for order in orders),
-            "total_tax": sum(order.total_tax for order in orders),
-            "total_surcharge": sum(order.total_surcharge for order in orders),
+            "orders_done": f"{len(orders)}",
+            "amount_of_items_sold": f"{items_totaal}",
+            "total_revenue": f"{sum(order.total_amount for order in orders)}",
+            "total_discount": f"{sum(order.total_discount for order in orders)}",
+            "total_tax": f"{sum(order.total_tax for order in orders)}",
+            "total_surcharge": f"{sum(order.total_surcharge for order in orders)}",
             f"orders_for_warehouse-{warehouse_id}_during_{target_year}-{target_month}": orders}
 
 
