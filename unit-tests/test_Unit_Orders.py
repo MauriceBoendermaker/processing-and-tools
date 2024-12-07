@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from CargoHubV2.app.services.orders_service import (

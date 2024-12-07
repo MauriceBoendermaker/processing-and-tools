@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 from datetime import datetime
 from CargoHubV2.app.services.shipments_service import (
