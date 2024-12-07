@@ -12,6 +12,7 @@ from CargoHubV2.app.controllers import clients_controller
 from CargoHubV2.app.controllers import shipments_controller
 from CargoHubV2.app.controllers import inventories_controller
 from CargoHubV2.app.controllers import orders_controller
+from CargoHubV2.app.controllers import reporting_controller
 import time
 from starlette.responses import JSONResponse
 import logging
@@ -22,6 +23,7 @@ app = FastAPI()
 # default port is localhost:8000
 
 # router van de controller gebruiken
+app.include_router(reporting_controller.router)
 app.include_router(item_groups.router)
 app.include_router(item_lines.router)
 app.include_router(item_types.router)
