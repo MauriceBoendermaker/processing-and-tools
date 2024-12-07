@@ -51,9 +51,20 @@ def get_supplier(db: Session, code: str):
         )
 
 
-def get_all_suppliers(db: Session, offset: int = 0, limit: int = 100):
+def get_all_suppliers(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Supplier).offset(offset).limit(limit).all()
+        query = db.query(Supplier)
+        if sort_by:
+            query = apply_sorting(query, Supplier, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
