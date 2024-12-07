@@ -41,7 +41,7 @@ def reporter(
             "total_discount": sum(order.total_discount for order in orders),
             "total_tax": sum(order.total_tax for order in orders),
             "total_surcharge": sum(order.total_surcharge for order in orders),
-            f"orders_for_{warehouse_id}_during_{target_year}-{target_month}": orders}
+            f"orders_for_warehouse-{warehouse_id}_during_{target_year}-{target_month}": orders}
 
 
 def general_report(db: Session, target_year: int, target_month: int, offset: int, limit: int):
