@@ -27,18 +27,20 @@ def create_inventory(
 @router.get("/")
 def get_inventories(
     item_reference: Optional[str] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # api key req
-    offset=0,
-    limit=100
+    api_key: str = Header(...),
 ):
     validate_api_key("view", api_key, db)
     if item_reference:
         inven = inventories_service.get_inventory(db, item_reference)
         if not inven:
             raise HTTPException(status_code=404, detail="Inventory not found")
-        return inven
-    return inventories_service.get_all_inventories(db, offset, limit)
+        return [inven]
+    return inventories_service.get_all_inventories(db, offset, limit, sort_by, order)
 
 
 @router.put("/{item_reference}", response_model=InventoryResponse)
