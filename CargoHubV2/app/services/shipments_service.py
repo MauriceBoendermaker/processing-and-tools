@@ -4,6 +4,8 @@ from CargoHubV2.app.models.shipments_model import Shipment
 from CargoHubV2.app.schemas.shipments_schema import ShipmentCreate, ShipmentUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_shipment(db: Session, shipment_data: dict):

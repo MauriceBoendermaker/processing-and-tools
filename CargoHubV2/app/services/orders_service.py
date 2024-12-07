@@ -4,6 +4,8 @@ from CargoHubV2.app.models.orders_model import Order
 from CargoHubV2.app.schemas.orders_schema import OrderUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_order(db: Session, order_data: dict):

@@ -4,6 +4,8 @@ from CargoHubV2.app.models.inventories_model import Inventory
 from CargoHubV2.app.schemas.inventories_schema import InventoryUpdate, InventoryResponse
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_inventory(db: Session, inventory_data: dict):

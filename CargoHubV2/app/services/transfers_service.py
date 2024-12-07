@@ -4,6 +4,8 @@ from fastapi import HTTPException, status
 from CargoHubV2.app.models.transfers_model import Transfer
 from CargoHubV2.app.schemas.transfers_schema import TransferCreate, TransferUpdate
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_transfer(db: Session, transfer_data: TransferCreate):

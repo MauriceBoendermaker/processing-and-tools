@@ -4,6 +4,8 @@ from CargoHubV2.app.models.locations_model import Location
 from CargoHubV2.app.schemas.locations_schema import LocationCreate, LocationUpdate
 from datetime import datetime
 from fastapi import HTTPException, status
+from typing import Optional
+
 
 
 def get_all_locations(db: Session, offset: int = 0, limit: int = 100):

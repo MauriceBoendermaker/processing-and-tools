@@ -4,6 +4,8 @@ from CargoHubV2.app.schemas.warehouses_schema import WarehouseCreate, WarehouseR
 from datetime import datetime
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from typing import Optional
+
 
 
 def get_all_warehouses(db: Session, offset=0, limit=100):

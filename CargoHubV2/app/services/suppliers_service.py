@@ -5,6 +5,8 @@ from CargoHubV2.app.models.items_model import Item
 from CargoHubV2.app.schemas.suppliers_schema import SuppliersCreate, SuppliersUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_supplier(db: Session, suppliers_data: SuppliersCreate):
