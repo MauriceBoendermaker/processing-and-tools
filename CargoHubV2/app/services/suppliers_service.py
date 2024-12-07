@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.suppliers_model import Supplier
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 from CargoHubV2.app.models.items_model import Item
 from CargoHubV2.app.schemas.suppliers_schema import SuppliersCreate, SuppliersUpdate
 from fastapi import HTTPException, status
