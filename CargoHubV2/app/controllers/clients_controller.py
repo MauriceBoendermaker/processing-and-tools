@@ -26,6 +26,10 @@ def create_client_endpoint(
 @router.get("/")
 def get_clients(
     id: Optional[int] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
@@ -34,8 +38,8 @@ def get_clients(
         client = get_client(db, id)
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
-        return client
-    return get_all_clients(db)
+        return [client]
+    return get_all_clients(db, offset, limit, sort_by, order)
 
 
 @router.put("/{id}", response_model=ClientResponse)
