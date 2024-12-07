@@ -38,7 +38,7 @@ def get_shipments(
         shipment = get_shipment(db, id)
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
-        return [shipment]
+        return shipment
     return get_all_shipments(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 

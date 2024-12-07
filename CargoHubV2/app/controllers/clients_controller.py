@@ -38,7 +38,7 @@ def get_clients(
         client = get_client(db, id)
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
-        return [client]
+        return client
     return get_all_clients(db, offset, limit, sort_by, order)
 
 

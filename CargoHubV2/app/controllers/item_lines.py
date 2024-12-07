@@ -39,7 +39,7 @@ def get_item_lines(
         item_line = get_item_line(db, id)
         if not item_line:
             raise HTTPException(status_code=404, detail="Item line not found")
-        return [item_line]
+        return item_line
     return get_all_item_lines(db, offset, limit, sort_by, order)
 
 

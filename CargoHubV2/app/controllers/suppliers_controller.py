@@ -30,7 +30,7 @@ def get_suppliers(
         supplier = get_supplier(db, code)
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
-        return [supplier]
+        return supplier
     return get_all_suppliers(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
