@@ -28,7 +28,7 @@ def get_warehouses(
         warehouse = warehouses_service.get_warehouse_by_code(db, code)
         if warehouse is None:
             raise HTTPException(status_code=404, detail="Warehouse not found")
-        return [warehouse]
+        return warehouse
     return warehouses_service.get_all_warehouses(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 

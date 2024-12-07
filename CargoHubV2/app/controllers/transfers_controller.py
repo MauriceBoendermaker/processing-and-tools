@@ -34,7 +34,7 @@ def get_transfers(
         transfer = transfers_service.get_transfer(db, id)
         if not transfer:
             raise HTTPException(status_code=404, detail="Transfer not found")
-        return [transfer]
+        return transfer
     return transfers_service.get_all_transfers(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
