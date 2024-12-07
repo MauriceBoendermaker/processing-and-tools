@@ -10,7 +10,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{warehouse_code}")
+@router.get("/{warehouse_id}")
 def generate_report_by_warehouse(
     warehouse_id: int,
     db: Session = Depends(get_db),
