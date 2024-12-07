@@ -43,9 +43,20 @@ def get_inventory(db: Session, item_reference: str):
         )
 
 
-def get_all_inventories(db: Session, offset: int = 0, limit: int = 100):
+def get_all_inventories(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Inventory).offset(offset).limit(limit).all()
+        query = db.query(Inventory)
+        if sort_by:
+            query = apply_sorting(query, Inventory, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
