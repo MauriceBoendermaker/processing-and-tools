@@ -5,7 +5,6 @@ from sqlalchemy import extract
 from CargoHubV2.app.models.orders_model import Order
 from itertools import chain
 import json
-import pdfkit
 
 
 def reporter(
