@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from CargoHubV2.app.services.item_types_service import (
@@ -46,46 +46,44 @@ def test_get_item_type_not_found():
 
 def test_get_all_item_types():
     db = MagicMock()
-
-    # Mock the full chain of method calls
-    db.query.return_value.offset.return_value.limit.return_value.all.return_value = [
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [
         ItemType(**SAMPLE_ITEM_TYPE),
         ItemType(name="Type Y", description="Another test type"),
     ]
 
-    # Call the function
-    results = get_all_item_types(db)
+    with patch("CargoHubV2.app.services.item_types_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_item_types(db, offset=0, limit=100, sort_by="name", order="asc")
 
-    # Assert that the chain of calls is correct
-    # Assert ItemType is passed to query
-    db.query.assert_called_once_with(ItemType)
-    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
-    db.query().offset().limit.assert_called_once_with(100)  # Assert limit is called with 100
-    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+        mock_sorting.assert_called_once_with(mock_query, ItemType, "name", "asc")
+        db.query.assert_called_once_with(ItemType)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
 
-    # Check the results
-    assert len(results) == 2
-    assert results[0].name == SAMPLE_ITEM_TYPE["name"]
-
+        assert len(results) == 2
+        assert results[0].name == SAMPLE_ITEM_TYPE["name"]
 
 def test_get_all_item_types_empty():
     db = MagicMock()
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = []
 
-    # Mock the full chain of method calls
-    db.query.return_value.offset.return_value.limit.return_value.all.return_value = []
+    with patch("CargoHubV2.app.services.item_types_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_item_types(db, offset=0, limit=100, sort_by="name", order="asc")
 
-    # Call the function
-    results = get_all_item_types(db)
+        mock_sorting.assert_called_once_with(mock_query, ItemType, "name", "asc")
+        db.query.assert_called_once_with(ItemType)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
 
-    # Assert that the chain of calls is correct
-    # Assert ItemType is passed to query
-    db.query.assert_called_once_with(ItemType)
-    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
-    db.query().offset().limit.assert_called_once_with(100)  # Assert limit is called with 100
-    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+        assert len(results) == 0
 
-    # Check the results
-    assert len(results) == 0  # Assert the returned list is empty
 
 
 # Test update_item_type

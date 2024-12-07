@@ -1,9 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from CargoHubV2.app.models.orders_model import Order
+from CargoHubV2.app.services.sorting_service import apply_sorting
 from CargoHubV2.app.schemas.orders_schema import OrderUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_order(db: Session, order_data: dict):
@@ -34,8 +37,25 @@ def get_order(db: Session, id: int):
     return order
 
 
-def get_all_orders(db: Session):
-    return db.query(Order).all()
+def get_all_orders(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
+    try:
+        query = db.query(Order)
+        if sort_by:
+            query = apply_sorting(query, Order, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving orders."
+        )
 
 
 def get_packinglist_for_order(db: Session, order_id: int):

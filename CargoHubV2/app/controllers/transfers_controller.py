@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 from CargoHubV2.app.services import transfers_service
 from CargoHubV2.app.schemas import transfers_schema
+from CargoHubV2.app.services.api_keys_service import validate_api_key
 from CargoHubV2.app.database import get_db
 from typing import Optional
 
@@ -19,12 +20,22 @@ def create_transfer(transfer: transfers_schema.TransferCreate, db: Session = Dep
 
 
 @router.get("/")
-def get_transfers(db: Session = Depends(get_db), id: Optional[int] = None, offset: int = 0, limit: int = 100):
+def get_transfers(
+    db: Session = Depends(get_db),
+    id: Optional[int] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
+    api_key: str = Header(...),
+):
+    validate_api_key("view", api_key, db)
     if id:
         transfer = transfers_service.get_transfer(db, id)
+        if not transfer:
+            raise HTTPException(status_code=404, detail="Transfer not found")
         return transfer
-    transfers = transfers_service.get_all_transfers(db, offset, limit)
-    return transfers
+    return transfers_service.get_all_transfers(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.delete("/{id}")

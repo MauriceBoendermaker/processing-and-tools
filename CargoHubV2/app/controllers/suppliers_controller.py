@@ -16,13 +16,22 @@ router = APIRouter(
 
 
 @router.get("/")
-def get_suppliers(code: Optional[str] = None, offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_suppliers(
+    code: Optional[str] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
+    validate_api_key("view", api_key, db)
     if code:
         supplier = get_supplier(db, code)
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
         return supplier
-    return get_all_suppliers(db, offset=offset, limit=limit)
+    return get_all_suppliers(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.post("/", response_model=SuppliersResponse)
