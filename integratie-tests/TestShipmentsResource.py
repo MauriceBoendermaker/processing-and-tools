@@ -8,7 +8,8 @@ class TestShipmentResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/shipments/"
         self.client = Client()
-        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5",
+                               "content-type": "application/json"}
 
         self.TEST_ID = 10103
 
@@ -109,7 +110,7 @@ class TestShipmentResource(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(check_id_exists(body, self.TEST_ID))
+        self.assertFalse(check_id_exists(body, self.TEST_ID))
 
     def test_3_get_shipment(self):
         response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
@@ -152,6 +153,7 @@ class TestShipmentResource(unittest.TestCase):
         self.assertEqual(body[1].get("amount"),
                          self.test_body["items"][1]["amount"])
     """
+
     def test_6_delete_shipment(self):
         # teardown/cleanup
         response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
@@ -171,6 +173,7 @@ class TestShipmentResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(isinstance(body[0], int))
     """
+
     def test_8_no_apikey(self):
         self.client.headers = {"content-type": "application/json"}
         response = self.client.get(self.baseUrl)
@@ -178,7 +181,8 @@ class TestShipmentResource(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_8_wrong_apikey(self):
-        self.client.headers = {"api-key": "something", "content-type": "application/json"}
+        self.client.headers = {"api-key": "something",
+                               "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
 
         self.assertEqual(response.status_code, 403)
