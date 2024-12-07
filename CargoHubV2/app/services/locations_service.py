@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.locations_model import Location
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 from CargoHubV2.app.schemas.locations_schema import LocationCreate, LocationUpdate
 from datetime import datetime
 from fastapi import HTTPException, status
