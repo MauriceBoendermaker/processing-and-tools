@@ -15,6 +15,7 @@ def generate_report_by_warehouse(
     warehouse_id: int,
     db: Session = Depends(get_db),
     year_to_report: int = 2024,
+    api_key: str = Header(...),
         month_to_report: int = 9):
 
     return reporting_service.report_for_warehouse(db, warehouse_id, year_to_report, month_to_report)
@@ -26,5 +27,6 @@ def generate_general_report(
     year_to_report: int = 2024,
     month_to_report: int = 9,
     offset: int = 0,
+    api_key: str = Header(...),
         limit: int = 100):
     return generate_general_report(db, year_to_report, month_to_report, offset, limit)
