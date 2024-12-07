@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from CargoHubV2.app.models.warehouses_model import Warehouse
 from CargoHubV2.app.schemas.warehouses_schema import WarehouseCreate, WarehouseResponse
 from datetime import datetime
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from typing import Optional
