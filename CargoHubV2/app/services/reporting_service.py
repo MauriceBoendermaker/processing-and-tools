@@ -3,32 +3,45 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import extract
 from CargoHubV2.app.models.orders_model import Order
+from itertools import chain
+import json
 
 
 def reporter(
         target_year: int,
         target_month: int,
         orders: list[Order],
-        warehouse_id: int = 0):
-    if warehouse_id == 0:
-        return {"target_month": f"{target_year}/{target_month}",
+        warehouse_id: int = -1):
+
+    rauw = []
+    for order in orders:
+        if order.items:
+            parsed_items = json.loads(order.items)
+            rauw.append(parsed_items)
+        else:
+            rauw.append([])
+
+    items_totaal = sum(item["amount"] for item in list(chain.from_iterable(rauw)))
+
+    if warehouse_id == -1:
+        return {"target_month": f"{target_year}-{target_month}",
                 "orders_done": len(orders),
-                "amount_of_items_sold": sum(item['amount'] for order in orders for item in order.items),
+                "amount_of_items_sold": items_totaal,
                 "total_revenue": sum(order.total_amount for order in orders),
                 "total_discount": sum(order.total_discount for order in orders),
                 "total_tax": sum(order.total_tax for order in orders),
                 "total_surcharge": sum(order.total_surcharge for order in orders),
-                f"orders__during_{target_year}/{target_month}": orders}
+                f"orders__during_{target_year}-{target_month}": orders}
 
     return {"warehouse": warehouse_id,
-            "target_month": f"{target_year}/{target_month}",
+            "target_month": f"{target_year}-{target_month}",
             "orders_done": len(orders),
-            "amount_of_items_sold": sum(item['amount'] for order in orders for item in order.items),
+            "amount_of_items_sold": items_totaal,
             "total_revenue": sum(order.total_amount for order in orders),
             "total_discount": sum(order.total_discount for order in orders),
             "total_tax": sum(order.total_tax for order in orders),
             "total_surcharge": sum(order.total_surcharge for order in orders),
-            f"orders_for_{warehouse_id}_during_{target_year}/{target_month}": orders}
+            f"orders_for_{warehouse_id}_during_{target_year}-{target_month}": orders}
 
 
 def general_report(db: Session, target_year: int, target_month: int, offset: int, limit: int):
