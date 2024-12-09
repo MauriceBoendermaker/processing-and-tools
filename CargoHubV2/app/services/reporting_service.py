@@ -1,13 +1,20 @@
-from datetime import datetime
-from fastapi import HTTPException, status, FastAPI
-from sqlalchemy.orm import Session
-from sqlalchemy import extract
-from CargoHubV2.app.models.orders_model import Order
-from itertools import chain
+import io
+import os
 import json
 import pdfkit
-from fastapi.responses import FileResponse, JSONResponse
+import base64
+import matplotlib.pyplot as plt
+
 from pathlib import Path
+from jinja2 import Template
+from itertools import chain
+from datetime import datetime
+from sqlalchemy import extract
+from sqlalchemy.orm import Session
+from fastapi import HTTPException, status, FastAPI
+from CargoHubV2.app.models.orders_model import Order
+from fastapi.responses import FileResponse, JSONResponse
+
 
 PDF_DIR = Path("generated_pdfs")
 PDF_DIR.mkdir(exist_ok=True)
