@@ -40,6 +40,27 @@ def create_charts(data: dict):
     bar_chart.seek(0)
     bar_chart_base64 = base64.b64encode(bar_chart.read()).decode("utf-8")
     plt.close()
+
+    # Genereer pie chart
+    plt.figure(figsize=(6, 4))
+    items_sold = int(data["amount_of_items_sold"])
+    remaining_items = max(0, 100 - items_sold)
+    labels = ["Items Sold", "Remaining"]
+    sizes = [items_sold, remaining_items]
+    plt.pie(sizes, labels=labels, autopct="%1.1f%%", startangle=140, colors=["#51d3f5", "gray"])
+    plt.title("Item Sales Distribution")
+    pie_chart = io.BytesIO()
+    plt.savefig(pie_chart, format='png')
+    pie_chart.seek(0)
+    pie_chart_base64 = base64.b64encode(pie_chart.read()).decode("utf-8")
+    plt.close()
+
+    return {
+        "bar_chart": f"data:image/png;base64,{bar_chart_base64}",
+        "pie_chart": f"data:image/png;base64,{pie_chart_base64}",
+    }
+
+
 def generate_pdf(content: dict):
     try:
         pdf_content = json.dumps(content, indent=4)
