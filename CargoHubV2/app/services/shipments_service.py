@@ -2,9 +2,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.shipments_model import Shipment
 from CargoHubV2.app.models.orders_model import Order
+from CargoHubV2.app.services.sorting_service import apply_sorting
 from CargoHubV2.app.schemas.shipments_schema import ShipmentCreate, ShipmentUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
 
 
 def create_shipment(db: Session, shipment_data: dict):
@@ -30,7 +32,8 @@ def create_shipment(db: Session, shipment_data: dict):
 
 def get_shipment(db: Session, shipment_id: int):
     try:
-        shipment = db.query(Shipment).filter(Shipment.id == shipment_id).first()
+        shipment = db.query(Shipment).filter(
+            Shipment.id == shipment_id).first()
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
         return shipment
@@ -41,9 +44,20 @@ def get_shipment(db: Session, shipment_id: int):
         )
 
 
-def get_all_shipments(db: Session):
+def get_all_shipments(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Shipment).all()
+        query = db.query(Shipment)
+        if sort_by:
+            query = apply_sorting(query, Shipment, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -53,7 +67,8 @@ def get_all_shipments(db: Session):
 
 def update_shipment(db: Session, shipment_id: int, shipment_data: ShipmentUpdate):
     try:
-        shipment = db.query(Shipment).filter(Shipment.id == shipment_id).first()
+        shipment = db.query(Shipment).filter(
+            Shipment.id == shipment_id).first()
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
         update_data = shipment_data.model_dump(exclude_unset=True)
@@ -79,7 +94,8 @@ def update_shipment(db: Session, shipment_id: int, shipment_data: ShipmentUpdate
 
 def delete_shipment(db: Session, shipment_id: int):
     try:
-        shipment = db.query(Shipment).filter(Shipment.id == shipment_id).first()
+        shipment = db.query(Shipment).filter(
+            Shipment.id == shipment_id).first()
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
         db.delete(shipment)

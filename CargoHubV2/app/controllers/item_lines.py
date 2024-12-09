@@ -25,13 +25,22 @@ def create_item_line_endpoint(
 
 
 @router.get("/")
-def get_item_lines(id: Optional[int] = None, db: Session = Depends(get_db)):
+def get_item_lines(
+    id: Optional[int] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",  
+    order: Optional[str] = "asc",  
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
+    validate_api_key("view", api_key, db)
     if id:
         item_line = get_item_line(db, id)
         if not item_line:
             raise HTTPException(status_code=404, detail="Item line not found")
         return item_line
-    return get_all_item_lines(db)
+    return get_all_item_lines(db, offset, limit, sort_by, order)
 
 
 @router.put("/{id}", response_model=ItemLineResponse)

@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.item_lines_model import ItemLine
 from CargoHubV2.app.schemas.item_lines_schema import ItemLineUpdate
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 from typing import List, Optional
 from fastapi import HTTPException, status
 
@@ -26,9 +28,20 @@ def get_item_line(db: Session, id: int) -> Optional[ItemLine]:
     return db.query(ItemLine).filter(ItemLine.id == id).first()
 
 
-def get_all_item_lines(db: Session, offset: int = 0, limit: int = 100) -> List[ItemLine]:
+def get_all_item_lines(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",  # Default sort by "id"
+    order: Optional[str] = "asc"   # Default order is ascending
+) -> List[ItemLine]:
     try:
-        return db.query(ItemLine).offset(offset).limit(limit).all()
+        query = db.query(ItemLine)
+        if sort_by:  # Apply sorting only if sort_by is specified
+            query = apply_sorting(query, ItemLine, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

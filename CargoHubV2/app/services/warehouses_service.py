@@ -2,13 +2,27 @@ from sqlalchemy.orm import Session
 from CargoHubV2.app.models.warehouses_model import Warehouse
 from CargoHubV2.app.schemas.warehouses_schema import WarehouseCreate, WarehouseResponse
 from datetime import datetime
+from CargoHubV2.app.services.sorting_service import apply_sorting
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from typing import Optional
 
 
-def get_all_warehouses(db: Session, offset=0, limit=100):
+
+def get_all_warehouses(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Warehouse).offset(offset).limit(limit).all()
+        query = db.query(Warehouse)
+        if sort_by:
+            query = apply_sorting(query, Warehouse, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

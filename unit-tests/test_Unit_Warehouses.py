@@ -95,12 +95,21 @@ def test_get_warehouse_not_found():
 
 def test_get_all_warehouses():
     db = MagicMock()
-    db.query().offset().limit().all.return_value = [Warehouse(**SAMPLE_WAREHOUSE_DATA)]
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [Warehouse(**SAMPLE_WAREHOUSE_DATA)]
 
-    results = get_all_warehouses(db)
+    with patch("CargoHubV2.app.services.warehouses_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_warehouses(db, offset=0, limit=100, sort_by="id", order="asc")
 
-    assert len(results) == 1
-    db.query().offset().limit().all.assert_called_once()
+        mock_sorting.assert_called_once_with(mock_query, Warehouse, "id", "asc")
+        db.query.assert_called_once_with(Warehouse)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
+
+        assert len(results) == 1
 
 
 def test_update_warehouse_found():
