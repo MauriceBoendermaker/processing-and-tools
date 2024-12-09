@@ -63,9 +63,8 @@ def create_charts(data: dict):
 
 def generate_pdf(content: dict):
     try:
-        pdf_content = json.dumps(content, indent=4)
+        charts = create_charts(content)
 
-        pdf_filename = f"report_for_{content.get("warehouse", "all")}_month_{content.get("target_month")}.pdf"
         # Load de template file
         with open(TEMPLATE_FILE, "r") as file:
             html_template = file.read()
@@ -76,9 +75,14 @@ def generate_pdf(content: dict):
             **content,
             **charts
         )
+        
+        # pdf_content = json.dumps(content, indent=4)
+
+        pdf_filename = f"report_for_{content.get('warehouse', 'all')}_month_{content.get('target_month')}.pdf"
         pdf_path = PDF_DIR/pdf_filename
 
         pdfkit.from_string(pdf_content, str(pdf_path))
+        pdfkit.from_string(html_content, str(pdf_path))
 
         # link naar de pdf
         pdf_url = f"http://127.0.0.1:3000/api/v2/reports/get-pdf/{pdf_filename}"
