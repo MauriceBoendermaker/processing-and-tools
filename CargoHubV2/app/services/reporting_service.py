@@ -21,6 +21,25 @@ PDF_DIR.mkdir(exist_ok=True)
 
 TEMPLATE_FILE = Path(os.path.dirname(__file__)).parent / "report_template.html"
 
+def create_charts(data: dict):
+    # Genereer bar chart
+    plt.figure(figsize=(6, 4))
+    categories = ["Total Revenue", "Total Discount", "Total Tax", "Total Surcharge"]
+    values = [
+        float(data["total_revenue"]),
+        float(data["total_discount"]),
+        float(data["total_tax"]),
+        float(data["total_surcharge"]),
+    ]
+    plt.bar(categories, values, color="#51d3f5")
+    plt.title("Financial Summary")
+    plt.xlabel("Categories")
+    plt.ylabel("Amount")
+    bar_chart = io.BytesIO()
+    plt.savefig(bar_chart, format='png')
+    bar_chart.seek(0)
+    bar_chart_base64 = base64.b64encode(bar_chart.read()).decode("utf-8")
+    plt.close()
 def generate_pdf(content: dict):
     try:
         pdf_content = json.dumps(content, indent=4)
