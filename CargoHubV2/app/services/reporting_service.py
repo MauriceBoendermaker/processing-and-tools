@@ -66,6 +66,16 @@ def generate_pdf(content: dict):
         pdf_content = json.dumps(content, indent=4)
 
         pdf_filename = f"report_for_{content.get("warehouse", "all")}_month_{content.get("target_month")}.pdf"
+        # Load de template file
+        with open(TEMPLATE_FILE, "r") as file:
+            html_template = file.read()
+
+        # Render en unpack de contents
+        template = Template(html_template)
+        html_content = template.render(
+            **content,
+            **charts
+        )
         pdf_path = PDF_DIR/pdf_filename
 
         pdfkit.from_string(pdf_content, str(pdf_path))
