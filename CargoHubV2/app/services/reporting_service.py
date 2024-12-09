@@ -19,6 +19,7 @@ from fastapi.responses import FileResponse, JSONResponse
 PDF_DIR = Path("generated_pdfs")
 PDF_DIR.mkdir(exist_ok=True)
 
+TEMPLATE_FILE = Path(os.path.dirname(__file__)).parent / "report_template.html"
 
 def generate_pdf(content: dict):
     try:
