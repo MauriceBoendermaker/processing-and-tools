@@ -81,7 +81,6 @@ def generate_pdf(content: dict):
         pdf_filename = f"report_for_{content.get('warehouse', 'all')}_month_{content.get('target_month')}.pdf"
         pdf_path = PDF_DIR/pdf_filename
 
-        pdfkit.from_string(pdf_content, str(pdf_path))
         pdfkit.from_string(html_content, str(pdf_path))
 
         # link naar de pdf
