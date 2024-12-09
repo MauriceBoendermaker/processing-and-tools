@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.post("/")
-def create_transfer(transfer: transfers_schema.TransferCreate, db: Session = Depends(get_db)):
+def create_transfer(transfer: transfers_schema.TransferCreate, db: Session = Depends(get_db), api_key: str = Header(...),):
     db_transfer = transfers_service.create_transfer(db, transfer)
     return db_transfer
 
@@ -39,11 +39,11 @@ def get_transfers(
 
 
 @router.delete("/{id}")
-def delete_transfer(id: int, db: Session = Depends(get_db)):
+def delete_transfer(id: int, db: Session = Depends(get_db), api_key: str = Header(...),):
     return transfers_service.delete_transfer(db, id)
 
 
 @router.put("/{id}")
-def update_transfer(id: int, transfer_data: transfers_schema.TransferUpdate, db: Session = Depends(get_db)):
+def update_transfer(id: int, transfer_data: transfers_schema.TransferUpdate, db: Session = Depends(get_db), api_key: str = Header(...),):
     updated_transfer = transfers_service.update_transfer(db, id, transfer_data)
     return updated_transfer

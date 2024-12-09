@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 10px; text-align: left; }
+        .chart { text-align: center; margin: 20px 0; }
+        .chart img { width: 80%; max-width: 500px; }
+    </style>
+</head>
+<body>
+    <h1>Warehouse Report</h1>
+    <p><strong>Warehouse:</strong> {{ warehouse }}</p>
+    <p><strong>Target Month:</strong> {{ target_month }}</p>
+    <p><strong>Orders Completed:</strong> {{ orders_done }}</p>
+    <p><strong>Items Sold:</strong> {{ amount_of_items_sold }}</p>
+    
+    <table>
+        <tr>
+            <th>Total Revenue</th>
+            <th>Total Discount</th>
+            <th>Total Tax</th>
+            <th>Total Surcharge</th>
+        </tr>
+        <tr>
+            <td>{{ total_revenue }}</td>
+            <td>{{ total_discount }}</td>
+            <td>{{ total_tax }}</td>
+            <td>{{ total_surcharge }}</td>
+        </tr>
+    </table>
+
+    <div class="chart">
+        <h2>Financial Summary</h2>
+        <img src="{{ bar_chart }}" alt="Bar Chart">
+    </div>
+    <div class="chart">
+        <h2>Item Sales Distribution</h2>
+        <img src="{{ pie_chart }}" alt="Pie Chart">
+    </div>
+</body>
+</html>

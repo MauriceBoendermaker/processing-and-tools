@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.shipments_model import Shipment
+from CargoHubV2.app.models.orders_model import Order
 from CargoHubV2.app.services.sorting_service import apply_sorting
-
 from CargoHubV2.app.schemas.shipments_schema import ShipmentCreate, ShipmentUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
@@ -107,3 +107,10 @@ def delete_shipment(db: Session, shipment_id: int):
             detail="An error occurred while deleting the shipment."
         )
     return {"detail": "Shipment deleted"}
+
+
+def get_orders_by_shipment_id(db: Session, shipment_id:int):
+    orders = db.query(Order).filter(Order.shipment_id == shipment_id).all()
+    if not orders:
+        raise HTTPException(status_code=404, detail="No orders found")
+    return orders
