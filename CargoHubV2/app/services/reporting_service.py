@@ -75,8 +75,6 @@ def generate_pdf(content: dict):
             **content,
             **charts
         )
-        
-        # pdf_content = json.dumps(content, indent=4)
 
         pdf_filename = f"report_for_{content.get('warehouse', 'all')}_month_{content.get('target_month')}.pdf"
         pdf_path = PDF_DIR/pdf_filename
