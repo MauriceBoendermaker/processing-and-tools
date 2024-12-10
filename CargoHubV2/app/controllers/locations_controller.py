@@ -4,6 +4,7 @@ from CargoHubV2.app.services import locations_service
 from CargoHubV2.app.schemas import locations_schema
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.services.api_keys_service import validate_api_key
+from typing import Optional
 from typing import List
 
 
@@ -14,9 +15,16 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[locations_schema.Location])
-def get_all_locations(db: Session = Depends(get_db), offset = 0, limit = 100, api_key: str = Header(...)):
+def get_all_locations(
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
     validate_api_key("view", api_key, db)
-    return locations_service.get_all_locations(db, offset=offset, limit=limit)
+    return locations_service.get_all_locations(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.get("/{id}", response_model=locations_schema.Location)
@@ -29,12 +37,17 @@ def get_location_by_id(id: int, db: Session = Depends(get_db), api_key: str = He
 
 
 @router.get("/warehouse/{warehouse_id}", response_model=List[locations_schema.Location])
-def get_locations_by_warehouse_id(warehouse_id: int, db: Session = Depends(get_db), offset = 0, limit = 100, api_key: str = Header(...)):
+def get_locations_by_warehouse_id(
+    warehouse_id: int,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
     validate_api_key("view", api_key, db)
-    locations = locations_service.get_locations_by_warehouse_id(db, warehouse_id, offset=offset, limit=limit)
-    if not locations:
-        raise HTTPException(status_code=404, detail="Location warehouse not found")
-    return locations
+    return locations_service.get_locations_by_warehouse_id(db, warehouse_id, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.post("/")

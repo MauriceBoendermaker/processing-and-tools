@@ -4,13 +4,14 @@ from datetime import datetime
 
 
 class InventoryBase(BaseModel):
-    description: Optional[str] = None
-    item_reference: Optional[str] = Field(None, title="Unique item reference")
-    total_on_hand: Optional[int] = None
-    total_expected: Optional[int] = None
-    total_ordered: Optional[int] = None
-    total_allocated: Optional[int] = None
-    total_available: Optional[int] = None
+    description: str = None
+    item_reference: str = Field(None, title="Unique item reference")
+    total_on_hand: int = None
+    total_expected: int = None
+    total_ordered: int = None
+    total_allocated: int = None
+    total_available: int = None
+    locations: list[int] = None
 
     class Config:
         orm_mode = True
@@ -38,5 +39,6 @@ class InventoryResponse(InventoryBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }

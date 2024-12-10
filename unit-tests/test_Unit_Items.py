@@ -8,7 +8,6 @@ from CargoHubV2.app.models.items_model import Item
 from CargoHubV2.app.schemas.items_schema import ItemCreate, ItemUpdate
 
 
-# Sample data to use in tests
 SAMPLE_ITEM_DATA = {
     "uid": "123e4567-e89b-12d3-a456-426614174000",
     "code": "ITEM-TEST",
@@ -31,7 +30,6 @@ SAMPLE_ITEM_DATA = {
 }
 
 
-# Test for create_item
 def test_create_item():
     db = MagicMock()
     item_data = ItemCreate(**SAMPLE_ITEM_DATA)
@@ -60,12 +58,11 @@ def test_create_item_integrity_error():
     db.rollback.assert_called_once()
 
 
-# Test for get_item
 def test_get_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
 
-    result = get_item(db, "123e4567-e89b-12d3-a456-426614174000")
+    result = get_item(db, "ITEM-TEST")
 
     assert result.uid == SAMPLE_ITEM_DATA["uid"]
     db.query().filter().first.assert_called_once()
@@ -82,29 +79,41 @@ def test_get_item_not_found():
     assert "Item not found" in str(excinfo.value.detail)
 
 
-# Test for get_all_items
 def test_get_all_items():
     db = MagicMock()
-    db.query().all.return_value = [Item(**SAMPLE_ITEM_DATA)]
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [
+        Item(**SAMPLE_ITEM_DATA)
+    ]
 
-    results = get_all_items(db)
+    with patch("CargoHubV2.app.services.items_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_items(db, offset=0, limit=100, sort_by="code", order="asc")
 
-    assert len(results) == 1
-    db.query().all.assert_called_once()
+        mock_sorting.assert_called_once_with(mock_query, Item, "code", "asc")
+        db.query.assert_called_once_with(Item)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
+
+        assert len(results) == 1
+        assert results[0].code == SAMPLE_ITEM_DATA["code"]
 
 
-# Test for update_item
+
+
 def test_update_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
     item_update_data = ItemUpdate(description="Updated description")
 
     updated_item = update_item(
-        db, "123e4567-e89b-12d3-a456-426614174000", item_update_data)
+        db, "ITEM-DATA", item_update_data)
 
     assert updated_item.description == "Updated description"
     db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(updated_item)
+    db.refresh.assert_called_once()
 
 
 def test_update_item_not_found():
@@ -113,7 +122,7 @@ def test_update_item_not_found():
     item_update_data = ItemUpdate(description="Updated description")
 
     with pytest.raises(HTTPException) as excinfo:
-        update_item(db, "nonexistent-uid", item_update_data)
+        update_item(db, "nonexistent-code", item_update_data)
 
     assert excinfo.value.status_code == 404
     assert "Item not found" in str(excinfo.value.detail)
@@ -126,7 +135,7 @@ def test_update_item_integrity_error():
     item_update_data = ItemUpdate(description="Updated description")
 
     with pytest.raises(HTTPException) as excinfo:
-        update_item(db, "123e4567-e89b-12d3-a456-426614174000",
+        update_item(db, "ITEM-DATA",
                     item_update_data)
 
     assert excinfo.value.status_code == 400
@@ -135,12 +144,11 @@ def test_update_item_integrity_error():
     db.rollback.assert_called_once()
 
 
-# Test for delete_item
 def test_delete_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
 
-    result = delete_item(db, "123e4567-e89b-12d3-a456-426614174000")
+    result = delete_item(db, "TEST-DATA")
 
     assert result == {"detail": "Item deleted"}
     db.delete.assert_called_once()
@@ -152,7 +160,7 @@ def test_delete_item_not_found():
     db.query().filter().first.return_value = None
 
     with pytest.raises(HTTPException) as excinfo:
-        delete_item(db, "nonexistent-uid")
+        delete_item(db, "nonexistent-code")
 
     assert excinfo.value.status_code == 404
     assert "Item not found" in str(excinfo.value.detail)

@@ -23,4 +23,3 @@ class Supplier(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     items = relationship("Item", back_populates="suppliers_rel")
-    

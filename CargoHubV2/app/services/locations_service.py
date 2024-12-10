@@ -1,13 +1,34 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.locations_model import Location
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 from CargoHubV2.app.schemas.locations_schema import LocationCreate, LocationUpdate
 from datetime import datetime
 from fastapi import HTTPException, status
+from typing import Optional
 
 
-def get_all_locations(db: Session, offset: int = 0, limit: int = 100):
-    return db.query(Location).offset(offset).limit(limit).all()
+
+def get_all_locations(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
+    try:
+        query = db.query(Location)
+        if sort_by:
+            query = apply_sorting(query, Location, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving locations."
+        )
 
 
 def get_location_by_id(db: Session, id: int):
@@ -17,11 +38,29 @@ def get_location_by_id(db: Session, id: int):
     return location
 
 
-def get_locations_by_warehouse_id(db: Session, warehouse_id: int, offset: int = 0, limit: int = 100):
-    locations = db.query(Location).filter(Location.warehouse_id == warehouse_id).offset(offset).limit(limit).all()
-    if len(locations) == 0:  # If no locations are found
-        raise HTTPException(status_code=404, detail="Location warehouse not found")
-    return locations
+def get_locations_by_warehouse_id(
+    db: Session,
+    warehouse_id: int,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
+    try:
+        query = db.query(Location).filter(Location.warehouse_id == warehouse_id)
+        if sort_by:
+            query = apply_sorting(query, Location, sort_by, order)
+        locations = query.offset(offset).limit(limit).all()
+        if len(locations) == 0:
+            raise HTTPException(status_code=404, detail="Location warehouse not found")
+        return locations
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving locations."
+        )
 
 
 def create_location(db: Session, location_data: LocationCreate):

@@ -34,6 +34,8 @@ class OrderCreate(OrderBase):
 class OrderUpdate(BaseModel):
     order_status: Optional[str] = None
     notes: Optional[str] = None
+    shipping_notes: Optional[str] = None
+    picking_notes: Optional[str] = None
     total_amount: Optional[float] = None
 
     class Config:

@@ -1,9 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.clients_model import Client
-from CargoHubV2.app.schemas.clients_schema import ClientCreate, ClientUpdate
+from CargoHubV2.app.schemas.clients_schema import ClientResponse, ClientUpdate
+from CargoHubV2.app.services.sorting_service import apply_sorting
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_client(db: Session, client_data: dict):
@@ -24,7 +27,7 @@ def create_client(db: Session, client_data: dict):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while creating the client."
         )
-    return client
+    return ClientResponse.model_validate(client)
 
 
 def get_client(db: Session, client_id: int):
@@ -40,9 +43,20 @@ def get_client(db: Session, client_id: int):
         )
 
 
-def get_all_clients(db: Session):
+def get_all_clients(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Client).all()
+        query = db.query(Client)
+        if sort_by:
+            query = apply_sorting(query, Client, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -73,7 +87,7 @@ def update_client(db: Session, client_id: int, client_data: ClientUpdate):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while updating the client."
         )
-    return client
+    return ClientResponse.model_validate(client)
 
 
 def delete_client(db: Session, client_id: int):

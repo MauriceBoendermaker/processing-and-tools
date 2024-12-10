@@ -2,14 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.schemas.orders_schema import OrderResponse, OrderCreate, OrderUpdate
-from CargoHubV2.app.services.orders_service import (
-    create_order,
-    get_order,
-    get_all_orders,
-    update_order,
-    delete_order,
-    get_items_in_order,
-)
+from CargoHubV2.app.services.orders_service import *
 from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import List, Optional
 
@@ -30,9 +23,13 @@ def create_order_endpoint(
     return order
 
 
-@router.get("/", response_model=List[OrderResponse])
+@router.get("/")
 def get_orders(
     id: Optional[int] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
@@ -41,8 +38,8 @@ def get_orders(
         order = get_order(db, id)
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
-        return [order]
-    return get_all_orders(db)
+        return order
+    return get_all_orders(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.get("/{id}/items")
@@ -83,3 +80,29 @@ def delete_order_endpoint(
     if not result:
         raise HTTPException(status_code=404, detail="Order not found")
     return {"detail": "Order deleted"}
+
+
+@router.get("/{order_id}/packinglist")
+def get_pack_list( 
+    order_id: int, 
+    db: Session = Depends(get_db), 
+    api_key:str = Header(...)
+    ):
+    validate_api_key("view", api_key, db)
+    packlist = get_packinglist_for_order(db, order_id)
+    if not packlist:
+        raise HTTPException(status_code=404, detail="Packlist not found")
+    return packlist
+
+
+@router.get("/{order_id}/shipments")
+def get_shipments_linked_with_order(
+    order_id:int,
+    db: Session = Depends(get_db),
+    api_key:str = Header(...)
+    ):
+    validate_api_key("view", api_key, db)
+    shipment = get_shipments_by_order_id(db, order_id)
+    if not shipment:
+        raise HTTPException(status_code=404, detail="No shipments found")
+    return shipment

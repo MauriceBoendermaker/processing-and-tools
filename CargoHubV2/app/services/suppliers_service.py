@@ -1,10 +1,14 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.suppliers_model import Supplier
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 from CargoHubV2.app.models.items_model import Item
 from CargoHubV2.app.schemas.suppliers_schema import SuppliersCreate, SuppliersUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_supplier(db: Session, suppliers_data: SuppliersCreate):
@@ -34,9 +38,9 @@ def create_supplier(db: Session, suppliers_data: SuppliersCreate):
     return suppliers
 
 
-def get_supplier(db: Session, id: int):
+def get_supplier(db: Session, code: str):
     try:
-        supplier = db.query(Supplier).filter(Supplier.id == id).first()
+        supplier = db.query(Supplier).filter(Supplier.code == code).first()
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
         return supplier
@@ -47,9 +51,20 @@ def get_supplier(db: Session, id: int):
         )
 
 
-def get_all_suppliers(db: Session, offset: int = 0, limit: int = 100):
+def get_all_suppliers(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Supplier).offset(offset).limit(limit).all()
+        query = db.query(Supplier)
+        if sort_by:
+            query = apply_sorting(query, Supplier, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -57,8 +72,8 @@ def get_all_suppliers(db: Session, offset: int = 0, limit: int = 100):
         )
 
 
-def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
-    to_update = db.query(Supplier).filter(Supplier.id == id).first()
+def update_supplier(db: Session, code: str, supplier_data: SuppliersUpdate):
+    to_update = db.query(Supplier).filter(Supplier.code == code).first()
     if not to_update:
         raise HTTPException(status_code=404, detail="Supplier not found")
     for key, value in supplier_data.model_dump(exclude_unset=True).items():
@@ -70,11 +85,10 @@ def update_supplier(db: Session, id: int, supplier_data: SuppliersUpdate):
         db.rollback()
         raise HTTPException(status_code=400, detail="An integrity error occurred while updating the supplier.")
     return to_update
-    
 
 
-def delete_supplier(db: Session, id: int):
-    supplier_to_delete = db.query(Supplier).filter(Supplier.id == id).first()
+def delete_supplier(db: Session, code: str):
+    supplier_to_delete = db.query(Supplier).filter(Supplier.code == code).first()
     if not supplier_to_delete:
         raise HTTPException(status_code=404, detail="Supplier not found")
     db.delete(supplier_to_delete)

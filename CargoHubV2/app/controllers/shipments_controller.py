@@ -23,9 +23,13 @@ def create_shipment_endpoint(
     return shipment
 
 
-@router.get("/", response_model=List[ShipmentResponse])
+@router.get("/")
 def get_shipments(
     id: Optional[int] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
@@ -34,8 +38,8 @@ def get_shipments(
         shipment = get_shipment(db, id)
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
-        return [shipment]
-    return get_all_shipments(db)
+        return shipment
+    return get_all_shipments(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.put("/{id}", response_model=ShipmentResponse)
@@ -63,3 +67,16 @@ def delete_shipment_endpoint(
     if not shipment:
         raise HTTPException(status_code=404, detail="Shipment not found")
     return shipment
+
+
+@router.get("/{shipment_id}/orders")
+def get_orders_linked_with_shipment(
+    shipment_id:int,
+    db:Session = Depends(get_db),
+    api_key:str = Header(...)
+):
+    validate_api_key("view", api_key, db)
+    order = get_orders_by_shipment_id(db, shipment_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="No orders found")
+    return order

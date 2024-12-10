@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Float, JSON
 from ..database import Base
 from datetime import datetime
 
+
 class Shipment(Base):
     __tablename__ = "shipments"
 
@@ -21,6 +22,6 @@ class Shipment(Base):
     transfer_mode = Column(String, index=True)
     total_package_count = Column(Integer)
     total_package_weight = Column(Float)
-    items = Column(JSON)  # JSON to store the items array
+    items = Column(JSON)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
