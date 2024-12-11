@@ -69,7 +69,6 @@ def load(path: str, db: Session):
 
                 obj = model_mapping[file](**record)
                 db.add(obj)
-                # db.flush()
 
             except Exception as e:
                 db.rollback()
