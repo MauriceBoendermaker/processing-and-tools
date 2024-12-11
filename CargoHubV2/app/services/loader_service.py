@@ -79,7 +79,7 @@ def load(path: str, db: Session):
         return "Data successfully loaded."
     except SQLAlchemyError as e:
         db.rollback()
-        print(f"error detected: {e}")
+        print(f"Error detected: {e}")
 
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
