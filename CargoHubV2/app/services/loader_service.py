@@ -29,7 +29,7 @@ model_mapping = {
 
 
 def load(path: str, db: Session):
-    base_dir = os.path.abspath(os.path.join(__file__, "C:/Users/mauri/source/repos/HR Jaar 2/CargoHub"))
+    base_dir = os.path.abspath(os.path.join(__file__, "C:/Users/mauri/Documents/python/Cargohub"))
 
     for file in model_mapping:
         json_file_path = os.path.join(base_dir, "data", file)
