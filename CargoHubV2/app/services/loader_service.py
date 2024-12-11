@@ -37,15 +37,16 @@ def load(path: str, db: Session):
         with open(json_file_path, 'r') as json_file:
             data = json.load(json_file)
 
-        id_tracker = set()
+        existing_ids = {id_[0] for id_ in db.query(model_mapping[file].id).all()} if hasattr(model_mapping[file], 'id') else set()
+        id_tracker = set()  # Track IDs in the current file
 
         for num, record in tqdm(enumerate(data, start=1), desc=f"Processing {file}"):
             if file == "orders.json":
                 original_id = record["id"]
 
-                while record["id"] in id_tracker:
-                    record["id"] = num
-                
+                while record["id"] in id_tracker or record["id"] in existing_ids:
+                    record["id"] = max(existing_ids.union(id_tracker)) + 1
+
                 id_tracker.add(record["id"])
                 if record["id"] != original_id:
                     print(f"Adjusted ID from {original_id} to {record['id']}")
