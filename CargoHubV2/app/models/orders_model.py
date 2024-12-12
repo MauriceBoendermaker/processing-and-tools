@@ -19,13 +19,14 @@ class Order(Base):
     warehouse_id = Column(Integer, ForeignKey("warehouses.id"), nullable=False)
     ship_to = Column(Integer, nullable=True)
     bill_to = Column(Integer, nullable=True)
-    shipment_id = Column(Integer, nullable=True)
+    shipment_id = Column(JSON, nullable=True)
     total_amount = Column(Float, nullable=False)
     total_discount = Column(Float, nullable=True)
     total_tax = Column(Float, nullable=True)
     total_surcharge = Column(Float, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow,
+                        onupdate=datetime.utcnow)
     items = Column(JSON, nullable=True)
 
     warehouse = relationship("Warehouse")
