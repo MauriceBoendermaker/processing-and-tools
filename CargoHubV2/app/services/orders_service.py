@@ -134,24 +134,7 @@ def get_shipments_by_order_id(db: Session, order_id: int):
     if not shipments:
         raise HTTPException(status_code=404, detail="No shipments found for the given order")
     
-    return {"shipment_ids": shipment_ids, "shipment":shipments}
-
-
-
-
-# def get_shipments_by_order_ids(db: Session, order_ids: List[int]):
-#     # Check if order_ids is a single ID, convert it to a list for consistency
-#     if not isinstance(order_ids, list):
-#         order_ids = [order_ids]
-
-#     shipments = db.query(Shipment).filter(
-#         Shipment.order_id.in_(order_ids)).all()
-
-#     if not shipments:
-#         raise HTTPException(
-#             status_code=404, detail="No Shipment found for the given orders"
-#         )
-#     return shipments
+    return {"Order id": order.id, "Shipment Id's": shipment_ids, "Shipment": shipments}
 
 
 def update_shipments_in_order(db: Session, order_id: int, order_data: OrderShipmentUpdate):
