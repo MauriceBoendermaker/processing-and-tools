@@ -91,12 +91,14 @@ def create_location(db: Session, location_data: LocationCreate):
 
 
 def delete_location(db: Session, id: str) -> dict:
-    location_to_delete = db.query(Location).filter(Location.id == id).first()
+    location_to_delete = db.query(Location).filter(Location.id == id, Location.is_deleted == False).first()
     if not location_to_delete:
         raise HTTPException(status_code=404, detail="Location not found")
-    db.delete(location_to_delete)
+    
+    location_to_delete.is_deleted = True  # Soft delete by updating the flag
     db.commit()
-    return {"detail": "location deleted"}
+    return {"detail": "Location soft deleted"}
+
 
 
 def update_location(db: Session, id: int, location_data: LocationUpdate) -> Location:

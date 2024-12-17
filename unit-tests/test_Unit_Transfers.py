@@ -125,13 +125,16 @@ def test_update_transfer_integrity_error():
 
 def test_delete_transfer_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Transfer(**SAMPLE_TRANSFER_DATA)
+    mock_transfer = Transfer(**SAMPLE_TRANSFER_DATA)
+    db.query().filter().first.return_value = mock_transfer
 
     result = delete_transfer(db, 1)
 
-    assert result == {"detail": "Transfer deleted"}
-    db.delete.assert_called_once()
+    assert result == {"detail": "Transfer soft deleted"}
+    assert mock_transfer.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
+
 
 
 def test_delete_transfer_not_found():

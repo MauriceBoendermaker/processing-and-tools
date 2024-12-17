@@ -135,11 +135,16 @@ def test_update_location_integrity_error():
 
 def test_delete_location_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Location(**SAMPLE_LOCATION_DATA)
+    mock_location = Location(**SAMPLE_LOCATION_DATA)
+    db.query().filter().first.return_value = mock_location
+
     result = delete_location(db, "B.5.2")
-    assert result == {"detail": "location deleted"}
-    db.delete.assert_called_once()
+
+    assert result == {"detail": "Location soft deleted"}
+    assert mock_location.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
+
 
 
 def test_delete_location_not_found():

@@ -117,16 +117,18 @@ def test_update_item_line_not_found():
     assert result is None
 
 
-# Test delete_item_line
 def test_delete_item_line_found():
     db = MagicMock()
-    db.query().filter().first.return_value = ItemLine(**SAMPLE_ITEM_LINE)
+    mock_item_line = ItemLine(**SAMPLE_ITEM_LINE)
+    db.query().filter().first.return_value = mock_item_line
 
     result = delete_item_line(db, 1)
 
-    db.delete.assert_called_once()
-    db.commit.assert_called_once()
     assert result is True
+    assert mock_item_line.is_deleted is True  # Ensure is_deleted was updated
+    db.commit.assert_called_once()
+    db.delete.assert_not_called()  # Ensure hard delete was not called
+
 
 
 def test_delete_item_line_not_found():

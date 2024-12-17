@@ -53,9 +53,10 @@ def update_item_group(db: Session, id: int, item_group_data: ItemGroupUpdate) ->
 
 
 def delete_item_group(db: Session, id: int) -> bool:
-    item_group = get_item_group(db, id)
+    item_group = db.query(ItemGroup).filter(ItemGroup.id == id, ItemGroup.is_deleted == False).first()
     if item_group:
-        db.delete(item_group)
+        item_group.is_deleted = True  # Soft delete by updating the flag
         db.commit()
         return True
     return False
+

@@ -93,10 +93,14 @@ def update_inventory(db: Session, item_reference: str, inven_data: dict):
 
 def delete_inventory(db: Session, item_reference: str):
     try:
-        inv = db.query(Inventory).filter(Inventory.item_reference == item_reference).first()
+        inv = db.query(Inventory).filter(
+            Inventory.item_reference == item_reference, 
+            Inventory.is_deleted == False
+        ).first()
         if not inv:
             raise HTTPException(status_code=404, detail="Inventory not found")
-        db.delete(inv)
+        
+        inv.is_deleted = True  # Soft delete by updating the flag
         db.commit()
     except SQLAlchemyError:
         db.rollback()
@@ -104,7 +108,8 @@ def delete_inventory(db: Session, item_reference: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the inventory."
         )
-    return {"detail": "inventory deleted"}
+    return {"detail": "Inventory soft deleted"}
+
 
 
 # locations filter using inventory ID

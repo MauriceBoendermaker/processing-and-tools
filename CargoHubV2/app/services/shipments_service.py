@@ -69,10 +69,12 @@ def get_all_shipments(
 def delete_shipment(db: Session, shipment_id: int):
     try:
         shipment = db.query(Shipment).filter(
-            Shipment.id == shipment_id).first()
+            Shipment.id == shipment_id, Shipment.is_deleted == False
+        ).first()
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
-        db.delete(shipment)
+        
+        shipment.is_deleted = True  # Soft delete by updating the flag
         db.commit()
     except SQLAlchemyError:
         db.rollback()
@@ -80,7 +82,8 @@ def delete_shipment(db: Session, shipment_id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the shipment."
         )
-    return {"detail": "Shipment deleted"}
+    return {"detail": "Shipment soft deleted"}
+
 
 
 def update_shipment(db: Session, shipment_id: int, shipment_data: ShipmentUpdate):

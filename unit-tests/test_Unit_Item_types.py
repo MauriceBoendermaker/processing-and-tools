@@ -108,16 +108,18 @@ def test_update_item_type_not_found():
     assert result is None
 
 
-# Test delete_item_type
 def test_delete_item_type_found():
     db = MagicMock()
-    db.query().filter().first.return_value = ItemType(**SAMPLE_ITEM_TYPE)
+    mock_item_type = ItemType(**SAMPLE_ITEM_TYPE)
+    db.query().filter().first.return_value = mock_item_type
 
     result = delete_item_type(db, 1)
 
-    db.delete.assert_called_once()
-    db.commit.assert_called_once()
     assert result is True
+    assert mock_item_type.is_deleted is True
+    db.commit.assert_called_once()
+    db.delete.assert_not_called()
+
 
 def test_delete_item_type_not_found():
     db = MagicMock()
