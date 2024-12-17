@@ -28,7 +28,8 @@ class TestWarehouseResource(unittest.TestCase):
                 "email": "adolfinehentschel@example.net"
             },
             "created_at": "2006-08-31 03:38:40",
-            "updated_at": "2010-04-26 18:16:09"
+            "updated_at": "2010-04-26 18:16:09",
+            "is_deleted": False
         }
 
         self.ToPut = {

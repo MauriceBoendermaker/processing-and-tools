@@ -74,3 +74,16 @@ def get_orders_linked_with_shipment(
     if not order:
         raise HTTPException(status_code=404, detail="No orders found")
     return order
+
+
+@router.put("/{shipment_id}/orders")
+def update_orders_linked_with_shipment(
+    shipment_id: int,
+    shipment_data: ShipmentOrderUpdate,
+    db: Session = Depends(get_db),
+    api_key:str = Header(...)
+):
+    shipment = update_orders_in_shipment(db, shipment_id, shipment_data)
+    if not shipment:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    return shipment

@@ -28,7 +28,9 @@ class TestItemsResource(unittest.TestCase):
             "supplier_code": "SUP423",
             "supplier_part_number": "E-86805-uTM",
             "created_at": "2015-02-19 16:08:24",
-            "updated_at": "2015-09-26 06:37:56"
+            "updated_at": "2015-09-26 06:37:56",
+            "is_deleted": False
+
         }
 
         self.ToPut = {

@@ -15,7 +15,8 @@ class TestLocationResource(unittest.TestCase):
             "id": self.TEST_ID,
             "warehouse_id": 58,
             "code": "A.1.0",
-            "name": "Row: A, Rack: 1, Shelf: 0"
+            "name": "Row: A, Rack: 1, Shelf: 0",
+            "is_deleted": False
         }
 
         self.ToPut = {

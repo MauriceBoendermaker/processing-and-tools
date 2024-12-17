@@ -2,12 +2,14 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 
+
 class ShipmentItem(BaseModel):
     item_id: str
     amount: int
 
+
 class ShipmentBase(BaseModel):
-    order_id: int
+    order_id: List[int]
     source_id: int
     order_date: datetime
     request_date: datetime
@@ -24,11 +26,13 @@ class ShipmentBase(BaseModel):
     total_package_weight: float
     items: List[ShipmentItem]
 
+
 class ShipmentCreate(ShipmentBase):
     pass
 
+
 class ShipmentUpdate(BaseModel):
-    order_id: Optional[int] = None
+    order_id: Optional[List[int]] = None
     source_id: Optional[int] = None
     order_date: Optional[datetime] = None
     request_date: Optional[datetime] = None
@@ -44,6 +48,11 @@ class ShipmentUpdate(BaseModel):
     total_package_count: Optional[int] = None
     total_package_weight: Optional[float] = None
     items: Optional[List[ShipmentItem]] = None
+
+
+class ShipmentOrderUpdate(BaseModel):
+    order_id: List[int] = None
+
 
 class ShipmentResponse(ShipmentBase):
     id: int
