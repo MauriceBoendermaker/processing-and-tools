@@ -47,7 +47,8 @@ def get_order_items(
 ):
     items = get_items_in_order(db, id)
     if not items:
-        raise HTTPException(status_code=404, detail="Items not found for this order")
+        raise HTTPException(
+            status_code=404, detail="Items not found for this order")
     return items
 
 
@@ -77,11 +78,11 @@ def delete_order_endpoint(
 
 
 @router.get("/{order_id}/packinglist")
-def get_pack_list( 
-    order_id: int, 
-    db: Session = Depends(get_db), 
-    api_key:str = Header(...)
-    ):
+def get_pack_list(
+    order_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...)
+):
     packlist = get_packinglist_for_order(db, order_id)
     if not packlist:
         raise HTTPException(status_code=404, detail="Packlist not found")
@@ -90,11 +91,24 @@ def get_pack_list(
 
 @router.get("/{order_id}/shipments")
 def get_shipments_linked_with_order(
-    order_id:int,
+    order_id: int,
     db: Session = Depends(get_db),
-    api_key:str = Header(...)
-    ):
+    api_key: str = Header(...)
+):
     shipment = get_shipments_by_order_id(db, order_id)
     if not shipment:
         raise HTTPException(status_code=404, detail="No shipments found")
     return shipment
+
+
+@router.put("/{order_id}/shipments")
+def update_shipments_linked_with_order(
+    order_id: int,
+    order_data: OrderShipmentUpdate,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...)
+):
+    order = update_shipments_in_order(db, order_id, order_data)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
