@@ -54,13 +54,16 @@ def get_all_docks(db: Session, offset: int = 0, limit: int = 100, sort_by: str =
         )
 
 
-def get_docks_by_warehouse_id(db: Session, warehouse_id: int, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"):
+def get_docks_by_warehouse_id(
+    db: Session, warehouse_id: int, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"
+):
     """
-    Retrieve all docks for a specific warehouse with optional sorting and pagination.
+    Retrieve all docks for a specific warehouse, excluding soft-deleted docks.
     """
-    query = db.query(Dock).filter(Dock.warehouse_id == warehouse_id)
-    query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting here
+    query = db.query(Dock).filter(Dock.warehouse_id == warehouse_id, Dock.is_deleted == False)
+    query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting
     docks = query.offset(offset).limit(limit).all()
+
     if not docks:
         raise HTTPException(status_code=404, detail="No docks found for the given warehouse.")
     return docks
