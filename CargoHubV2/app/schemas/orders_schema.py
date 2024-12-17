@@ -16,7 +16,7 @@ class OrderBase(BaseModel):
     warehouse_id: int
     ship_to: Optional[int] = None
     bill_to: Optional[int] = None
-    shipment_id: Optional[int] = None
+    shipment_id: Optional[List[int]] = None
     total_amount: float
     total_discount: Optional[float] = None
     total_tax: Optional[float] = None
@@ -25,6 +25,10 @@ class OrderBase(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class OrderShipmentUpdate(BaseModel):
+    shipment_id: List[int] = None
 
 
 class OrderCreate(OrderBase):

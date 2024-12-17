@@ -15,7 +15,7 @@ class TestShipmentResource(unittest.TestCase):
 
         self.test_body = {
             "id": self.TEST_ID,
-            "order_id": 6488,
+            "order_id": [6488],
             "source_id": 36,
             "order_date": "2007-08-08",
             "request_date": "2007-08-10",

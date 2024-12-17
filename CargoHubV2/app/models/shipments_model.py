@@ -7,7 +7,7 @@ class Shipment(Base):
     __tablename__ = "shipments"
 
     id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, index=True)
+    order_id = Column(JSON)
     source_id = Column(Integer, index=True)
     order_date = Column(DateTime, index=True)
     request_date = Column(DateTime, index=True)
