@@ -1,9 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from CargoHubV2.app.models.inventories_model import Inventory
+from CargoHubV2.app.services.sorting_service import apply_sorting
 from CargoHubV2.app.schemas.inventories_schema import InventoryUpdate, InventoryResponse
 from fastapi import HTTPException, status
 from datetime import datetime
+from typing import Optional
+
 
 
 def create_inventory(db: Session, inventory_data: dict):
@@ -40,9 +43,20 @@ def get_inventory(db: Session, item_reference: str):
         )
 
 
-def get_all_inventories(db: Session, offset: int = 0, limit: int = 100):
+def get_all_inventories(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Inventory).offset(offset).limit(limit).all()
+        query = db.query(Inventory)
+        if sort_by:
+            query = apply_sorting(query, Inventory, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

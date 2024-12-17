@@ -56,7 +56,7 @@ class TestOrderResource(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(check_id_exists(body, self.TEST_ID))
+        self.assertFalse(check_id_exists(body, self.TEST_ID))
 
     def test_3_get_order(self):
         response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")

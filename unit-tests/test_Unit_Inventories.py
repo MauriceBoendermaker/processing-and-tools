@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from CargoHubV2.app.services.inventories_service import (
@@ -72,7 +72,6 @@ def test_get_inventory_not_found():
 
 
 def test_get_all_inventories():
-
     # Mock the database session
     db = MagicMock()
 
@@ -82,13 +81,16 @@ def test_get_all_inventories():
     mock_query.limit.return_value = mock_query
     mock_query.all.return_value = [Inventory(**inventory_sample_data)]
 
-    # functie met offset
-    results = get_all_inventories(db, offset=0, limit=10)
+    # Patch apply_sorting
+    with patch("CargoHubV2.app.services.inventories_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_inventories(db, offset=0, limit=10, sort_by="id", order="asc")
 
-    # Assertions
-    assert len(results) == 1
-    db.query.assert_called_once()
-    mock_query.all.assert_called_once()
+        # Assertions
+        assert len(results) == 1
+        db.query.assert_called_once()
+        mock_sorting.assert_called_once_with(mock_query, Inventory, "id", "asc")
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(10)
 
 
 def test_update_inventory_found():

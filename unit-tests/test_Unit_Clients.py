@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
@@ -8,6 +8,8 @@ from CargoHubV2.app.services.clients_service import (
 )
 from CargoHubV2.app.models.clients_model import Client
 from CargoHubV2.app.schemas.clients_schema import ClientCreate, ClientUpdate
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 
 SAMPLE_CLIENT_DATA = {
     "id": 1,
@@ -49,12 +51,20 @@ def test_get_client_by_id_not_found():
 
 def test_get_all_clients():
     db = MagicMock()
-    db.query().all.return_value = [Client(**SAMPLE_CLIENT_DATA)]
+    query_mock = db.query.return_value
+    query_mock.offset.return_value = query_mock
+    query_mock.limit.return_value = query_mock
+    query_mock.all.return_value = [Client(**SAMPLE_CLIENT_DATA)]
 
-    results = get_all_clients(db)
+    with patch("CargoHubV2.app.services.clients_service.apply_sorting", return_value=query_mock) as mock_sorting:
+        results = get_all_clients(db, offset=0, limit=100, sort_by="id", order="asc")
 
-    assert len(results) == 1
-    db.query().all.assert_called_once()
+        assert len(results) == 1
+        db.query.assert_called_once()
+        mock_sorting.assert_called_once_with(query_mock, Client, "id", "asc")
+        query_mock.offset.assert_called_once_with(0)
+        query_mock.limit.assert_called_once_with(100)
+
 
 
 def test_update_client_found():

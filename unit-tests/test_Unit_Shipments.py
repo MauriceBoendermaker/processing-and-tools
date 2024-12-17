@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 from datetime import datetime
 from CargoHubV2.app.services.shipments_service import (
@@ -65,12 +65,21 @@ def test_get_shipment_by_id_not_found():
 
 def test_get_all_shipments():
     db = MagicMock()
-    db.query().all.return_value = [Shipment(**SAMPLE_SHIPMENT_DATA)]
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [Shipment(**SAMPLE_SHIPMENT_DATA)]
 
-    results = get_all_shipments(db)
+    with patch("CargoHubV2.app.services.shipments_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_shipments(db, offset=0, limit=100, sort_by="id", order="asc")
 
-    assert len(results) == 1
-    db.query().all.assert_called_once()
+        mock_sorting.assert_called_once_with(mock_query, Shipment, "id", "asc")
+        db.query.assert_called_once_with(Shipment)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
+
+        assert len(results) == 1
 
 
 def test_update_shipment_found():
