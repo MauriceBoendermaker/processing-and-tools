@@ -71,11 +71,9 @@ class TestLocationResource(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["detail"], "Location soft deleted")
 
-        # Verify the location is marked as deleted
+        # Verify the location is no longer accessible
         response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
-        self.assertEqual(response.status_code, 200)  # The record still exists
-        body = response.json()
-        self.assertTrue(body["is_deleted"])  # Verify 'is_deleted' is True
+        self.assertEqual(response.status_code, 404)
 
 
     # Test unauthorized access by removing the API key
