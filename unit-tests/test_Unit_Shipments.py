@@ -10,7 +10,7 @@ from CargoHubV2.app.schemas.shipments_schema import ShipmentCreate, ShipmentUpda
 
 SAMPLE_SHIPMENT_DATA = {
     "id": 1,
-    "order_id": 101,
+    "order_id": [101],
     "source_id": 10,
     "order_date": datetime(2023, 1, 10),
     "request_date": datetime(2023, 1, 12),
