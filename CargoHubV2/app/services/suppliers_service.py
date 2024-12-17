@@ -88,12 +88,16 @@ def update_supplier(db: Session, code: str, supplier_data: SuppliersUpdate):
 
 
 def delete_supplier(db: Session, code: str):
-    supplier_to_delete = db.query(Supplier).filter(Supplier.code == code).first()
+    supplier_to_delete = db.query(Supplier).filter(
+        Supplier.code == code, Supplier.is_deleted == False
+    ).first()
     if not supplier_to_delete:
         raise HTTPException(status_code=404, detail="Supplier not found")
-    db.delete(supplier_to_delete)
+    
+    supplier_to_delete.is_deleted = True  # Soft delete by updating the flag
     db.commit()
-    return {"detail": "supplier deleted"}
+    return {"detail": "Supplier soft deleted"}
+
 
 
 def get_items_by_supplier_id(db: Session, supplier_id: int, offset: int = 0, limit: int = 100):
