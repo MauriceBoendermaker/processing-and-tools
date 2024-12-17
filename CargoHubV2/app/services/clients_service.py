@@ -1,117 +1,129 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from CargoHubV2.app.models.clients_model import Client
-from CargoHubV2.app.schemas.clients_schema import ClientResponse, ClientUpdate
-from CargoHubV2.app.services.sorting_service import apply_sorting
 from fastapi import HTTPException, status
 from datetime import datetime
-from typing import Optional
+from ..models.docks_model import Dock
+from ..schemas.docks_schema import DockCreate, DockUpdate
+from CargoHubV2.app.services.sorting_service import apply_sorting  # Import sorting helper function
 
 
-
-def create_client(db: Session, client_data: dict):
-    client = Client(**client_data)
-    db.add(client)
+def create_dock(db: Session, dock_data: DockCreate):
+    """
+    Create a new dock in the database.
+    """
+    dock = Dock(
+        warehouse_id=dock_data.warehouse_id,
+        code=dock_data.code,
+        status=dock_data.status,
+        is_deleted=False,  # Soft delete initialized to False
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+    db.add(dock)
     try:
         db.commit()
-        db.refresh(client)
+        db.refresh(dock)
     except IntegrityError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A client with this name already exists."
+            detail="A dock with this code already exists."
         )
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while creating the client."
+            detail="An error occurred while creating the dock."
         )
-    return ClientResponse.model_validate(client)
+    return dock
 
 
-def get_client(db: Session, client_id: int):
+def get_all_docks(db: Session, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"):
+    """
+    Retrieve all docks with optional sorting and pagination.
+    Excludes soft-deleted docks.
+    """
     try:
-        client = db.query(Client).filter(Client.id == client_id).first()
-        if not client:
-            raise HTTPException(status_code=404, detail="Client not found")
-        return client
-    except SQLAlchemyError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while retrieving the client."
-        )
-
-
-def get_all_clients(
-    db: Session,
-    offset: int = 0,
-    limit: int = 100,
-    sort_by: Optional[str] = "id",
-    order: Optional[str] = "asc"
-):
-    try:
-        query = db.query(Client)
-        if sort_by:
-            query = apply_sorting(query, Client, sort_by, order)
+        query = db.query(Dock).filter(Dock.is_deleted == False)  # Exclude soft-deleted docks
+        query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting
         return query.offset(offset).limit(limit).all()
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))  # Catch invalid sorting inputs
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while retrieving clients."
+            detail="An error occurred while retrieving docks."
         )
 
 
-def update_client(db: Session, client_id: int, client_data: ClientUpdate):
+def get_docks_by_warehouse_id(db: Session, warehouse_id: int, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"):
+    """
+    Retrieve all docks for a specific warehouse with optional sorting and pagination.
+    Excludes soft-deleted docks.
+    """
+    query = db.query(Dock).filter(Dock.warehouse_id == warehouse_id, Dock.is_deleted == False)
+    query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting here
+    docks = query.offset(offset).limit(limit).all()
+    if not docks:
+        raise HTTPException(status_code=404, detail="No docks found for the given warehouse.")
+    return docks
+
+
+def get_dock_by_id(db: Session, dock_id: int):
+    """
+    Retrieve a single dock by its ID.
+    Excludes soft-deleted docks.
+    """
+    dock = db.query(Dock).filter(Dock.id == dock_id, Dock.is_deleted == False).first()
+    if not dock:
+        raise HTTPException(status_code=404, detail="Dock not found")
+    return dock
+
+
+def update_dock(db: Session, dock_id: int, dock_data: DockUpdate):
+    """
+    Update an existing dock by its ID with the provided fields.
+    Excludes soft-deleted docks.
+    """
+    dock = db.query(Dock).filter(Dock.id == dock_id, Dock.is_deleted == False).first()
+    if not dock:
+        raise HTTPException(status_code=404, detail="Dock not found")
+    for key, value in dock_data.dict(exclude_unset=True).items():
+        setattr(dock, key, value)
+    dock.updated_at = datetime.now()
     try:
-        client = db.query(Client).filter(Client.id == client_id).first()
-        if not client:
-            raise HTTPException(status_code=404, detail="Client not found")
-        update_data = client_data.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(client, key, value)
-        client.updated_at = datetime.now()
         db.commit()
-        db.refresh(client)
+        db.refresh(dock)
     except IntegrityError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="An integrity error occurred while updating the client."
+            detail="A dock with this code already exists."
         )
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while updating the client."
+            detail="An error occurred while updating the dock."
         )
-    return ClientResponse.model_validate(client)
+    return dock
 
 
-def delete_client(db: Session, client_id: int):
+def delete_dock(db: Session, dock_id: int):
+    """
+    Soft delete a dock by its ID by setting is_deleted to True.
+    """
+    dock = db.query(Dock).filter(Dock.id == dock_id, Dock.is_deleted == False).first()
+    if not dock:
+        raise HTTPException(status_code=404, detail="Dock not found")
+    dock.is_deleted = True  # Mark as soft deleted
+    dock.updated_at = datetime.now()  # Update timestamp
     try:
-        client = db.query(Client).filter(Client.id == client_id).first()
-        if not client:
-            raise HTTPException(status_code=404, detail="Client not found")
-        db.delete(client)
         db.commit()
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while deleting the client."
+            detail="An error occurred while deleting the dock."
         )
-    return {"detail": "Client deleted"}
-
-
-# Commented out due to missing orders_model
-# def get_orders_by_client_id(db: Session, client_id: int):
-#     client = db.query(Client).filter(Client.id == client_id).first()
-#     if not client:
-#         raise HTTPException(status_code=404, detail="Client not found")
-#     orders = db.query(Order).filter((Order.ship_to == client_id) | (Order.bill_to == client_id)).all()
-#     if not orders:
-#         raise HTTPException(status_code=404, detail="No orders found for this client")
-#     return orders
+    return {"detail": "Dock soft deleted"}
