@@ -64,16 +64,19 @@ class TestLocationResource(unittest.TestCase):
         self.assertEqual(body["name"], self.ToPut["name"])
         self.assertTrue(match_date(body["updated_at"], datetime.today().date()))
 
-    # Test to delete a location using DELETE
     def test_6_delete_location(self):
+        # Perform DELETE request
         response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["detail"], "Location deleted")
+        self.assertEqual(body["detail"], "Location soft deleted")
 
-        # Verify it was deleted
+        # Verify the location is marked as deleted
         response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)  # The record still exists
+        body = response.json()
+        self.assertTrue(body["is_deleted"])  # Verify 'is_deleted' is True
+
 
     # Test unauthorized access by removing the API key
     def test_7_nokey(self):
