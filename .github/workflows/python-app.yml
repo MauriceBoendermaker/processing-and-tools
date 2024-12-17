@@ -105,6 +105,10 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
         echo "current path: $(pwd)"
+    
+    - name: printing current path
+      run: |
+        echo "current path: $(pwd)"
 
     - name: Debug coverage.xml path
       run: |
