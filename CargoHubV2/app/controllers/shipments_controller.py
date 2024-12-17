@@ -78,7 +78,7 @@ def get_orders_linked_with_shipment(
     return order
 
 
-@router.put("/{shipment_id}/orders", response_model=ShipmentResponse)
+@router.put("/{shipment_id}/orders")
 def update_orders_linked_with_shipment(
     shipment_id: int,
     shipment_data: ShipmentOrderUpdate,

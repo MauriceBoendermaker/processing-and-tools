@@ -97,15 +97,20 @@ def update_shipment(db: Session, shipment_id: int, shipment_data: ShipmentUpdate
     return shipment
 
 
-def get_orders_by_shipment_id(db: Session, shipment_ids: List[int]):
-    if not isinstance(shipment_ids, list):
-        shipment_ids = [shipment_ids]
-
-    orders = db.query(Order).filter(Order.shipment_id == shipment_ids).all()
-
-    if not orders:
+def get_orders_by_shipment_id(db: Session, shipment_id: int):
+    shipment = db.query(Shipment).filter(Shipment.id == shipment_id).first()
+    if not shipment:
+        raise HTTPException(status_code=404, detail="Shipment not found")
+    
+    order_ids = shipment.order_id
+    if not order_ids:
         raise HTTPException(status_code=404, detail="No orders found")
-    return orders
+    
+    orders = db.query(Order).filter(Order.id.in_(order_ids)).all()
+    if not orders:
+        raise HTTPException(status_code="No orders found with this shipment")
+    
+    return {"Shipment id": shipment.id, "Order Id's": order_ids, "Order": orders}
 
 
 def update_orders_in_shipment(db: Session, shipment_id: int, shipment_data: ShipmentOrderUpdate):
