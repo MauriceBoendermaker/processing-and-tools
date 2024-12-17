@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.schemas.orders_schema import OrderResponse, OrderCreate, OrderUpdate
 from CargoHubV2.app.services.orders_service import *
-from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import List, Optional
 
 router = APIRouter(
@@ -18,7 +17,6 @@ def create_order_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("create", api_key, db)
     order = create_order(db, order_data.model_dump())
     return order
 
@@ -33,7 +31,6 @@ def get_orders(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("view", api_key, db)
     if id:
         order = get_order(db, id)
         if not order:
@@ -48,7 +45,6 @@ def get_order_items(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("view", api_key, db)
     items = get_items_in_order(db, id)
     if not items:
         raise HTTPException(status_code=404, detail="Items not found for this order")
@@ -62,7 +58,6 @@ def update_order_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("edit", api_key, db)
     order = update_order(db, id, order_data)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -75,7 +70,6 @@ def delete_order_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("delete", api_key, db)
     result = delete_order(db, id)
     if not result:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -88,7 +82,6 @@ def get_pack_list(
     db: Session = Depends(get_db), 
     api_key:str = Header(...)
     ):
-    validate_api_key("view", api_key, db)
     packlist = get_packinglist_for_order(db, order_id)
     if not packlist:
         raise HTTPException(status_code=404, detail="Packlist not found")
@@ -101,7 +94,6 @@ def get_shipments_linked_with_order(
     db: Session = Depends(get_db),
     api_key:str = Header(...)
     ):
-    validate_api_key("view", api_key, db)
     shipment = get_shipments_by_order_id(db, order_id)
     if not shipment:
         raise HTTPException(status_code=404, detail="No shipments found")
