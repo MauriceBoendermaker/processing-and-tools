@@ -33,6 +33,7 @@ class TestOrderResource(unittest.TestCase):
             "total_surcharge": 37.91,
             "created_at": "1995-05-27T20:02:30Z",
             "updated_at": "1995-05-29T16:02:30Z",
+            "is_deleted": False,
             "items": [
                 {
                     "item_id": "P008386",

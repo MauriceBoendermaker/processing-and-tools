@@ -32,6 +32,7 @@ class TestShipmentResource(unittest.TestCase):
             "total_package_weight": 480.53,
             "created_at": "2007-08-09T05:51:11Z",
             "updated_at": "2007-08-10T07:51:11Z",
+            "is_deleted": False,
             "items": [
                 {
                     "item_id": "P006938",
