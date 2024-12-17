@@ -106,13 +106,16 @@ def update_dock(db: Session, dock_id: int, dock_data: DockUpdate):
 
 def delete_dock(db: Session, dock_id: int):
     """
-    Delete a dock by its ID.
+    Soft delete a dock by setting is_deleted to True.
     """
     dock = db.query(Dock).filter(Dock.id == dock_id).first()
     if not dock:
         raise HTTPException(status_code=404, detail="Dock not found")
+    
+    dock.is_deleted = True  # Soft delete flag
+    dock.updated_at = datetime.now()  # Update timestamp
+    
     try:
-        db.delete(dock)
         db.commit()
     except SQLAlchemyError:
         db.rollback()
