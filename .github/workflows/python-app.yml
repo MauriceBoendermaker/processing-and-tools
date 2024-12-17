@@ -92,10 +92,38 @@ jobs:
     needs: unit-tests
     runs-on: ubuntu-latest
     steps:
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
-      - name: Python Coverage Testgen 
-        uses: seahyinghang8/coverage-testgen@test
-        with:
-            coverageFile: /coverage.xml
-            token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests and generate coverage
+      run: |
+        coverageFile="processing-and-tools/coverage.xml"
+        pytest --cov=CargoHubV2/app --cov-report=xml:$coverageFile
+
+    - name: Debug coverage.xml path
+      run: |
+        coverageFile="processing-and-tools/coverage.xml"
+        echo "Checking if coverage file exists at: $coverageFile"
+        ls -al $coverageFile
+        if [ -f "$coverageFile" ]; then
+          echo "coverage.xml exists!"
+        else
+          echo "coverage.xml not found."
+          exit 1
+        fi
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: $coverageFile
