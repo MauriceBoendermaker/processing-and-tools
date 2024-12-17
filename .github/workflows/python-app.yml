@@ -121,6 +121,11 @@ jobs:
           echo "coverage.xml not found."
           exit 1
         fi
+    - name: report
+      uses: seahyinghang8/coverage-testgen@test
+      with:
+        coverageFile: $coverageFile
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
