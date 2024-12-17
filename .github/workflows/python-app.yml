@@ -97,5 +97,5 @@ jobs:
       - name: Python Coverage Testgen 
         uses: seahyinghang8/coverage-testgen@test
         with:
-            coverageFile: processing-and-tools/coverage.xml
+            coverageFile: coverage.xml
             token: ${{ secrets.GITHUB_TOKEN }}
