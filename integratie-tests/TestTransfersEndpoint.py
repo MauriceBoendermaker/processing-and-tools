@@ -19,6 +19,7 @@ class TestTransfersResource(unittest.TestCase):
             "transfer_from": None,
             "transfer_to": 9200,
             "transfer_status": "Scheduled",
+            "is_deleted": False,
             "items": [
                 {
                     "item_id": "P001288",

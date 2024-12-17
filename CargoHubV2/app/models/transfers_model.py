@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, JSON, DateTime
+from sqlalchemy import Column, Integer, String, JSON, DateTime, Boolean
 from ..database import Base
 from datetime import datetime
 
@@ -13,4 +13,5 @@ class Transfer(Base):
     transfer_status = Column(String, default="Scheduled", index=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+    is_deleted = Column(Boolean, default=False)
     items = Column(JSON, index=True)

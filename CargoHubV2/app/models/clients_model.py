@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from ..database import Base
 from datetime import datetime
 
@@ -17,3 +17,5 @@ class Client(Base):
     contact_email = Column(String, index=True)
     created_at = Column(DateTime, index=True, default=datetime.now)
     updated_at = Column(DateTime, index=True, default=datetime.now, onupdate=datetime.now)
+    is_deleted = Column(Boolean, default=False)
+

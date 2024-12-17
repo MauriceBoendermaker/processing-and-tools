@@ -16,6 +16,7 @@ class TestItemGroupsResource(unittest.TestCase):
             "description": "Group for testing purposes",
             "created_at": "2024-10-14 12:00:00",
             "updated_at": "2024-10-14 12:00:00",
+            "is_deleted": False
         }
 
         self.ToPut = {
