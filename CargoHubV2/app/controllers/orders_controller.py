@@ -99,7 +99,7 @@ def get_shipments_linked_with_order(
     api_key: str = Header(...)
 ):
     validate_api_key("view", api_key, db)
-    shipment = get_shipments_by_order_ids(db, order_id)
+    shipment = get_shipments_by_order_id(db, order_id)
     if not shipment:
         raise HTTPException(status_code=404, detail="No shipments found")
     return shipment
