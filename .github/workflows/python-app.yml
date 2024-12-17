@@ -92,6 +92,8 @@ jobs:
     needs: unit-tests
     runs-on: ubuntu-latest
     steps:
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
       - name: Python Coverage Testgen 
         uses: seahyinghang8/coverage-testgen@test
         with:
