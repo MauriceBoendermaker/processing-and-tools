@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Float, JSON, Boolean
 from ..database import Base
 from datetime import datetime
 
@@ -25,3 +25,5 @@ class Shipment(Base):
     items = Column(JSON)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    is_deleted = Column(Boolean, default=False)
+

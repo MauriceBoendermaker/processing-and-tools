@@ -22,7 +22,8 @@ class TestClientResource(unittest.TestCase):
             "country": "Germany",
             "contact_name": "Ing. Ferdi Steckel MBA.",
             "contact_phone": "+49(0)5162 147719",
-            "contact_email": "conradikati@example.net"
+            "contact_email": "conradikati@example.net",
+            "is_deleted": False
         }
 
         self.ToPut = {

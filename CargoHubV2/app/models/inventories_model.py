@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, JSON, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
@@ -27,6 +27,8 @@ class Inventory(Base):
     total_available = Column(Integer)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    is_deleted = Column(Boolean, default=False)
+
 
     # One-to-one relationship met Item (unidirectional)
     item = relationship("Item", foreign_keys=[item_id], primaryjoin="Inventory.item_id == Item.uid")

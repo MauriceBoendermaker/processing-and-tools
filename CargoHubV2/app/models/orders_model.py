@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, DateTime, JSON, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, DateTime, JSON, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
@@ -28,5 +28,7 @@ class Order(Base):
     updated_at = Column(DateTime, default=datetime.utcnow,
                         onupdate=datetime.utcnow)
     items = Column(JSON, nullable=True)
+    is_deleted = Column(Boolean, default=False)
+
 
     warehouse = relationship("Warehouse")
