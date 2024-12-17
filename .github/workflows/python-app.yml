@@ -107,7 +107,7 @@ jobs:
 
     - name: Debug coverage.xml path
       run: |
-        coverageFile="./coverage.xml"
+        coverageFile="./processing-and-tools/coverage.xml"
         echo "Checking if coverage file exists at: $coverageFile"
         ls -al $coverageFile
         if [ -f "$coverageFile" ]; then
@@ -120,7 +120,7 @@ jobs:
     - name: report
       uses: seahyinghang8/coverage-testgen@test
       with:
-        coverageFile: "./coverage.xml"
+        coverageFile: "./processing-and-tools/coverage.xml"
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload coverage report
