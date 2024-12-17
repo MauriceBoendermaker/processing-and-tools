@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from CargoHubV2.app.services.orders_service import (
@@ -75,10 +75,21 @@ def test_get_order_not_found():
 
 def test_get_all_orders():
     db = MagicMock()
-    db.query().all.return_value = [Order(**SAMPLE_ORDER_DATA)]
-    results = get_all_orders(db)
-    assert len(results) == 1
-    db.query().all.assert_called_once()
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [Order(**SAMPLE_ORDER_DATA)]
+
+    with patch("CargoHubV2.app.services.orders_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_orders(db, offset=0, limit=100, sort_by="id", order="asc")
+
+        mock_sorting.assert_called_once_with(mock_query, Order, "id", "asc")
+        db.query.assert_called_once_with(Order)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
+
+        assert len(results) == 1
 
 def test_update_order_found():
     db = MagicMock()

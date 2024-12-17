@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from CargoHubV2.app.services.locations_service import create_location, get_all_locations, get_location_by_id, get_locations_by_warehouse_id, update_location, delete_location
@@ -54,17 +54,23 @@ def test_get_location_id_not_found():
 
 
 def test_get_location_warehouse_found():
-    # Create a Location instance with the sample data
     location = Location(**SAMPLE_LOCATION_DATA)
-    # Mock the database session
     db = MagicMock()
-    db.query().filter().offset().limit().all.return_value = [location]  # Return a list of locations
-    # Call the service function
-    result = get_locations_by_warehouse_id(db, 100)
-    # Assert that the warehouse_id matches the expected value
-    assert result[0].warehouse_id == SAMPLE_LOCATION_DATA["warehouse_id"]
-    # Ensure that the mock method was called correctly
-    db.query().filter().offset().limit().all.assert_called_once()
+    mock_query = db.query.return_value.filter.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [location]
+
+    with patch("CargoHubV2.app.services.locations_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        result = get_locations_by_warehouse_id(db, warehouse_id=100, offset=0, limit=10, sort_by="id", order="asc")
+
+        mock_sorting.assert_called_once_with(mock_query, Location, "id", "asc")
+        db.query.assert_called_once_with(Location)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(10)
+        mock_query.all.assert_called_once()
+
+        assert result[0].warehouse_id == SAMPLE_LOCATION_DATA["warehouse_id"]
 
 
 def test_get_location_warehouse_not_found():
@@ -76,23 +82,23 @@ def test_get_location_warehouse_not_found():
     assert "Location warehouse not found" in str(excinfo.value.detail)
 
 
-def test_get_all_locations():    
-    # Mock the database session
+def test_get_all_locations():
     db = MagicMock()
-    
-    # Mock the query chain
     mock_query = db.query.return_value
     mock_query.offset.return_value = mock_query
     mock_query.limit.return_value = mock_query
     mock_query.all.return_value = [Location(**SAMPLE_LOCATION_DATA)]
-    
-    # Call the function
-    results = get_all_locations(db, offset=0, limit=10)
-    
-    # Assertions
-    assert len(results) == 1
-    db.query.assert_called_once()
-    mock_query.all.assert_called_once()
+
+    with patch("CargoHubV2.app.services.locations_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_locations(db, offset=0, limit=10, sort_by="id", order="asc")
+
+        mock_sorting.assert_called_once_with(mock_query, Location, "id", "asc")
+        db.query.assert_called_once_with(Location)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(10)
+        mock_query.all.assert_called_once()
+
+        assert len(results) == 1
 
 
 def test_update_location_found():

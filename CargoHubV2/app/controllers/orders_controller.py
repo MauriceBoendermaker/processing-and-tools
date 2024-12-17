@@ -26,6 +26,10 @@ def create_order_endpoint(
 @router.get("/")
 def get_orders(
     id: Optional[int] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
@@ -35,7 +39,7 @@ def get_orders(
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
         return order
-    return get_all_orders(db)
+    return get_all_orders(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.get("/{id}/items")

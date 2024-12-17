@@ -29,16 +29,18 @@ def get_item_groups(
     id: Optional[int] = None,
     offset: int = 0,
     limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("view", api_key, db)
     if id:
         item_group = get_item_group(db, id)
         if not item_group:
             raise HTTPException(status_code=404, detail="Item group not found")
-        return [item_group]  # Wrap in a list to match response model
-    return get_all_item_groups(db, offset, limit)
+        return [item_group]
+    return get_all_item_groups(db, offset, limit, sort_by, order)
 
 
 @router.put("/{id}", response_model=ItemGroupResponse)
@@ -46,7 +48,7 @@ def update_item_group_endpoint(
     id: int,
     item_group_data: ItemGroupUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("edit", api_key, db)
     item_group = update_item_group(db, id, item_group_data)
@@ -59,7 +61,7 @@ def update_item_group_endpoint(
 def delete_item_group_endpoint(
     id: int,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    api_key: str = Header(...),
 ):
     validate_api_key("delete", api_key, db)
     item_group = delete_item_group(db, id)

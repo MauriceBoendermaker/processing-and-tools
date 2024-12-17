@@ -26,6 +26,10 @@ def create_shipment_endpoint(
 @router.get("/")
 def get_shipments(
     id: Optional[int] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
@@ -35,7 +39,7 @@ def get_shipments(
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
         return shipment
-    return get_all_shipments(db)
+    return get_all_shipments(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.put("/{id}", response_model=ShipmentResponse)

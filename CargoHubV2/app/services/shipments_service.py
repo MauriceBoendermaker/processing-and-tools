@@ -5,7 +5,9 @@ from CargoHubV2.app.models.orders_model import Order
 from CargoHubV2.app.schemas.shipments_schema import ShipmentCreate, ShipmentUpdate, ShipmentOrderUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
-from typing import List
+from typing import List, Optional
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 
 
 def create_shipment(db: Session, shipment_data: dict):
@@ -43,9 +45,20 @@ def get_shipment(db: Session, shipment_id: int):
         )
 
 
-def get_all_shipments(db: Session):
+def get_all_shipments(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
     try:
-        return db.query(Shipment).all()
+        query = db.query(Shipment)
+        if sort_by:
+            query = apply_sorting(query, Shipment, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

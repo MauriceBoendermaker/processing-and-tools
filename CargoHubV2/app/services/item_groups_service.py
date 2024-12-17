@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from CargoHubV2.app.models.item_groups_model import ItemGroup
 from CargoHubV2.app.schemas.item_groups_schema import ItemGroupUpdate
+from CargoHubV2.app.services.sorting_service import apply_sorting
+
 from typing import List, Optional
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException, status
@@ -18,9 +20,20 @@ def get_item_group(db: Session, id: int) -> Optional[ItemGroup]:
     return db.query(ItemGroup).filter(ItemGroup.id == id).first()
 
 
-def get_all_item_groups(db: Session, offset: int = 0, limit: int = 100) -> List[ItemGroup]:
+def get_all_item_groups(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",  # Default sort by "id"
+    order: Optional[str] = "asc"   # Default order is ascending
+) -> List[ItemGroup]:
     try:
-        return db.query(ItemGroup).offset(offset).limit(limit).all()
+        query = db.query(ItemGroup)
+        if sort_by:  # Apply sorting if sort_by is specified
+            query = apply_sorting(query, ItemGroup, sort_by, order)
+        return query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

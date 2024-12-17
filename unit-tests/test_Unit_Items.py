@@ -81,25 +81,25 @@ def test_get_item_not_found():
 
 def test_get_all_items():
     db = MagicMock()
-
-    # Mock the full chain of method calls
-    db.query.return_value.offset.return_value.limit.return_value.all.return_value = [
+    mock_query = db.query.return_value
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = [
         Item(**SAMPLE_ITEM_DATA)
     ]
 
-    # Call the function
-    results = get_all_items(db)
+    with patch("CargoHubV2.app.services.items_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_items(db, offset=0, limit=100, sort_by="code", order="asc")
 
-    # Assert that the chain of calls is correct
-    # Assert Item is passed to query
-    db.query.assert_called_once_with(Item)
-    db.query().offset.assert_called_once_with(0)  # Assert offset is called with 0
-    db.query().offset().limit.assert_called_once_with(100)  # Assert limit is called with 100
-    db.query().offset().limit().all.assert_called_once()  # Assert all is called
+        mock_sorting.assert_called_once_with(mock_query, Item, "code", "asc")
+        db.query.assert_called_once_with(Item)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
 
-    # Check the results
-    assert len(results) == 1
-    assert results[0].code == SAMPLE_ITEM_DATA["code"]  # Corrected key to "code"
+        assert len(results) == 1
+        assert results[0].code == SAMPLE_ITEM_DATA["code"]
+
 
 
 

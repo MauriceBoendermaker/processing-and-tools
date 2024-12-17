@@ -11,5 +11,5 @@ router = APIRouter(
 
 
 @router.post("/",)
-def load_from_json(path, db: Session = Depends(get_db)):
+def load_from_json(path, db: Session = Depends(get_db), api_key: str = Header(...)):
     return load(path, db)
