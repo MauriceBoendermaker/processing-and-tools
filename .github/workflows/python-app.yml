@@ -107,7 +107,7 @@ jobs:
 
     - name: Debug coverage.xml path
       run: |
-        coverageFile="processing-and-tools/coverage.xml"
+        coverageFile="./coverage.xml"
         echo "Checking if coverage file exists at: $coverageFile"
         ls -al $coverageFile
         if [ -f "$coverageFile" ]; then
