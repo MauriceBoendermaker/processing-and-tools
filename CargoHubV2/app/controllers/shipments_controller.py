@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.schemas.shipments_schema import *
 from CargoHubV2.app.services.shipments_service import *
-from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import Optional, List
 
 router = APIRouter(
@@ -18,7 +17,6 @@ def create_shipment_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("create", api_key, db)
     shipment = create_shipment(db, shipment_data.model_dump())
     return shipment
 
@@ -33,7 +31,6 @@ def get_shipments(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("view", api_key, db)
     if id:
         shipment = get_shipment(db, id)
         if not shipment:
@@ -49,7 +46,6 @@ def update_shipment_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("edit", api_key, db)
     shipment = update_shipment(db, id, shipment_data)
     if not shipment:
         raise HTTPException(status_code=404, detail="Shipment not found")
@@ -62,7 +58,6 @@ def delete_shipment_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("delete", api_key, db)
     shipment = delete_shipment(db, id)
     if not shipment:
         raise HTTPException(status_code=404, detail="Shipment not found")
@@ -75,7 +70,6 @@ def get_orders_linked_with_shipment(
     db:Session = Depends(get_db),
     api_key:str = Header(...)
 ):
-    validate_api_key("view", api_key, db)
     order = get_orders_by_shipment_id(db, shipment_id)
     if not order:
         raise HTTPException(status_code=404, detail="No orders found")
