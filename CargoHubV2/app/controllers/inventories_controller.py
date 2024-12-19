@@ -4,7 +4,6 @@ from CargoHubV2.app.database import get_db
 from CargoHubV2.app.schemas.inventories_schema import InventoryResponse, InventoryCreate, InventoryUpdate
 from CargoHubV2.app.schemas.locations_schema import Location
 from CargoHubV2.app.services import inventories_service
-from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import Optional, List
 
 router = APIRouter(
@@ -19,7 +18,6 @@ def create_inventory(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("create", api_key, db)
     inv = inventories_service.create_inventory(db, inventory_data.model_dump())
     return inv
 
@@ -34,7 +32,6 @@ def get_inventories(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("view", api_key, db)
     if item_reference:
         inven = inventories_service.get_inventory(db, item_reference)
         if not inven:
@@ -50,7 +47,6 @@ def update_inventory_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # api key req
 ):
-    validate_api_key("edit", api_key, db)
     inven = inventories_service.update_inventory(db, item_reference, inven_data.model_dump(exclude_unset=True))
     if not inven:
         raise HTTPException(status_code=404, detail="inventory not found")
@@ -63,7 +59,6 @@ def delete_inventory_endpoint(
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # api key req
 ):
-    validate_api_key("delete", api_key, db)
     inven = inventories_service.delete_inventory(db, item_reference)
     if not inven:
         raise HTTPException(status_code=404, detail="Inventory not found")
@@ -77,7 +72,6 @@ def get_locations_from(
     db: Session = Depends(get_db),
     api_key: str = Header(...),  # api key req
 ):
-    validate_api_key("view", api_key, db)
     if item_reference:
         inven = inventories_service.get_inventory(db, item_reference)
         if not inven:

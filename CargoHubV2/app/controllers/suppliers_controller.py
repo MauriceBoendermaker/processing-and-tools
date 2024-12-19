@@ -4,8 +4,7 @@ from CargoHubV2.app.schemas.suppliers_schema import *
 from CargoHubV2.app.schemas import items_schema 
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.services.suppliers_service import * 
-from CargoHubV2.app.services import suppliers_service 
-from CargoHubV2.app.services.api_keys_service import validate_api_key
+from CargoHubV2.app.services import suppliers_service
 from typing import Optional, List
 
 
@@ -25,7 +24,6 @@ def get_suppliers(
     db: Session = Depends(get_db),
     api_key: str = Header(...),
 ):
-    validate_api_key("view", api_key, db)
     if code:
         supplier = get_supplier(db, code)
         if not supplier:

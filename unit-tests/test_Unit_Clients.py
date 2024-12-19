@@ -29,13 +29,24 @@ SAMPLE_CLIENT_DATA = {
 
 def test_create_client():
     db = MagicMock()
-    client_data = ClientCreate(**SAMPLE_CLIENT_DATA)
 
-    new_client = create_client(db, SAMPLE_CLIENT_DATA)
+    create_client(db, SAMPLE_CLIENT_DATA)
 
     db.add.assert_called_once()
     db.commit.assert_called_once()
     db.refresh.assert_called_once()
+
+
+def test_create_integrity():
+    db = MagicMock()
+    db.commit.side_effect = IntegrityError("mock", "params", "orig")
+
+    with pytest.raises(HTTPException) as excinfo:
+        create_client(db, SAMPLE_CLIENT_DATA)
+
+    assert excinfo.value.status_code == 400
+    assert "A client with this name already exists." in str(excinfo.value.detail)
+    db.rollback.assert_called_once()
 
 
 def test_get_client_by_id_not_found():
