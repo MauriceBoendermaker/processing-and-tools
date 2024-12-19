@@ -1,6 +1,6 @@
 """Add docks table with soft delete support
 
-Revision ID: 120e649a3d43
+Revision ID: 95582c9d2e4c
 Revises: e1f93f49957c
 Create Date: 2024-12-17 11:48:13.015284
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '120e649a3d43'
+revision: str = '95582c9d2e4c'
 down_revision: Union[str, None] = 'e1f93f49957c'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
