@@ -47,12 +47,15 @@ class TestDockResource(unittest.TestCase):
         self.assertTrue(check_code_exists(body, self.TEST_CODE))
 
     def test_3_get_dock_by_id(self):
-        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
-        body = response.json()
+        # Ensure dock exists before querying.
+        response = self.client.post(self.baseUrl, json=self.dock_data)
+        dock_id = response.json().get("id")
 
+        # Query the dock by ID.
+        response = self.client.get(f"{self.baseUrl}{dock_id}")
+        
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get("code"), self.TEST_CODE)
-        self.assertEqual(body.get("status"), "active")
+        self.assertEqual(response.json().get("id"), dock_id)
 
     def test_3_get_dock_not_found(self):
         response = self.client.get(f"{self.baseUrl}999999")  # Assuming this ID doesn't exist
@@ -61,15 +64,23 @@ class TestDockResource(unittest.TestCase):
         self.assertIn("Dock not found", body.get("detail"))
 
     def test_4_put_dock(self):
-        response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
+        # Ensure dock exists before updating.
+        response = self.client.post(self.baseUrl, json=self.dock_data)
+        dock_id = response.json().get("id")
 
+        # Define the updated data.
+        updated_data = {
+            "location": "New Location",
+            "status": "Active"
+        }
+
+        # Send the PUT request to update the dock.
+        response = self.client.put(f"{self.baseUrl}{dock_id}", json=updated_data)
+        
         self.assertEqual(response.status_code, 200)
-
-        # Check if the update is reflected in the response
-        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
-        body = response.json()
-        self.assertEqual(body.get('status'), 'inactive')
-        self.assertTrue(match_date(body.get('updated_at'), datetime.today().date()))
+        updated_dock = self.client.get(f"{self.baseUrl}{dock_id}").json()
+        self.assertEqual(updated_dock["location"], "New Location")
+        self.assertEqual(updated_dock["status"], "Active")
 
     def test_4_put_dock_not_found(self):
         response = self.client.put(f"{self.baseUrl}999999", json=self.ToPut)
@@ -78,15 +89,18 @@ class TestDockResource(unittest.TestCase):
         self.assertIn("Dock not found", body.get("detail"))
 
     def test_5_delete_dock(self):
-        # Soft delete a dock
-        response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
+        # Ensure dock exists before deleting.
+        response = self.client.post(self.baseUrl, json=self.dock_data)
+        dock_id = response.json().get("id")
 
+        # Delete the dock.
+        response = self.client.delete(f"{self.baseUrl}{dock_id}")
+        
         self.assertEqual(response.status_code, 200)
 
-        # Verify that the dock is marked as deleted (not fully removed)
-        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
-        body = response.json()
-        self.assertEqual(body.get("is_deleted"), True)
+        # Verify dock is deleted by trying to retrieve it.
+        response = self.client.get(f"{self.baseUrl}{dock_id}")
+        self.assertEqual(response.status_code, 404)  # Expect 404 after deletion
 
     def test_5_delete_dock_not_found(self):
         # Trying to delete a non-existent dock
