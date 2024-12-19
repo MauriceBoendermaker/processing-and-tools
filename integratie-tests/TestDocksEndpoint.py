@@ -30,7 +30,6 @@ class TestDockResource(unittest.TestCase):
 
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json().get("code"), self.TEST_BODY["code"])
         self.assertEqual(response.json().get("status"), self.TEST_BODY["status"])
@@ -52,6 +51,9 @@ class TestDockResource(unittest.TestCase):
         # Ensure dock exists before querying.
         response = self.client.post(self.baseUrl, json=self.dock_data)
         dock_id = response.json().get("id")
+        
+        # Check if the dock_id exists
+        self.assertIsNotNone(dock_id, "Dock ID should not be None")
 
         # Query the dock by ID.
         response = self.client.get(f"{self.baseUrl}{dock_id}")
@@ -70,19 +72,24 @@ class TestDockResource(unittest.TestCase):
         response = self.client.post(self.baseUrl, json=self.dock_data)
         dock_id = response.json().get("id")
 
+        # Check if the dock_id exists
+        self.assertIsNotNone(dock_id, "Dock ID should not be None")
+
         # Define the updated data.
         updated_data = {
-            "location": "New Location",
-            "status": "Active"
+            "status": "inactive",  # Note: Changed "location" to "status" as per schema
+            "updated_at": "2024-12-19T10:30:00",
         }
 
         # Send the PUT request to update the dock.
         response = self.client.put(f"{self.baseUrl}{dock_id}", json=updated_data)
         
         self.assertEqual(response.status_code, 200)
+
+        # Fetch updated dock and verify the changes
         updated_dock = self.client.get(f"{self.baseUrl}{dock_id}").json()
-        self.assertEqual(updated_dock["location"], "New Location")
-        self.assertEqual(updated_dock["status"], "Active")
+        self.assertEqual(updated_dock["status"], "inactive")
+        self.assertEqual(updated_dock["updated_at"], updated_data["updated_at"])
 
     def test_4_put_dock_not_found(self):
         response = self.client.put(f"{self.baseUrl}999999", json=self.ToPut)
@@ -94,6 +101,9 @@ class TestDockResource(unittest.TestCase):
         # Ensure dock exists before deleting.
         response = self.client.post(self.baseUrl, json=self.dock_data)
         dock_id = response.json().get("id")
+
+        # Check if the dock_id exists
+        self.assertIsNotNone(dock_id, "Dock ID should not be None")
 
         # Delete the dock.
         response = self.client.delete(f"{self.baseUrl}{dock_id}")
