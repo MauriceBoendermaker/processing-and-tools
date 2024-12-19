@@ -52,9 +52,12 @@ class TestDockResource(unittest.TestCase):
     def test_3_get_dock_by_id(self):
         # Ensure dock exists before querying.
         response = self.client.post(self.baseUrl, json=self.dock_data)
+        self.assertEqual(response.status_code, 200)
+        
+        # Ensure dock has a valid ID.
         dock_id = response.json().get("id")
-        self.assertIsNotNone(dock_id, "Dock ID should not be None")  # Assert dock ID exists
-
+        self.assertIsNotNone(dock_id, "Dock ID should not be None")
+        
         # Query the dock by ID.
         response = self.client.get(f"{self.baseUrl}{dock_id}")
         self.assertEqual(response.status_code, 200)
@@ -93,9 +96,11 @@ class TestDockResource(unittest.TestCase):
     def test_5_delete_dock(self):
         # Ensure dock exists before deleting.
         response = self.client.post(self.baseUrl, json=self.dock_data)
+        self.assertEqual(response.status_code, 200)
+        
         dock_id = response.json().get("id")
-        self.assertIsNotNone(dock_id, "Dock ID should not be None")  # Assert dock ID exists
-
+        self.assertIsNotNone(dock_id, "Dock ID should not be None")
+        
         # Delete the dock.
         response = self.client.delete(f"{self.baseUrl}{dock_id}")
         self.assertEqual(response.status_code, 200)

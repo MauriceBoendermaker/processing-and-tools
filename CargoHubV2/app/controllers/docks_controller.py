@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from ..database import get_db
-from ..schemas.docks_schema import DockCreate, DockUpdate, DockResponse
 from ..services.docks_service import (
     create_dock,
     get_all_docks,
@@ -10,6 +8,8 @@ from ..services.docks_service import (
     update_dock,
     delete_dock
 )
+from ..schemas.docks_schema import DockCreate, DockUpdate, DockResponse
+from ..database import get_db
 from ..services.api_keys_service import validate_api_key
 
 router = APIRouter(
@@ -43,7 +43,10 @@ def get_dock_by_id_endpoint(
     api_key: str = Header(...),
 ):
     validate_api_key("view", api_key, db)
-    return get_dock_by_id(db, dock_id)
+    dock = get_dock_by_id(db, dock_id)
+    if dock is None:
+        raise HTTPException(status_code=404, detail="Dock not found")
+    return dock
 
 @router.put("/{dock_id}", response_model=DockResponse)
 def update_dock_endpoint(
@@ -53,7 +56,10 @@ def update_dock_endpoint(
     api_key: str = Header(...),
 ):
     validate_api_key("edit", api_key, db)
-    return update_dock(db, dock_id, dock_data)
+    dock = update_dock(db, dock_id, dock_data)
+    if dock is None:
+        raise HTTPException(status_code=404, detail="Dock not found")
+    return dock
 
 @router.delete("/{dock_id}")
 def delete_dock_endpoint(
@@ -62,4 +68,7 @@ def delete_dock_endpoint(
     api_key: str = Header(...),
 ):
     validate_api_key("delete", api_key, db)
-    return delete_dock(db, dock_id)
+    success = delete_dock(db, dock_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Dock not found")
+    return {"message": f"Dock with ID {dock_id} deleted successfully"}
