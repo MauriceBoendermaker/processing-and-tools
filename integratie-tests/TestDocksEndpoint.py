@@ -1,117 +1,110 @@
 import unittest
 from httpx import Client
 from datetime import datetime
-from test_utils import check_id_exists, match_date
+from test_utils import check_code_exists, check_id_exists, match_date  # Assuming you have utility functions for validation
 
 
-class TestDocksResource(unittest.TestCase):
-    
+class TestDockResource(unittest.TestCase):
     def setUp(self):
-        # Base URL for the API and HTTP client setup
         self.baseUrl = "http://127.0.0.1:3000/api/v2/docks/"
         self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
-        # Test data
-        self.TEST_ID = 101  # ID of the dock to test
+        self.TEST_ID = 99999  # The test ID (this can be auto-generated, but fixed for consistency)
+        self.TEST_CODE = "DOCKTEST"
+
         self.TEST_BODY = {
-            "id": self.TEST_ID,
-            "warehouse_id": 58,
-            "code": "DOCK-001",
+            "warehouse_id": 1,
+            "code": self.TEST_CODE,
             "status": "active",
-            "description": "Main Dock 1",
-            "is_deleted": False
+            "created_at": "2024-12-19T10:00:00",
+            "updated_at": "2024-12-19T10:00:00",
         }
 
         self.ToPut = {
-            "status": "inactive",  # Change status for PUT test
-            "description": "Updated Dock Description"
+            "status": "inactive",
+            "updated_at": "2024-12-19T10:30:00",
         }
 
-        # Mock data setup (optional but useful if DB is empty)
-        self._create_mock_data()
-
-    def _create_mock_data(self):
-        """Helper function to add mock data for testing."""
-        # Create the dock (if not already present)
-        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
-        if response.status_code != 201:  # If creation fails, handle it gracefully
-            print("Warning: Dock with ID already exists or failed to create mock data.")
-        
-    def tearDown(self):
-        """Clean up test data if necessary, to reset the state."""
-        response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
-        if response.status_code != 200:
-            print("Warning: Unable to delete the mock dock during cleanup.")
-    
-    # Test to create a dock using POST
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
-        self.assertIn(response.status_code, [200, 201])
-        body = response.json()
-        self.assertEqual(body["code"], self.TEST_BODY["code"])
-        self.assertEqual(body["status"], self.TEST_BODY["status"])
-        self.assertEqual(body["description"], self.TEST_BODY["description"])
 
-    # Test to get all docks using GET
-    def test_2_get_docks(self):
-        response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertTrue(isinstance(body, list))
-        self.assertTrue(check_id_exists(body, self.TEST_ID))
+        self.assertEqual(response.json().get("code"), self.TEST_BODY["code"])
+        self.assertEqual(response.json().get("status"), self.TEST_BODY["status"])
 
-    # Test to get a single dock by ID using GET
+    def test_1_post_dock_integrity_error(self):
+        # Trying to create a dock with the same code should raise an integrity error.
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("exists", response.json().get("detail"))
+
+    def test_2_get_all_docks(self):
+        response = self.client.get(self.baseUrl)
+        body = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(check_code_exists(body, self.TEST_CODE))
+
     def test_3_get_dock_by_id(self):
         response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
-        self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["id"], self.TEST_ID)
-        self.assertEqual(body["code"], self.TEST_BODY["code"])
-        self.assertEqual(body["status"], self.TEST_BODY["status"])
-        self.assertEqual(body["description"], self.TEST_BODY["description"])
 
-    # Test to get docks by warehouse ID using GET
-    def test_4_get_docks_by_warehouse(self):
-        response = self.client.get(f"{self.baseUrl}warehouse/{self.TEST_BODY['warehouse_id']}")
         self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertTrue(isinstance(body, list))
-        self.assertTrue(any(dock["warehouse_id"] == self.TEST_BODY["warehouse_id"] for dock in body))
+        self.assertEqual(body.get("code"), self.TEST_CODE)
+        self.assertEqual(body.get("status"), "active")
 
-    # Test to update a dock using PUT
-    def test_5_put_dock(self):
-        response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
-        self.assertEqual(response.status_code, 200)
+    def test_3_get_dock_not_found(self):
+        response = self.client.get(f"{self.baseUrl}999999")  # Assuming this ID doesn't exist
         body = response.json()
-        self.assertEqual(body["status"], self.ToPut["status"])
-        self.assertEqual(body["description"], self.ToPut["description"])
-        self.assertTrue(match_date(body["updated_at"], datetime.today().date()))
-
-    # Test to delete a dock using DELETE
-    def test_6_delete_dock(self):
-        # Delete the dock
-        response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertEqual(body["detail"], "Dock deleted")
-
-        # Verify it was deleted by trying to retrieve it again
-        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
         self.assertEqual(response.status_code, 404)
+        self.assertIn("Dock not found", body.get("detail"))
 
-    # Test unauthorized access by removing the API key
-    def test_7_nokey(self):
-        self.client.headers = {"content-type": "application/json"}  # Remove API key
+    def test_4_put_dock(self):
+        response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the update is reflected in the response
+        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
+        body = response.json()
+        self.assertEqual(body.get('status'), 'inactive')
+        self.assertTrue(match_date(body.get('updated_at'), datetime.today().date()))
+
+    def test_4_put_dock_not_found(self):
+        response = self.client.put(f"{self.baseUrl}999999", json=self.ToPut)
+        body = response.json()
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Dock not found", body.get("detail"))
+
+    def test_5_delete_dock(self):
+        # Soft delete a dock
+        response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
+
+        self.assertEqual(response.status_code, 200)
+
+        # Verify that the dock is marked as deleted (not fully removed)
+        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
+        body = response.json()
+        self.assertEqual(body.get("is_deleted"), True)
+
+    def test_5_delete_dock_not_found(self):
+        # Trying to delete a non-existent dock
+        response = self.client.delete(f"{self.baseUrl}999999")
+        body = response.json()
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Dock not found", body.get("detail"))
+
+    def test_6_no_api_key(self):
+        self.client.headers = {"content-type": "application/json"}  # Removing the API key
         response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 422)
 
-    # Test with an incorrect API key
-    def test_8_wrong_key(self):
-        self.client.headers = {"api-key": "invalid-key", "content-type": "application/json"}
+    def test_7_wrong_api_key(self):
+        self.client.headers = {"api-key": "wrongapikey", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 403)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
