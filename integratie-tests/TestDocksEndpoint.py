@@ -6,7 +6,7 @@ from test_utils import check_id_exists
 
 class TestDockResource(unittest.TestCase):
     def setUp(self):
-        self.baseUrl = "http://127.0.0.1:3000/api/v2/docks/"
+        self.baseUrl = "http://localhost:3000/api/v2/docks/"
         self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
