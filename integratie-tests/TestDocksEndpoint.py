@@ -3,7 +3,6 @@ from httpx import Client
 from datetime import datetime
 from test_utils import check_code_exists, check_id_exists, match_date  # Assuming you have utility functions for validation
 
-
 class TestDockResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://127.0.0.1:3000/api/v2/docks/"
@@ -25,6 +24,9 @@ class TestDockResource(unittest.TestCase):
             "status": "inactive",
             "updated_at": "2024-12-19T10:30:00",
         }
+
+        # Added dock_data as a common test resource
+        self.dock_data = self.TEST_BODY
 
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
