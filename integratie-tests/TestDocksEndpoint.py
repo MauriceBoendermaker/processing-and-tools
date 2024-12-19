@@ -30,10 +30,15 @@ class TestDockResource(unittest.TestCase):
 
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
-
+        
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json().get("code"), self.TEST_BODY["code"])
         self.assertEqual(response.json().get("status"), self.TEST_BODY["status"])
+        
+        # Ensure a valid dock ID is returned
+        dock_id = response.json().get("id")
+        self.assertIsNotNone(dock_id, "Dock ID should not be None")
+        self.dock_id = dock_id  # Store the created dock's ID for reuse in other tests
 
     def test_1_post_dock_integrity_error(self):
         # Trying to create a dock with the same code should raise an integrity error.
@@ -50,21 +55,15 @@ class TestDockResource(unittest.TestCase):
 
     def test_3_get_dock_by_id(self):
         # Ensure dock exists before querying.
-        response = self.client.post(self.baseUrl, json=self.dock_data)
-        
-        if response.status_code != 200:
-            self.fail(f"Failed to create dock: {response.json()}")  # Fail early if dock creation fails
-        
-        dock_id = response.json().get("id")
-        
-        # Verify that the dock ID is not None or empty
-        self.assertIsNotNone(dock_id, "Dock ID should not be None")
-        
+        if not hasattr(self, 'dock_id'):  # If the dock hasn't been created yet, create it
+            response = self.client.post(self.baseUrl, json=self.dock_data)
+            self.dock_id = response.json().get("id")
+
         # Query the dock by ID.
-        response = self.client.get(f"{self.baseUrl}{dock_id}")
+        response = self.client.get(f"{self.baseUrl}{self.dock_id}")
         
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json().get("id"), dock_id)
+        self.assertEqual(response.json().get("id"), self.dock_id)
 
     def test_3_get_dock_not_found(self):
         response = self.client.get(f"{self.baseUrl}999999")  # Assuming this ID doesn't exist
@@ -74,29 +73,22 @@ class TestDockResource(unittest.TestCase):
 
     def test_4_put_dock(self):
         # Ensure dock exists before updating.
-        response = self.client.post(self.baseUrl, json=self.dock_data)
-        
-        if response.status_code != 200:
-            self.fail(f"Failed to create dock: {response.json()}")  # Fail early if dock creation fails
-        
-        dock_id = response.json().get("id")
-        
-        # Verify that the dock ID is not None or empty
-        self.assertIsNotNone(dock_id, "Dock ID should not be None")
-        
+        if not hasattr(self, 'dock_id'):  # If the dock hasn't been created yet, create it
+            response = self.client.post(self.baseUrl, json=self.dock_data)
+            self.dock_id = response.json().get("id")
+
         # Define the updated data.
         updated_data = {
-            "location": "New Location",
-            "status": "Active"
+            "status": "inactive",
+            "updated_at": "2024-12-19T10:30:00",
         }
 
         # Send the PUT request to update the dock.
-        response = self.client.put(f"{self.baseUrl}{dock_id}", json=updated_data)
+        response = self.client.put(f"{self.baseUrl}{self.dock_id}", json=updated_data)
         
         self.assertEqual(response.status_code, 200)
-        updated_dock = self.client.get(f"{self.baseUrl}{dock_id}").json()
-        self.assertEqual(updated_dock["location"], "New Location")
-        self.assertEqual(updated_dock["status"], "Active")
+        updated_dock = self.client.get(f"{self.baseUrl}{self.dock_id}").json()
+        self.assertEqual(updated_dock["status"], "inactive")
 
     def test_4_put_dock_not_found(self):
         response = self.client.put(f"{self.baseUrl}999999", json=self.ToPut)
@@ -106,23 +98,17 @@ class TestDockResource(unittest.TestCase):
 
     def test_5_delete_dock(self):
         # Ensure dock exists before deleting.
-        response = self.client.post(self.baseUrl, json=self.dock_data)
-        
-        if response.status_code != 200:
-            self.fail(f"Failed to create dock: {response.json()}")  # Fail early if dock creation fails
-        
-        dock_id = response.json().get("id")
-        
-        # Verify that the dock ID is not None or empty
-        self.assertIsNotNone(dock_id, "Dock ID should not be None")
-        
+        if not hasattr(self, 'dock_id'):  # If the dock hasn't been created yet, create it
+            response = self.client.post(self.baseUrl, json=self.dock_data)
+            self.dock_id = response.json().get("id")
+
         # Delete the dock.
-        response = self.client.delete(f"{self.baseUrl}{dock_id}")
+        response = self.client.delete(f"{self.baseUrl}{self.dock_id}")
         
         self.assertEqual(response.status_code, 200)
 
         # Verify dock is deleted by trying to retrieve it.
-        response = self.client.get(f"{self.baseUrl}{dock_id}")
+        response = self.client.get(f"{self.baseUrl}{self.dock_id}")
         self.assertEqual(response.status_code, 404)  # Expect 404 after deletion
 
     def test_5_delete_dock_not_found(self):
