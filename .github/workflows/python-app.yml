@@ -109,7 +109,7 @@ jobs:
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
       with:
-        pytest-xml-coverage-path: ../coverage.xml
+        pytest-xml-coverage-path: coverage.xml
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload coverage report
