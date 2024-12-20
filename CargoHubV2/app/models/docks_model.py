@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
@@ -7,15 +7,13 @@ from ..database import Base
 class Dock(Base):
     __tablename__ = "docks"
 
-    # Columns
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    warehouse_id = Column(Integer, ForeignKey("warehouses.id", ondelete="CASCADE"), nullable=False)
-    code = Column(String(50), unique=True, nullable=False)
-    status = Column(String(20), nullable=False)
-    description = Column(String(255), nullable=True)
-    is_deleted = Column(Boolean, default=False, nullable=False)  # Soft delete column
-    created_at = Column(DateTime, default=datetime.now, nullable=False)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True)
+    name = Column(String, index=True)
+    type = Column(String, index=True)  # Indicates dock type (e.g., loading/unloading zone, big/small loads, etc.)
+    status = Column(String, default="free", index=True)  # Tracks availability (e.g., free, occupied)
+    warehouse_id = Column(Integer, ForeignKey("warehouses.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    # Relationships
-    warehouse = relationship("Warehouse", back_populates="docks")  # Add backref to Warehouse
+    warehouse = relationship("Warehouse", back_populates="docks")
