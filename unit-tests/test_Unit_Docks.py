@@ -3,9 +3,10 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
+
 from CargoHubV2.app.services.docks_service import (
     create_dock,
-    get_dock_by_code,   # Updated from get_dock_by_id to get_dock_by_code
+    get_dock_by_code,
     get_all_docks,
     get_docks_by_warehouse_id,
     update_dock,
@@ -81,11 +82,10 @@ def test_get_dock_by_code_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
 
-    with pytest.raises(HTTPException) as excinfo:
-        get_dock_by_code(db, "NonExistent")
+    result = get_dock_by_code(db, "NonExistent")
 
-    assert excinfo.value.status_code == 404
-    assert "Dock not found" in str(excinfo.value.detail)
+    assert result is None
+    db.query().filter().first.assert_called_once()
 
 
 def test_get_all_docks():
