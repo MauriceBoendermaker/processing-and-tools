@@ -7,7 +7,7 @@ from ..schemas.docks_schema import DockCreate, DockUpdate
 from CargoHubV2.app.services.sorting_service import apply_sorting  # Import sorting helper function
 
 
-def create_dock(db: Session, dock_data: DockCreate):
+def create_dock(db: Session, dock_data: DockCreate):    
     """
     Create a new dock in the database.
     """
@@ -15,6 +15,7 @@ def create_dock(db: Session, dock_data: DockCreate):
         warehouse_id=dock_data.warehouse_id,
         code=dock_data.code,
         status=dock_data.status,
+        description=dock_data.description,  # Add this line
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
