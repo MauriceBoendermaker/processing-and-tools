@@ -10,8 +10,8 @@ class TestDockResource(unittest.TestCase):
         self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.TEST_ID = 99999  # This is irrelevant since ID is auto-incremented
-        self.TEST_WAREHOUSE_ID = 1  # Example warehouse ID
+        self.TEST_ID = 99999
+        self.TEST_WAREHOUSE_ID = 1
         self.TEST_CODE = "TESTDOCK"
 
         self.TEST_BODY = {
