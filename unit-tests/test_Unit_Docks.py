@@ -10,7 +10,7 @@ from CargoHubV2.app.services.docks_service import (
 from CargoHubV2.app.models.docks_model import Dock
 from CargoHubV2.app.schemas.docks_schema import DockCreate, DockUpdate
 
-# Sample Dock Data for Tests
+# Sample data for Dock model instantiation (includes fields like id, timestamps)
 SAMPLE_DOCK_DATA = {
     "id": 1,
     "warehouse_id": 101,
@@ -22,6 +22,15 @@ SAMPLE_DOCK_DATA = {
     "updated_at": datetime.now(),
 }
 
+# Sample data for DockCreate schema (only fields allowed by DockCreate)
+SAMPLE_DOCK_CREATE_DATA = {
+    "warehouse_id": 101,
+    "code": "D1",
+    "status": "free",
+    "description": "Dock 1 for loading"
+}
+
+# Sample data for DockUpdate schema (only optional fields defined by DockUpdate)
 UPDATED_DOCK_DATA = {
     "status": "occupied",
     "description": "Dock 1 is now occupied",
@@ -29,7 +38,7 @@ UPDATED_DOCK_DATA = {
 
 def test_create_dock():
     db = MagicMock()
-    dock_data = DockCreate(**SAMPLE_DOCK_DATA)
+    dock_data = DockCreate(**SAMPLE_DOCK_CREATE_DATA)
 
     new_dock = create_dock(db, dock_data)
 
@@ -37,10 +46,11 @@ def test_create_dock():
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(new_dock)
 
+
 def test_create_dock_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    dock_data = DockCreate(**SAMPLE_DOCK_DATA)
+    dock_data = DockCreate(**SAMPLE_DOCK_CREATE_DATA)
 
     with pytest.raises(HTTPException) as excinfo:
         create_dock(db, dock_data)
@@ -48,6 +58,7 @@ def test_create_dock_integrity_error():
     assert excinfo.value.status_code == 400
     assert "A dock with this code already exists." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
+
 
 def test_get_dock_by_id_found():
     db = MagicMock()
@@ -58,6 +69,7 @@ def test_get_dock_by_id_found():
     assert result.id == SAMPLE_DOCK_DATA["id"]
     db.query().filter().first.assert_called_once()
 
+
 def test_get_dock_by_id_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
@@ -67,6 +79,7 @@ def test_get_dock_by_id_not_found():
 
     assert excinfo.value.status_code == 404
     assert "Dock not found" in str(excinfo.value.detail)
+
 
 def test_get_all_docks():
     db = MagicMock()
@@ -82,6 +95,7 @@ def test_get_all_docks():
         db.query.assert_called_once_with(Dock)
         assert len(results) == 1
 
+
 def test_get_docks_by_warehouse_id_found():
     db = MagicMock()
     mock_query = db.query.return_value.filter.return_value
@@ -95,6 +109,7 @@ def test_get_docks_by_warehouse_id_found():
         mock_sorting.assert_called_once_with(mock_query, Dock, "id", "asc")
         db.query.assert_called_once_with(Dock)
         assert len(result) == 1
+
 
 def test_get_docks_by_warehouse_id_not_found():
     db = MagicMock()
@@ -112,6 +127,7 @@ def test_get_docks_by_warehouse_id_not_found():
         assert excinfo.value.status_code == 404
         assert "No docks found for the given warehouse." in str(excinfo.value.detail)
 
+
 def test_update_dock_found():
     db = MagicMock()
     db.query().filter().first.return_value = Dock(**SAMPLE_DOCK_DATA)
@@ -120,8 +136,10 @@ def test_update_dock_found():
     updated_dock = update_dock(db, 1, dock_update_data)
 
     assert updated_dock.status == "occupied"
+    assert updated_dock.description == "Dock 1 is now occupied"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_dock)
+
 
 def test_delete_dock_found():
     db = MagicMock()
@@ -133,6 +151,7 @@ def test_delete_dock_found():
     assert result["detail"] == "Dock deleted"
     assert mock_dock.is_deleted is True  # Ensure soft delete flag is set
     db.commit.assert_called_once()
+
 
 def test_delete_dock_not_found():
     db = MagicMock()
