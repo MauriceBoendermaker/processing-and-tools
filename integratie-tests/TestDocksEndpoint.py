@@ -33,12 +33,11 @@ class TestDockResource(unittest.TestCase):
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json().get("code"), self.TEST_BODY["code"])
         self.assertEqual(response.json().get("status"), self.TEST_BODY["status"])
 
     def test_1_post_dock_integrity_error(self):
-        # Creating the same dock again should result in a 400 error (duplicate)
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 400)
         self.assertIn("exists", response.json().get("detail"))
@@ -50,8 +49,8 @@ class TestDockResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(check_code_exists(body, self.TEST_CODE))
 
-    def test_3_get_dock_by_code(self):
-        response = self.client.get(f"{self.baseUrl}?code={self.TEST_CODE}")
+    def test_3_get_dock_by_id(self):
+        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
         body = response.json()
 
         self.assertEqual(response.status_code, 200)
@@ -60,17 +59,17 @@ class TestDockResource(unittest.TestCase):
         self.assertEqual(body.get("description"), "Test dock description")
 
     def test_3_get_dock_notfound(self):
-        response = self.client.get(f"{self.baseUrl}?code=non-existing-code")
+        response = self.client.get(f"{self.baseUrl}99998")
         body = response.json()
         self.assertEqual(response.status_code, 404)
         self.assertIn("not found", body.get("detail"))
 
     def test_4_put_dock(self):
-        response = self.client.put(f"{self.baseUrl}{self.TEST_CODE}", json=self.ToPut)
+        response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(f"{self.baseUrl}?code={self.TEST_CODE}")
+        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
         body = response.json()
         self.assertEqual(body.get('status'), 'inactive')
         self.assertEqual(body.get('description'), 'Updated dock description')
@@ -79,31 +78,26 @@ class TestDockResource(unittest.TestCase):
         self.assertTrue(match_date(body.get('updated_at'), date.today()))
 
     def test_4_put_dock_notfound(self):
-        response = self.client.put(f"{self.baseUrl}non-existing-code", json=self.ToPut)
+        response = self.client.put(f"{self.baseUrl}99998", json=self.ToPut)
         body = response.json()
         self.assertEqual(response.status_code, 404)
         self.assertIn("not found", body.get("detail"))
 
     def test_5_delete_dock(self):
-        # Teardown/cleanup
-        response = self.client.delete(f"{self.baseUrl}{self.TEST_CODE}")
-
+        response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
         self.assertEqual(response.status_code, 200)
 
-        # Check if the dock is deleted
-        na_delete = self.client.get(self.baseUrl)
-        self.assertFalse(check_code_exists(na_delete.json(), self.TEST_CODE))
+        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
+        self.assertEqual(response.status_code, 404)
 
     def test_6_no_api_key(self):
         self.client.headers = {"content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-
         self.assertEqual(response.status_code, 422)
 
     def test_7_wrong_api_key(self):
         self.client.headers = {"api-key": "randomguess", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-
         self.assertEqual(response.status_code, 403)
 
 if __name__ == '__main__':
