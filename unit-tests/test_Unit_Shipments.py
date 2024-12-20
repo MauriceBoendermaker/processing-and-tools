@@ -96,10 +96,13 @@ def test_update_shipment_found():
 
 def test_delete_shipment_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Shipment(**SAMPLE_SHIPMENT_DATA)
+    mock_shipment = Shipment(**SAMPLE_SHIPMENT_DATA)
+    db.query().filter().first.return_value = mock_shipment
 
     result = delete_shipment(db, 1)
 
-    assert result == {'detail': 'Shipment deleted'}
-    db.delete.assert_called_once()
+    assert result == {'detail': 'Shipment soft deleted'}
+    assert mock_shipment.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
+

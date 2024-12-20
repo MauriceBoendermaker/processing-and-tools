@@ -122,11 +122,16 @@ def test_update_order_integrity_error():
 
 def test_delete_order_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
+    mock_order = Order(**SAMPLE_ORDER_DATA)
+    db.query().filter().first.return_value = mock_order
+
     result = delete_order(db, 1)
-    assert result == {"detail": "Order deleted"}
-    db.delete.assert_called_once()
+
+    assert result == {"detail": "Order soft deleted"}
+    assert mock_order.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
+
 
 def test_delete_order_not_found():
     db = MagicMock()
