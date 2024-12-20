@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from CargoHubV2.app.services import warehouses_service
 from CargoHubV2.app.schemas import warehouses_schema
 from CargoHubV2.app.database import get_db
-from CargoHubV2.app.services.api_keys_service import validate_api_key
 from typing import Optional
 
 
@@ -23,7 +22,6 @@ def get_warehouses(
     order: Optional[str] = "asc",
     api_key: str = Header(...),
 ):
-    validate_api_key("view", api_key, db)
     if code:
         warehouse = warehouses_service.get_warehouse_by_code(db, code)
         if warehouse is None:
@@ -34,7 +32,6 @@ def get_warehouses(
 
 @router.post("/")
 def create_warehouse(warehouse: warehouses_schema.WarehouseCreate, db: Session = Depends(get_db), api_key: str = Header(...)):
-    validate_api_key("create", api_key, db)
     db_warehouse = warehouses_service.create_warehouse(
         db, warehouse.model_dump())
 
@@ -47,8 +44,6 @@ def create_warehouse(warehouse: warehouses_schema.WarehouseCreate, db: Session =
 def delete_warehouse(
     code: str, db: Session = Depends(get_db),
         api_key: str = Header(...)):
-
-    validate_api_key("delete", api_key, db)
     succes = warehouses_service.delete_warehouse(db, code)
     if succes:
         return f"warehouse with code {code} deleted"
@@ -62,7 +57,6 @@ def update_warehouse(
     db: Session = Depends(get_db),
         api_key: str = Header(...)):
 
-    validate_api_key("edit", api_key, db)
     if warehouse_data:
         return warehouses_service.update_warehouse(db, code, warehouse_data.model_dump(exclude_unset=True))
     raise HTTPException(status_code=400, detail="invalid request body")

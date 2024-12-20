@@ -56,9 +56,10 @@ def update_item_type(db: Session, id: int, item_type_data: ItemTypeUpdate) -> Op
 
 
 def delete_item_type(db: Session, id: int) -> bool:
-    item_type = get_item_type(db, id)
+    item_type = db.query(ItemType).filter(ItemType.id == id, ItemType.is_deleted == False).first()
     if item_type:
-        db.delete(item_type)
+        item_type.is_deleted = True  # Soft delete by updating the flag
         db.commit()
         return True
     return False
+

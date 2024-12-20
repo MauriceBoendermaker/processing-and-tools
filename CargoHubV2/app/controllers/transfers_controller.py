@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 from CargoHubV2.app.services import transfers_service
 from CargoHubV2.app.schemas import transfers_schema
-from CargoHubV2.app.services.api_keys_service import validate_api_key
 from CargoHubV2.app.database import get_db
 from typing import Optional
 
@@ -29,7 +28,6 @@ def get_transfers(
     order: Optional[str] = "asc",
     api_key: str = Header(...),
 ):
-    validate_api_key("view", api_key, db)
     if id:
         transfer = transfers_service.get_transfer(db, id)
         if not transfer:

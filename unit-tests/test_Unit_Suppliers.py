@@ -123,11 +123,16 @@ def test_update_supplier_integrity_error():
 
 def test_delete_supplier_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Supplier(**supplier_sample_data)
+    mock_supplier = Supplier(**supplier_sample_data)
+    db.query().filter().first.return_value = mock_supplier
+
     result = delete_supplier(db, 1)
-    assert result["detail"] == "supplier deleted"
-    db.delete.assert_called_once()
+
+    assert result["detail"] == "Supplier soft deleted"
+    assert mock_supplier.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
+
 
 
 def test_delete_supplier_not_found():

@@ -124,11 +124,15 @@ def test_update_inventory_integrity_error():
 
 def test_delete_inventory_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Inventory(**inventory_sample_data)
+    mock_inventory = Inventory(**inventory_sample_data)
+    db.query().filter().first.return_value = mock_inventory
+
     result = delete_inventory(db, inventory_sample_data["item_reference"])
-    assert result["detail"] == "inventory deleted"
-    db.delete.assert_called_once()
+
+    assert result["detail"] == "Inventory soft deleted"
+    assert mock_inventory.is_deleted is True  # Ensure is_deleted was updated
     db.commit.assert_called_once()
+
 
 
 def test_delete_inventory_not_found():

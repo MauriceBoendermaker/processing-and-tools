@@ -117,16 +117,18 @@ def test_update_item_group_not_found():
 
     assert result is None
 
-# Test delete_item_group
 def test_delete_item_group_found():
     db = MagicMock()
-    db.query().filter().first.return_value = ItemGroup(**SAMPLE_ITEM_GROUP)
+    mock_item_group = ItemGroup(**SAMPLE_ITEM_GROUP)
+    db.query().filter().first.return_value = mock_item_group
 
     result = delete_item_group(db, 1)
 
-    db.delete.assert_called_once()
-    db.commit.assert_called_once()
     assert result is True
+    assert mock_item_group.is_deleted is True  # Ensure is_deleted was updated
+    db.commit.assert_called_once()
+    db.delete.assert_not_called()  # Ensure hard delete was not called
+
 
 def test_delete_item_group_not_found():
     db = MagicMock()
