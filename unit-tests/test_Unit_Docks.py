@@ -4,13 +4,17 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
 from CargoHubV2.app.services.docks_service import (
-    create_dock, get_dock_by_id, get_all_docks,
-    get_docks_by_warehouse_id, update_dock, delete_dock
+    create_dock,
+    get_dock_by_code,   # Updated from get_dock_by_id to get_dock_by_code
+    get_all_docks,
+    get_docks_by_warehouse_id,
+    update_dock,
+    delete_dock
 )
 from CargoHubV2.app.models.docks_model import Dock
 from CargoHubV2.app.schemas.docks_schema import DockCreate, DockUpdate
 
-# Sample data for Dock model instantiation (includes fields like id, timestamps)
+# Sample Dock Data for Tests
 SAMPLE_DOCK_DATA = {
     "id": 1,
     "warehouse_id": 101,
@@ -22,23 +26,20 @@ SAMPLE_DOCK_DATA = {
     "updated_at": datetime.now(),
 }
 
-# Sample data for DockCreate schema (only fields allowed by DockCreate)
-SAMPLE_DOCK_CREATE_DATA = {
-    "warehouse_id": 101,
-    "code": "D1",
-    "status": "free",
-    "description": "Dock 1 for loading"
-}
-
-# Sample data for DockUpdate schema (only optional fields defined by DockUpdate)
 UPDATED_DOCK_DATA = {
     "status": "occupied",
     "description": "Dock 1 is now occupied",
 }
 
+
 def test_create_dock():
     db = MagicMock()
-    dock_data = DockCreate(**SAMPLE_DOCK_CREATE_DATA)
+    dock_data = DockCreate(
+        warehouse_id=SAMPLE_DOCK_DATA["warehouse_id"],
+        code=SAMPLE_DOCK_DATA["code"],
+        status=SAMPLE_DOCK_DATA["status"],
+        description=SAMPLE_DOCK_DATA["description"],
+    )
 
     new_dock = create_dock(db, dock_data)
 
@@ -50,7 +51,12 @@ def test_create_dock():
 def test_create_dock_integrity_error():
     db = MagicMock()
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    dock_data = DockCreate(**SAMPLE_DOCK_CREATE_DATA)
+    dock_data = DockCreate(
+        warehouse_id=SAMPLE_DOCK_DATA["warehouse_id"],
+        code=SAMPLE_DOCK_DATA["code"],
+        status=SAMPLE_DOCK_DATA["status"],
+        description=SAMPLE_DOCK_DATA["description"],
+    )
 
     with pytest.raises(HTTPException) as excinfo:
         create_dock(db, dock_data)
@@ -60,22 +66,23 @@ def test_create_dock_integrity_error():
     db.rollback.assert_called_once()
 
 
-def test_get_dock_by_id_found():
+def test_get_dock_by_code_found():
     db = MagicMock()
     db.query().filter().first.return_value = Dock(**SAMPLE_DOCK_DATA)
 
-    result = get_dock_by_id(db, 1)
+    result = get_dock_by_code(db, "D1")
 
-    assert result.id == SAMPLE_DOCK_DATA["id"]
+    assert result.code == SAMPLE_DOCK_DATA["code"]
+    assert result.description == SAMPLE_DOCK_DATA["description"]
     db.query().filter().first.assert_called_once()
 
 
-def test_get_dock_by_id_not_found():
+def test_get_dock_by_code_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
 
     with pytest.raises(HTTPException) as excinfo:
-        get_dock_by_id(db, 999)
+        get_dock_by_code(db, "NonExistent")
 
     assert excinfo.value.status_code == 404
     assert "Dock not found" in str(excinfo.value.detail)
