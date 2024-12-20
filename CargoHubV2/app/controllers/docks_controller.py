@@ -4,7 +4,7 @@ from typing import Optional
 from ..services.docks_service import (
     create_dock,
     get_all_docks,
-    get_dock_by_id,
+    get_dock_by_code,
     update_dock,
     delete_dock
 )
@@ -28,7 +28,7 @@ def get_docks(
     api_key: str = Header(...),
 ):
     if code:
-        dock = get_dock_by_id(db, code)
+        dock = get_dock_by_code(db, code)
         if dock is None:
             raise HTTPException(status_code=404, detail="Dock not found")
         return dock

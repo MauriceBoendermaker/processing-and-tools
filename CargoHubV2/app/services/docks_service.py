@@ -55,8 +55,7 @@ def get_all_docks(db: Session, offset: int = 0, limit: int = 100, sort_by: str =
 
 
 def get_docks_by_warehouse_id(
-    db: Session, warehouse_id: int, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"
-):
+    db: Session, warehouse_id: int, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"):
     """
     Retrieve all docks for a specific warehouse, excluding soft-deleted docks.
     """
@@ -69,14 +68,11 @@ def get_docks_by_warehouse_id(
     return docks
 
 
-def get_dock_by_id(db: Session, dock_id: int):
+def get_dock_by_code(db: Session, code: str):
     """
     Retrieve a single dock by its ID.
     """
-    dock = db.query(Dock).filter(Dock.id == dock_id).first()
-    if not dock:
-        raise HTTPException(status_code=404, detail="Dock not found")
-    return dock
+    return db.query(Dock).filter(Dock.code == code, Dock.is_deleted == False).first()
 
 
 def update_dock(db: Session, dock_id: int, dock_data: DockUpdate):
