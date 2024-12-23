@@ -53,7 +53,7 @@ jobs:
 
     - name: execute unit-tests
       run: |
-        pytest unit-tests/
+        pytest
 
   integration-tests: 
     needs: build
@@ -87,3 +87,34 @@ jobs:
     - name: Stop the server
       run: |
         pkill -f "uvicorn CargoHubV2.app.main:app"
+  
+  test-coverage:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        echo "current path: $(pwd)"
+        pwd && ls -a
+    
+    - name: Pytest coverage comment
+      uses: MishaKav/pytest-coverage-comment@main
+      with:
+        pytest-xml-coverage-path: coverage.xml
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: $pytest-xml-coverage-path
