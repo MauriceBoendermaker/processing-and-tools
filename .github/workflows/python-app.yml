@@ -105,6 +105,7 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
         echo "current path: $(pwd)"
+        pwd && ls
     
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
