@@ -29,8 +29,9 @@ def create_dock(db: Session, dock_data: DockCreate):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A dock with this code already exists."
         )
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
+        print("SQLAlchemyError:", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while creating the dock."
