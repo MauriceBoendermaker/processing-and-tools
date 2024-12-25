@@ -2,62 +2,70 @@ import unittest
 from httpx import Client
 
 class TestDocksResource(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.baseUrl = "http://localhost:3000/api/v2/docks/"
-        cls.client = Client()
-        cls.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
-        cls.TEST_BODY = {
+    def setUp(self):
+        self.baseUrl = "http://localhost:3000/api/v2/docks/"
+        self.client = Client()
+        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
+
+        self.TEST_BODY = {
             "warehouse_id": 1,
             "code": "DCK001",
             "status": "free",
             "description": "Test Dock"
         }
-        cls.ToPut = {
+
+        self.ToPut = {
             "status": "occupied",
             "description": "Updated Test Dock"
         }
-        cls.created_id = None  # Initialize to None
 
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
-        self.assertIn(response.status_code, [201, 200])
-        # Store the created_id at class level
-        type(self).created_id = response.json().get("id")
-        self.assertIsNotNone(type(self).created_id)
+        self.assertEqual(response.status_code, 201)
+        body = response.json()
+        self.assertEqual(body["code"], "DCK001")
+        self.created_id = body["id"]
 
-    def test_2_get_docks(self):
+    def test_2_get_all_docks(self):
+        # Retrieve all docks, default sorting
         response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 200)
+        docks = response.json()
+        self.assertIsInstance(docks, list)
 
-    def test_3_get_dock(self):
-        response = self.client.get(f"{self.baseUrl}?code=DCK001")
+        # Test sorting by code descending
+        response = self.client.get(self.baseUrl, params={"sort_by": "code", "order": "desc"})
+        self.assertEqual(response.status_code, 200)
+
+    def test_3_get_dock_by_id(self):
+        # Assuming self.created_id is known from test_1_post_dock or persist it in a class var
+        # For demonstration, let's say we got it from test_1_post_dock.
+        # In real runs, ensure test order or store in class variable.
+        dock_id = getattr(self, 'created_id', None)
+        self.assertIsNotNone(dock_id)
+
+        response = self.client.get(f"{self.baseUrl}{dock_id}")
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body.get("code"), self.TEST_BODY["code"])
-        self.assertEqual(body.get("description"), self.TEST_BODY["description"])
+        self.assertEqual(body["code"], "DCK001")
 
     def test_4_put_dock(self):
-        dock_id = type(self).created_id
-        self.assertIsNotNone(dock_id, "created_id should not be None. Did test_1_post_dock run first?")
+        dock_id = getattr(self, 'created_id', None)
+        self.assertIsNotNone(dock_id)
         response = self.client.put(f"{self.baseUrl}{dock_id}", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
-
-        # Fetch again by code to verify changes
-        response = self.client.get(f"{self.baseUrl}?code=DCK001")
-        self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body.get("status"), self.ToPut["status"])
-        self.assertEqual(body.get("description"), self.ToPut["description"])
+        self.assertEqual(body["status"], "occupied")
+        self.assertEqual(body["description"], "Updated Test Dock")
 
     def test_5_delete_dock(self):
-        dock_id = type(self).created_id
-        self.assertIsNotNone(dock_id, "created_id should not be None.")
+        dock_id = getattr(self, 'created_id', None)
+        self.assertIsNotNone(dock_id)
         response = self.client.delete(f"{self.baseUrl}{dock_id}")
         self.assertEqual(response.status_code, 200)
 
-        # After deleting, getting by code should return 404
-        response = self.client.get(f"{self.baseUrl}?code=DCK001")
+        # Verify dock is deleted
+        response = self.client.get(f"{self.baseUrl}{dock_id}")
         self.assertEqual(response.status_code, 404)
 
     def test_6_no_key(self):

@@ -71,9 +71,17 @@ def get_docks_by_warehouse_id(
 
 def get_dock_by_code(db: Session, code: str):
     """
-    Retrieve a single dock by its ID.
+    Retrieve a single dock by its code EX: DK001.
     """
     return db.query(Dock).filter(Dock.code == code, Dock.is_deleted == False).first()
+
+
+def get_dock_by_id(db: Session, dock_id: int):
+    """
+    Retrieve a single dock by its ID.
+    """
+    dock = db.query(Dock).filter(Dock.id == dock_id, Dock.is_deleted == False).first()
+    return dock
 
 
 def update_dock(db: Session, dock_id: int, dock_data: DockUpdate):
