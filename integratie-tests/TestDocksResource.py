@@ -17,18 +17,39 @@ class TestDocksResource(unittest.TestCase):
             "status": "occupied",
             "description": "Updated Test Dock"
         }
-        cls.created_id = None  # Initialize to None
+        cls.created_id = None
+
+        # Create dock for testing
+        response = cls.client.post(cls.baseUrl, json=cls.TEST_BODY)
+        if response.status_code in [200, 201]:
+            cls.created_id = response.json().get("id")
+        else:
+            raise Exception("Failed to create test dock for integration tests.")
+
+    @classmethod
+    def tearDownClass(cls):
+        # Cleanup dock after tests
+        if cls.created_id:
+            cls.client.delete(f"{cls.baseUrl}{cls.created_id}")
+
+    def tearDown(self):
+        # Reset headers after tests that modify them
+        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
         self.assertIn(response.status_code, [201, 200])
-        # Store the created_id at class level
-        type(self).created_id = response.json().get("id")
-        self.assertIsNotNone(type(self).created_id)
+        dock_id = response.json().get("id")
+        self.assertIsNotNone(dock_id)
 
     def test_2_get_docks(self):
         response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertIsInstance(body, list)
+        if body:
+            self.assertIn("id", body[0])
+            self.assertIn("warehouse_id", body[0])
 
     def test_3_get_dock(self):
         response = self.client.get(f"{self.baseUrl}?code=DCK001")
@@ -39,11 +60,11 @@ class TestDocksResource(unittest.TestCase):
 
     def test_4_put_dock(self):
         dock_id = type(self).created_id
-        self.assertIsNotNone(dock_id, "created_id should not be None. Did test_1_post_dock run first?")
+        self.assertIsNotNone(dock_id, "created_id should not be None.")
         response = self.client.put(f"{self.baseUrl}{dock_id}", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
-        # Fetch again by code to verify changes
+        # Verify changes
         response = self.client.get(f"{self.baseUrl}?code=DCK001")
         self.assertEqual(response.status_code, 200)
         body = response.json()
@@ -56,30 +77,26 @@ class TestDocksResource(unittest.TestCase):
         response = self.client.delete(f"{self.baseUrl}{dock_id}")
         self.assertEqual(response.status_code, 200)
 
-        # After deleting, getting by code should return 404
+        # Verify deletion
         response = self.client.get(f"{self.baseUrl}?code=DCK001")
         self.assertEqual(response.status_code, 404)
 
     def test_6_no_key(self):
         self.client.headers = {"content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-        # Assuming no key returns a 422 or some error code
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 403)  # Update based on API behavior
 
     def test_7_wrong_key(self):
         self.client.headers = {"api-key": "wrong_key", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-        # Assuming wrong key returns 403
         self.assertEqual(response.status_code, 403)
 
     def test_8_pagination(self):
         response = self.client.get(f"{self.baseUrl}?offset=0&limit=1")
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        # Adjust for metadata + results structure
-        self.assertIn("results", body)
-        self.assertIsInstance(body["results"], list)
-        self.assertLessEqual(len(body["results"]), 1)
+        self.assertIsInstance(body, list)
+        self.assertLessEqual(len(body), 1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

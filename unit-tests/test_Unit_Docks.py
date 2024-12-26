@@ -33,7 +33,6 @@ UPDATED_DOCK_DATA = {
     "description": "Dock 1 is now occupied",
 }
 
-
 def test_create_dock():
     db = MagicMock()
     dock_data = DockCreate(
@@ -83,9 +82,11 @@ def test_get_dock_by_code_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
 
-    result = get_dock_by_code(db, "NonExistent")
+    with pytest.raises(HTTPException) as excinfo:
+        get_dock_by_code(db, "NonExistent")
 
-    assert result is None
+    assert excinfo.value.status_code == 404
+    assert "Dock not found" in str(excinfo.value.detail)
     db.query().filter().first.assert_called_once()
 
 
