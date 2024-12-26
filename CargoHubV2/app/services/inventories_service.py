@@ -113,13 +113,16 @@ def delete_inventory(db: Session, item_reference: str):
 
 
 
-# locations filter using inventory ID
 def get_locations_by_inventory(db: Session, item_reference: str):
     try:
-        return db.query(Inventory).filter(Inventory.item_reference == item_reference).first().locations
+        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference, Inventory.is_deleted == False).first()
+        if not inventory:
+            raise HTTPException(status_code=404, detail="Inventory not found")
+        return [location for location in inventory.locations if not location.is_deleted]
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while getting the locations."
         )
+
