@@ -45,20 +45,18 @@ def get_all_docks(
     sort_by: str = "id", 
     order: str = "asc"
 ):
-    """
-    Retrieve all docks with sorting and pagination.
-    """
     try:
-        query = db.query(Dock)  # Base query for docks
-        query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting using the sorting_service
-        return query.offset(offset).limit(limit).all()  # Paginate results
+        query = db.query(Dock).filter(Dock.is_deleted == False)  # Filter out deleted docks
+        query = apply_sorting(query, Dock, sort_by, order)
+        return query.offset(offset).limit(limit).all()
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))  # Catch invalid sorting inputs
+        raise HTTPException(status_code=400, detail=str(e))
     except SQLAlchemyError as e:
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while retrieving docks: {str(e)}"
         )
+
 
 
 def get_docks_by_warehouse_id(
