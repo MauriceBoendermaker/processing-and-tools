@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends, Header, Query
+from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 from typing import Optional
 from ..services.docks_service import (
     create_dock,
     get_all_docks,
-    get_dock_by_id,
+    get_dock_by_code,
     update_dock,
-    delete_dock,
+    delete_dock
 )
 from ..schemas.docks_schema import DockCreate, DockUpdate
 from ..database import get_db
@@ -16,54 +16,53 @@ router = APIRouter(
     tags=["docks"]
 )
 
+
 @router.get("/")
 def get_docks(
     db: Session = Depends(get_db),
-    dock_id: Optional[int] = None,
-    offset: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1),
-    sort_by: str = Query(..., description="The field to sort by (e.g., 'id', 'code')."),
-    order: str = Query(..., description="The order: 'asc' or 'desc'."),
-    api_key: str = Header(...)
-):
-    """
-    Retrieve docks. If `dock_id` is supplied, return that one dock; otherwise return all.
-    Must also supply `sort_by` and `order`.
-    """
-    if dock_id is not None:
-        return get_dock_by_id(db, dock_id)
-    return get_all_docks(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
-
-@router.post("/")
-def create_dock_endpoint(
-    dock: DockCreate,
-    db: Session = Depends(get_db),
+    code: Optional[str] = None,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
     api_key: str = Header(...),
 ):
-    """
-    Create a new dock. The 'id' is auto-incremented by the database.
-    """
-    return create_dock(db, dock)
+    if code:
+        dock = get_dock_by_code(db, code)
+        if dock is None:
+            raise HTTPException(status_code=404, detail="Dock not found")
+        return dock
+    return get_all_docks(db, offset=offset, limit=limit)
+
+
+@router.post("/")
+def create_dock_endpoint(dock: DockCreate, db: Session = Depends(get_db), api_key: str = Header(...)):
+    db_dock = create_dock(db, dock)
+
+    if db_dock is None:
+        raise HTTPException(status_code=400, detail="Dock already exists")
+    return db_dock
+
+
+@router.delete("/{dock_id}")
+def delete_dock_endpoint(
+    dock_id: int,
+    db: Session = Depends(get_db),
+    api_key: str = Header(...)):
+
+    success = delete_dock(db, dock_id)
+    if success:
+        return f"Dock with ID {dock_id} deleted"
+    raise HTTPException(status_code=404, detail="Dock not found")
+
 
 @router.put("/{dock_id}")
 def update_dock_endpoint(
     dock_id: int,
     dock_data: DockUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
-):
-    """
-    Update a dock by its auto-incremented 'id'.
-    """
-    return update_dock(db, dock_id, dock_data)
+    api_key: str = Header(...)):
 
-@router.delete("/{dock_id}")
-def delete_dock_endpoint(
-    dock_id: int,
-    db: Session = Depends(get_db),
-    api_key: str = Header(...),
-):
-    """
-    Soft delete a dock by setting 'is_deleted' to True.
-    """
-    return delete_dock(db, dock_id)
+    if dock_data:
+        return update_dock(db, dock_id, dock_data)
+    raise HTTPException(status_code=400, detail="Invalid request body")
