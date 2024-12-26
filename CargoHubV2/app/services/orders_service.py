@@ -102,11 +102,13 @@ def delete_order(db: Session, id: int):
 
 
 def get_items_in_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order or not order.items:
         raise HTTPException(
-            status_code=404, detail="no items found for this order")
-    return order.items
+            status_code=404, detail="No items found for this order"
+        )
+    return [item for item in order.items if not item.is_deleted]
+
 
 
 def get_packinglist_for_order(db: Session, order_id: int):
