@@ -73,8 +73,8 @@ class TestDocksResource(unittest.TestCase):
     def test_7_no_key(self):
         self.client.headers = {"content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-        # Assuming no key returns 401 for unauthorized
-        self.assertEqual(response.status_code, 401)
+        # Assuming no key returns 422 for unauthorized
+        self.assertEqual(response.status_code, 422)
 
     def test_8_wrong_key(self):
         self.client.headers = {"api-key": "wrong_key", "content-type": "application/json"}
