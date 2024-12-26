@@ -40,7 +40,7 @@ def create_supplier(db: Session, suppliers_data: SuppliersCreate):
 
 def get_supplier(db: Session, code: str):
     try:
-        supplier = db.query(Supplier).filter(Supplier.code == code).first()
+        supplier = db.query(Supplier).filter(Supplier.code == code, Supplier.is_deleted == False).first()
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
         return supplier
@@ -59,7 +59,7 @@ def get_all_suppliers(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Supplier)
+        query = db.query(Supplier).filter(Supplier.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Supplier, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -101,10 +101,11 @@ def delete_supplier(db: Session, code: str):
 
 
 def get_items_by_supplier_id(db: Session, supplier_id: int, offset: int = 0, limit: int = 100):
-    items = db.query(Item).filter(Item.supplier_id == supplier_id).offset(offset).limit(limit).all()
-    supplier = db.query(Supplier).filter(Supplier.id == supplier_id).first()
+    items = db.query(Item).filter(Item.supplier_id == supplier_id, Item.is_deleted == False).offset(offset).limit(limit).all()
+    supplier = db.query(Supplier).filter(Supplier.id == supplier_id, Supplier.is_deleted == False).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="This supplier does not exist")
     if not items:
         raise HTTPException(status_code=404, detail="No Items found for this supplier")
     return items
+
