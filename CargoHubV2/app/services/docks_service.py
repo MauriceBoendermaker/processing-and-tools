@@ -99,7 +99,7 @@ def get_dock_by_id(db: Session, dock_id: int):
         return dock
     except SQLAlchemyError as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail=f"An error occurred while retrieving the dock: {str(e)}"
         )
 
@@ -108,7 +108,16 @@ def get_dock_by_code(db: Session, code: str):
     """
     Retrieve a single dock by its code.
     """
-    return db.query(Dock).filter(Dock.code == code, Dock.is_deleted == False).first()
+    try:
+        dock = db.query(Dock).filter(Dock.code == code, Dock.is_deleted == False).first()
+        if not dock:
+            raise HTTPException(status_code=404, detail="Dock not found")
+        return dock
+    except SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while retrieving the dock: {str(e)}"
+        )
 
 
 def update_dock(db: Session, dock_id: int, dock_data: DockUpdate):
