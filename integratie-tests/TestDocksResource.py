@@ -72,6 +72,12 @@ class TestDocksResource(unittest.TestCase):
         # Assuming wrong key returns 403
         self.assertEqual(response.status_code, 403)
 
+    def test_8_pagination(self):
+        response = self.client.get(f"{self.baseUrl}?offset=0&limit=1")
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertIsInstance(body, list)
+        self.assertLessEqual(len(body), 1)  # Ensure no more than 1 dock is returned
 
 if __name__ == '__main__':
     unittest.main()
