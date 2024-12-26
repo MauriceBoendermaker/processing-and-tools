@@ -34,7 +34,8 @@ def create_shipment(db: Session, shipment_data: dict):
 def get_shipment(db: Session, shipment_id: int):
     try:
         shipment = db.query(Shipment).filter(
-            Shipment.id == shipment_id).first()
+            Shipment.id == shipment_id, Shipment.is_deleted == False
+        ).first()
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")
         return shipment
@@ -53,7 +54,7 @@ def get_all_shipments(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Shipment)
+        query = db.query(Shipment).filter(Shipment.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Shipment, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -64,6 +65,7 @@ def get_all_shipments(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving shipments."
         )
+
 
 
 def delete_shipment(db: Session, shipment_id: int):
