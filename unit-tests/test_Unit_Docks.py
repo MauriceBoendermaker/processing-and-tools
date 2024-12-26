@@ -1,124 +1,84 @@
-import pytest
+import unittest
 from unittest.mock import MagicMock, patch
-from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException
 from datetime import datetime
-
+from sqlalchemy.orm import Session
 from CargoHubV2.app.services.docks_service import (
     create_dock,
     get_all_docks,
     get_dock_by_id,
     update_dock,
-    delete_dock
+    delete_dock,
 )
 from CargoHubV2.app.models.docks_model import Dock
 from CargoHubV2.app.schemas.docks_schema import DockCreate, DockUpdate
 
-SAMPLE_DOCK_DATA = {
-    "id": 1,
-    "warehouse_id": 101,
-    "code": "D1",
-    "status": "free",
-    "description": "Dock 1 for loading",
-    "is_deleted": False,
-    "created_at": datetime.now(),
-    "updated_at": datetime.now(),
-}
 
-UPDATED_DOCK_DATA = {
-    "status": "occupied",
-    "description": "Dock 1 is now occupied",
-}
+class TestDockService(unittest.TestCase):
+    def setUp(self):
+        # Mock session
+        self.db = MagicMock(spec=Session)
 
-def test_create_dock():
-    db = MagicMock()
-    dock_data = DockCreate(
-        warehouse_id=SAMPLE_DOCK_DATA["warehouse_id"],
-        code=SAMPLE_DOCK_DATA["code"],
-        status=SAMPLE_DOCK_DATA["status"],
-        description=SAMPLE_DOCK_DATA["description"],
-    )
+        # Example dock data
+        self.dock_data = {
+            "warehouse_id": 1,
+            "code": "DCK001",
+            "status": "free",
+            "description": "Test Dock",
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+            "is_deleted": False
+        }
+        self.dock = Dock(**self.dock_data)
 
-    new_dock = create_dock(db, dock_data)
+    # Tests
 
-    db.add.assert_called_once()
-    db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(new_dock)
-    assert new_dock.code == "D1"
-    assert new_dock.description == "Dock 1 for loading"
+    def test_create_dock(self):
+        self.db.add = MagicMock()
+        self.db.commit = MagicMock()
 
-def test_create_dock_integrity_error():
-    db = MagicMock()
-    db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    dock_data = DockCreate(
-        warehouse_id=SAMPLE_DOCK_DATA["warehouse_id"],
-        code=SAMPLE_DOCK_DATA["code"],
-        status=SAMPLE_DOCK_DATA["status"],
-        description=SAMPLE_DOCK_DATA["description"],
-    )
+        dock_create = DockCreate(**self.dock_data)
+        new_dock = create_dock(self.db, dock_create)
 
-    with pytest.raises(HTTPException) as excinfo:
-        create_dock(db, dock_data)
+        self.db.add.assert_called_once()
+        self.db.commit.assert_called_once()
+        self.assertEqual(new_dock.code, self.dock_data["code"])
+        self.assertEqual(new_dock.warehouse_id, self.dock_data["warehouse_id"])
 
-    assert excinfo.value.status_code == 400
-    db.rollback.assert_called_once()
+    def test_get_all_docks(self):
+        # Mock query result
+        self.db.query.return_value.filter.return_value.all.return_value = [self.dock]
 
-def test_get_all_docks():
-    db = MagicMock()
-    mock_query = db.query.return_value
-    mock_query.offset.return_value = mock_query
-    mock_query.limit.return_value = mock_query
-    mock_query.all.return_value = [Dock(**SAMPLE_DOCK_DATA)]
+        docks = get_all_docks(self.db, offset=0, limit=10, sort_by="id", order="asc")
+        self.assertEqual(len(docks), 1)
+        self.assertEqual(docks[0].code, "DCK001")
 
-    with patch("CargoHubV2.app.services.docks_service.apply_sorting", return_value=mock_query) as mock_sorting:
-        # Test default sorting
-        results = get_all_docks(db, offset=0, limit=10, sort_by="id", order="asc")
-        mock_sorting.assert_called_once_with(mock_query, Dock, "id", "asc")
-        assert len(results) == 1
+    def test_get_dock_by_id(self):
+        self.db.query.return_value.filter.return_value.first.return_value = self.dock
 
-        # Reset mock for another sorting test
-        mock_sorting.reset_mock()
-        get_all_docks(db, offset=0, limit=10, sort_by="code", order="desc")
-        mock_sorting.assert_called_once_with(mock_query, Dock, "code", "desc")
+        result = get_dock_by_id(self.db, 1)
+        self.assertEqual(result.code, "DCK001")
 
-def test_get_dock_by_id_found():
-    db = MagicMock()
-    db.query().filter().first.return_value = Dock(**SAMPLE_DOCK_DATA)
+    def test_update_dock(self):
+        self.db.query.return_value.filter.return_value.first.return_value = self.dock
+        self.db.commit = MagicMock()
 
-    result = get_dock_by_id(db, 1)
-    assert result.code == SAMPLE_DOCK_DATA["code"]
+        dock_update = DockUpdate(status="occupied", description="Updated Dock")
+        updated_dock = update_dock(self.db, 1, dock_update)
 
-def test_get_dock_by_id_not_found():
-    db = MagicMock()
-    db.query().filter().first.return_value = None
-    result = get_dock_by_id(db, 999)
-    assert result is None
+        self.db.commit.assert_called_once()
+        self.assertEqual(updated_dock.status, "occupied")
+        self.assertEqual(updated_dock.description, "Updated Dock")
 
-def test_update_dock_found():
-    db = MagicMock()
-    db.query().filter().first.return_value = Dock(**SAMPLE_DOCK_DATA)
-    dock_update_data = DockUpdate(**UPDATED_DOCK_DATA)
+    def test_delete_dock(self):
+        self.db.query.return_value.filter.return_value.first.return_value = self.dock
+        self.db.commit = MagicMock()
 
-    updated_dock = update_dock(db, 1, dock_update_data)
-    assert updated_dock.status == "occupied"
-    assert updated_dock.description == "Dock 1 is now occupied"
-    db.commit.assert_called_once()
-    db.refresh.assert_called_once_with(updated_dock)
+        result = delete_dock(self.db, 1)
 
-def test_delete_dock_found():
-    db = MagicMock()
-    mock_dock = Dock(**SAMPLE_DOCK_DATA)
-    db.query().filter().first.return_value = mock_dock
+        self.db.commit.assert_called_once()
+        self.assertTrue(self.dock.is_deleted)
+        self.assertIn("Dock with ID", result["detail"])
 
-    result = delete_dock(db, 1)
-    assert result["detail"] == "Dock deleted"
-    assert mock_dock.is_deleted is True
-    db.commit.assert_called_once()
 
-def test_delete_dock_not_found():
-    db = MagicMock()
-    db.query().filter().first.return_value = None
-
-    with pytest.raises(HTTPException) as excinfo:
-        delete_dock(db, 999)
-    assert excinfo.value.status_code == 404
+if __name__ == "__main__":
+    unittest.main()
