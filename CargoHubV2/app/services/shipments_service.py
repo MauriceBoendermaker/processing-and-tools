@@ -116,7 +116,7 @@ def update_shipment(db: Session, shipment_id: int, shipment_data: ShipmentUpdate
 
 
 def get_orders_by_shipment_id(db: Session, shipment_id: int):
-    shipment = db.query(Shipment).filter(Shipment.id == shipment_id).first()
+    shipment = db.query(Shipment).filter(Shipment.id == shipment_id, Shipment.is_deleted == False).first()
     if not shipment:
         raise HTTPException(status_code=404, detail="Shipment not found")
     
