@@ -31,7 +31,7 @@ def create_order(db: Session, order_data: dict):
 
 
 def get_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
@@ -45,7 +45,7 @@ def get_all_orders(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Order)
+        query = db.query(Order).filter(Order.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Order, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -56,6 +56,7 @@ def get_all_orders(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving orders."
         )
+
     
 
 def update_order(db: Session, id: int, order_data: OrderUpdate):
