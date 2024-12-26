@@ -142,7 +142,7 @@ def get_packinglist_for_order(db: Session, order_id: int):
 
 
 def get_shipments_by_order_id(db: Session, order_id: int):
-    order = db.query(Order).filter(Order.id == order_id).first()
+    order = db.query(Order).filter(Order.id == order_id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     
@@ -150,7 +150,7 @@ def get_shipments_by_order_id(db: Session, order_id: int):
     if not shipment_ids:
         raise HTTPException(status_code=404, detail="No shipment IDs found in the order")
 
-    shipments = db.query(Shipment).filter(Shipment.id.in_(shipment_ids)).all()
+    shipments = db.query(Shipment).filter(Shipment.id.in_(shipment_ids), Shipment.is_deleted == False).all()
     if not shipments:
         raise HTTPException(status_code=404, detail="No shipments found for the given order")
     
