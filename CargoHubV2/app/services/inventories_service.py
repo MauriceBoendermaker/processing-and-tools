@@ -32,7 +32,7 @@ def create_inventory(db: Session, inventory_data: dict):
 
 def get_inventory(db: Session, item_reference: str):
     try:
-        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference).first()
+        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference, Inventory.is_deleted == False).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="inventory not found")
         return inventory
@@ -51,7 +51,7 @@ def get_all_inventories(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Inventory)
+        query = db.query(Inventory).filter(Inventory.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Inventory, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -62,6 +62,7 @@ def get_all_inventories(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving inventories."
         )
+
 
 
 def update_inventory(db: Session, item_reference: str, inven_data: dict):
