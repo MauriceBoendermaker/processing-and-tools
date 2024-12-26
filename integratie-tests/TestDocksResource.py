@@ -76,8 +76,10 @@ class TestDocksResource(unittest.TestCase):
         response = self.client.get(f"{self.baseUrl}?offset=0&limit=1")
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertIsInstance(body, list)
-        self.assertLessEqual(len(body), 1)  # Ensure no more than 1 dock is returned
+        # Adjust for metadata + results structure
+        self.assertIn("results", body)
+        self.assertIsInstance(body["results"], list)
+        self.assertLessEqual(len(body["results"]), 1)
 
 if __name__ == '__main__':
     unittest.main()
