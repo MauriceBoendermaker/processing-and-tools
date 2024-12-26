@@ -23,16 +23,22 @@ def get_docks(
     code: Optional[str] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "id",
-    order: Optional[str] = "asc",
+    sort_by: Optional[str] = "id",  # Default sorting column is `id`
+    order: Optional[str] = "asc",  # Default sorting order is `asc`
     api_key: str = Header(...),
 ):
+    """
+    Retrieve docks with optional filtering by code, pagination, and sorting.
+    """
+    # If `code` is provided, retrieve a single dock by code
     if code:
         dock = get_dock_by_code(db, code)
         if dock is None:
             raise HTTPException(status_code=404, detail="Dock not found")
         return dock
-    return get_all_docks(db, offset=offset, limit=limit)
+
+    # Otherwise, retrieve all docks with sorting and pagination
+    return get_all_docks(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
 @router.post("/")

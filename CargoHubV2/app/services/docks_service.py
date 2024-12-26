@@ -38,35 +38,54 @@ def create_dock(db: Session, dock_data: DockCreate):
     return dock
 
 
-def get_all_docks(db: Session, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"):
+def get_all_docks(
+    db: Session, 
+    offset: int = 0, 
+    limit: int = 100, 
+    sort_by: str = "id", 
+    order: str = "asc"
+):
     """
-    Retrieve all docks with optional sorting and pagination.
+    Retrieve all docks with sorting and pagination.
     """
     try:
-        query = db.query(Dock)
-        query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting
-        return query.offset(offset).limit(limit).all()
+        query = db.query(Dock)  # Base query for docks
+        query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting using the sorting_service
+        return query.offset(offset).limit(limit).all()  # Paginate results
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))  # Catch invalid sorting inputs
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while retrieving docks."
+            status_code=500,
+            detail=f"An error occurred while retrieving docks: {str(e)}"
         )
 
 
 def get_docks_by_warehouse_id(
-    db: Session, warehouse_id: int, offset: int = 0, limit: int = 100, sort_by: str = "id", order: str = "asc"):
+    db: Session, 
+    warehouse_id: int, 
+    offset: int = 0, 
+    limit: int = 100, 
+    sort_by: str = "id", 
+    order: str = "asc"
+):
     """
-    Retrieve all docks for a specific warehouse, excluding soft-deleted docks.
+    Retrieve docks for a specific warehouse with sorting and pagination.
     """
-    query = db.query(Dock).filter(Dock.warehouse_id == warehouse_id, Dock.is_deleted == False)
-    query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting
-    docks = query.offset(offset).limit(limit).all()
+    try:
+        # Base query for docks filtered by warehouse
+        query = db.query(Dock).filter(Dock.warehouse_id == warehouse_id, Dock.is_deleted == False)
+        query = apply_sorting(query, Dock, sort_by, order)  # Apply sorting using the sorting_service
+        docks = query.offset(offset).limit(limit).all()  # Paginate results
 
-    if not docks:
-        raise HTTPException(status_code=404, detail="No docks found for the given warehouse.")
-    return docks
+        if not docks:
+            raise HTTPException(status_code=404, detail="No docks found for the given warehouse.")
+        return docks
+    except SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while retrieving docks: {str(e)}"
+        )
 
 
 def get_dock_by_code(db: Session, code: str):
