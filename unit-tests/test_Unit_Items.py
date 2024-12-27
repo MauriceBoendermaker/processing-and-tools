@@ -101,8 +101,6 @@ def test_get_all_items():
         assert results[0].code == SAMPLE_ITEM_DATA["code"]
 
 
-
-
 def test_update_item_found():
     db = MagicMock()
     db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
@@ -146,13 +144,15 @@ def test_update_item_integrity_error():
 
 def test_delete_item_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Item(**SAMPLE_ITEM_DATA)
+    mock_item = Item(**SAMPLE_ITEM_DATA)
+    db.query().filter().first.return_value = mock_item
 
     result = delete_item(db, "TEST-DATA")
 
-    assert result == {"detail": "Item deleted"}
-    db.delete.assert_called_once()
+    assert result == {"detail": "Item soft deleted"}
+    assert mock_item.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
 
 
 def test_delete_item_not_found():

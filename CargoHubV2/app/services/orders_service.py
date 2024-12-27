@@ -84,11 +84,11 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
 
 
 def delete_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     try:
-        db.delete(order)
+        order.is_deleted = True  # Soft delete by updating the flag
         db.commit()
     except SQLAlchemyError:
         db.rollback()
@@ -96,7 +96,8 @@ def delete_order(db: Session, id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the order."
         )
-    return {"detail": "Order deleted"}
+    return {"detail": "Order soft deleted"}
+
 
 
 def get_items_in_order(db: Session, id: int):

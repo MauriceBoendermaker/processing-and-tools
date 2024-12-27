@@ -61,9 +61,10 @@ def update_item_line(db: Session, id: int, item_line_data: ItemLineUpdate) -> Op
 
 
 def delete_item_line(db: Session, id: int) -> bool:
-    item_line = get_item_line(db, id)
+    item_line = db.query(ItemLine).filter(ItemLine.id == id, ItemLine.is_deleted == False).first()
     if item_line:
-        db.delete(item_line)
+        item_line.is_deleted = True  # Soft delete by updating the flag
         db.commit()
         return True
     return False
+

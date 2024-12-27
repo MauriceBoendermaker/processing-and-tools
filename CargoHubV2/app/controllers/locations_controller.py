@@ -62,5 +62,5 @@ def update_location(id: int, location_data: locations_schema.LocationUpdate, db:
 def delete_location(id: int, db: Session = Depends(get_db), api_key: str = Header(...)):
     result = locations_service.delete_location(db, id)
     if result:
-        return {"detail": "Location deleted"}
+        return result
     raise HTTPException(status_code=404, detail="Location not found.")

@@ -92,10 +92,12 @@ def test_update_client_found():
 
 def test_delete_client_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Client(**SAMPLE_CLIENT_DATA)
+    mock_client = Client(**SAMPLE_CLIENT_DATA)
+    db.query().filter().first.return_value = mock_client
 
     result = delete_client(db, 1)
 
-    assert result == {'detail': 'Client deleted'}
-    db.delete.assert_called_once()
+    assert result == {'detail': 'Client soft deleted'}
+    assert mock_client.is_deleted is True  # Ensure is_deleted was updated
     db.commit.assert_called_once()
+

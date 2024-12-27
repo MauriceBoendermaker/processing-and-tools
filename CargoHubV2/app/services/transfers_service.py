@@ -93,10 +93,13 @@ def update_transfer(db: Session, transfer_id: int, transfer_data: TransferUpdate
 
 def delete_transfer(db: Session, transfer_id: int):
     try:
-        transfer = db.query(Transfer).filter(Transfer.id == transfer_id).first()
+        transfer = db.query(Transfer).filter(
+            Transfer.id == transfer_id, Transfer.is_deleted == False
+        ).first()
         if not transfer:
             raise HTTPException(status_code=404, detail="Transfer not found")
-        db.delete(transfer)
+        
+        transfer.is_deleted = True  # Soft delete by updating the flag
         db.commit()
     except SQLAlchemyError:
         db.rollback()
@@ -104,4 +107,5 @@ def delete_transfer(db: Session, transfer_id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the transfer."
         )
-    return {"detail": "Transfer deleted"}
+    return {"detail": "Transfer soft deleted"}
+

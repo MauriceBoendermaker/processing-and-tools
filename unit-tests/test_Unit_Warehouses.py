@@ -153,16 +153,18 @@ def test_update_warehouse_integrity_error():
     db.rollback.assert_called_once()
 
 
-# Test for delete_warehouse
 def test_delete_warehouse_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Warehouse(**SAMPLE_WAREHOUSE_DATA)
+    mock_warehouse = Warehouse(**SAMPLE_WAREHOUSE_DATA)
+    db.query().filter().first.return_value = mock_warehouse
 
     result = delete_warehouse(db, SAMPLE_WAREHOUSE_DATA["code"])
 
-    assert result is True
-    db.delete.assert_called_once()
+    assert result == {"detail": "Warehouse soft deleted"}
+    assert mock_warehouse.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
+
 
 
 def test_delete_warehouse_not_found():

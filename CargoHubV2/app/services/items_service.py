@@ -41,7 +41,7 @@ def get_item(db: Session, code: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving the item."
         )
-
+    
 
 def get_all_items(db: Session, offset: int = 0, limit: int = 100, sort_by: Optional[str] = "id", order: Optional[str] = "asc"):
     try:
@@ -85,10 +85,11 @@ def update_item(db: Session, code: str, item_data: ItemUpdate):
 
 def delete_item(db: Session, code: str):
     try:
-        item = db.query(Item).filter(Item.code == code).first()
+        item = db.query(Item).filter(Item.code == code, Item.is_deleted == False).first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
-        db.delete(item)
+        
+        item.is_deleted = True  # Soft delete by updating the flag
         db.commit()
     except SQLAlchemyError:
         db.rollback()
@@ -96,4 +97,5 @@ def delete_item(db: Session, code: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the item."
         )
-    return {"detail": "Item deleted"}
+    return {"detail": "Item soft deleted"}
+
