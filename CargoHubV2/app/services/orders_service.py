@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import List, Optional
 from CargoHubV2.app.services.sorting_service import apply_sorting
 
-
 def create_order(db: Session, order_data: dict):
     order = Order(**order_data)
     db.add(order)
@@ -29,25 +28,27 @@ def create_order(db: Session, order_data: dict):
         )
     return order
 
-
 def get_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
 
-
 def get_all_orders(
     db: Session,
+    date: Optional[datetime] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "id",
-    order: Optional[str] = "asc"
+    sort_by: Optional[str] = "order_date",
+    sort_order: Optional[str] = "asc"
 ):
     try:
         query = db.query(Order)
-        if sort_by:
-            query = apply_sorting(query, Order, sort_by, order)
+        if date:
+            query = query.filter(Order.order_date == date)
+        if sort_order not in ["asc", "desc"]:
+            raise HTTPException(status_code=400, detail="Invalid sort order")
+        query = apply_sorting(query, Order, sort_by, sort_order)
         return query.offset(offset).limit(limit).all()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -56,7 +57,6 @@ def get_all_orders(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving orders."
         )
-    
 
 def update_order(db: Session, id: int, order_data: OrderUpdate):
     order = db.query(Order).filter(Order.id == id).first()
@@ -82,7 +82,6 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
         )
     return order
 
-
 def delete_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
@@ -98,15 +97,12 @@ def delete_order(db: Session, id: int):
         )
     return {"detail": "Order soft deleted"}
 
-
-
 def get_items_in_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id).first()
     if not order or not order.items:
         raise HTTPException(
             status_code=404, detail="no items found for this order")
     return order.items
-
 
 def get_packinglist_for_order(db: Session, order_id: int):
     # Fetch the order and directly access its packing list
@@ -139,7 +135,6 @@ def get_packinglist_for_order(db: Session, order_id: int):
 
     return packing_list_id
 
-
 def get_shipments_by_order_id(db: Session, order_id: int):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
@@ -154,7 +149,6 @@ def get_shipments_by_order_id(db: Session, order_id: int):
         raise HTTPException(status_code=404, detail="No shipments found for the given order")
     
     return {"Order id": order.id, "Shipment Id's": shipment_ids, "Shipment": shipments}
-
 
 def update_shipments_in_order(db: Session, order_id: int, order_data: OrderShipmentUpdate):
     try:
