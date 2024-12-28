@@ -91,16 +91,26 @@ def test_get_dock_by_code_not_found():
 def test_get_all_docks():
     db = MagicMock()
     mock_query = db.query.return_value
-    mock_query.offset.return_value = mock_query
-    mock_query.limit.return_value = mock_query
-    mock_query.all.return_value = [Dock(**SAMPLE_DOCK_DATA)]
+    filtered_query = mock_query.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [Dock(**{**SAMPLE_DOCK_DATA, "is_deleted": False})]
 
-    with patch("CargoHubV2.app.services.docks_service.apply_sorting", return_value=mock_query) as mock_sorting:
+    with patch("CargoHubV2.app.services.docks_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_docks(db, offset=0, limit=10, sort_by="id", order="asc")
 
-        mock_sorting.assert_called_once_with(mock_query, Dock, "id", "asc")
-        db.query.assert_called_once_with(Dock)
         assert len(results) == 1
+        assert results[0].id == SAMPLE_DOCK_DATA["id"]
+
+        db.query.assert_called_once_with(Dock)
+        assert mock_query.filter.call_count == 1
+
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(Dock.is_deleted == False)
+
+        mock_sorting.assert_called_once_with(filtered_query, Dock, "id", "asc")
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(10)
 
 
 def test_get_docks_by_warehouse_id_found():
