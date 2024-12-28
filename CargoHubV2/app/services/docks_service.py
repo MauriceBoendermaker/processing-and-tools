@@ -86,36 +86,11 @@ def get_docks_by_warehouse_id(
         )
 
 
-def get_dock_by_id(db: Session, dock_id: int):
+def get_dock_by_code(db: Session, code: str):
     """
     Retrieve a single dock by its ID.
     """
-    try:
-        dock = db.query(Dock).filter(Dock.id == dock_id, Dock.is_deleted == False).first()
-        if not dock:
-            raise HTTPException(status_code=404, detail="Dock not found")
-        return dock
-    except SQLAlchemyError as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"An error occurred while retrieving the dock: {str(e)}"
-        )
-
-
-def get_dock_by_code(db: Session, code: str):
-    """
-    Retrieve a single dock by its code.
-    """
-    try:
-        dock = db.query(Dock).filter(Dock.code == code, Dock.is_deleted == False).first()
-        if not dock:
-            raise HTTPException(status_code=404, detail="Dock not found")
-        return dock
-    except SQLAlchemyError as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"An error occurred while retrieving the dock: {str(e)}"
-        )
+    return db.query(Dock).filter(Dock.code == code, Dock.is_deleted == False).first()
 
 
 def update_dock(db: Session, dock_id: int, dock_data: DockUpdate):

@@ -9,7 +9,6 @@ from CargoHubV2.app.services.docks_service import (
     get_dock_by_code,
     get_all_docks,
     get_docks_by_warehouse_id,
-    get_dock_by_id,
     update_dock,
     delete_dock
 )
@@ -32,6 +31,7 @@ UPDATED_DOCK_DATA = {
     "status": "occupied",
     "description": "Dock 1 is now occupied",
 }
+
 
 def test_create_dock():
     db = MagicMock()
@@ -82,11 +82,9 @@ def test_get_dock_by_code_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
 
-    with pytest.raises(HTTPException) as excinfo:
-        get_dock_by_code(db, "NonExistent")
+    result = get_dock_by_code(db, "NonExistent")
 
-    assert excinfo.value.status_code == 404
-    assert "Dock not found" in str(excinfo.value.detail)
+    assert result is None
     db.query().filter().first.assert_called_once()
 
 
@@ -145,29 +143,6 @@ def test_get_docks_by_warehouse_id_not_found():
         db.query.assert_called_once_with(Dock)
         assert excinfo.value.status_code == 404
         assert "No docks found for the given warehouse." in str(excinfo.value.detail)
-
-
-def test_get_dock_by_id_found():
-    db = MagicMock()
-    db.query().filter().first.return_value = Dock(**SAMPLE_DOCK_DATA)
-
-    result = get_dock_by_id(db, 1)
-
-    assert result.id == SAMPLE_DOCK_DATA["id"]
-    assert result.code == SAMPLE_DOCK_DATA["code"]
-    db.query().filter().first.assert_called_once()
-
-
-def test_get_dock_by_id_not_found():
-    db = MagicMock()
-    db.query().filter().first.return_value = None
-
-    with pytest.raises(HTTPException) as excinfo:
-        get_dock_by_id(db, 999)
-
-    assert excinfo.value.status_code == 404
-    assert "Dock not found" in str(excinfo.value.detail)
-    db.query().filter().first.assert_called_once()
 
 
 def test_update_dock_found():

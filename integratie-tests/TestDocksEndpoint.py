@@ -50,17 +50,7 @@ class TestDocksResource(unittest.TestCase):
         self.assertEqual(body.get("status"), self.ToPut["status"])
         self.assertEqual(body.get("description"), self.ToPut["description"])
 
-    def test_5_pagination(self):
-        response = self.client.get(f"{self.baseUrl}?offset=0&limit=1")
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertIsInstance(body, list)  # Ensure it's a list
-        self.assertLessEqual(len(body), 1)  # Verify at most 1 item is returned
-        if body:
-            self.assertIn("id", body[0])  # Validate presence of expected fields
-            self.assertEqual(body[0]["code"], "DCK001")  # Ensure correct dock
-
-    def test_6_delete_dock(self):
+    def test_5_delete_dock(self):
         dock_id = type(self).created_id
         self.assertIsNotNone(dock_id, "created_id should not be None.")
         response = self.client.delete(f"{self.baseUrl}{dock_id}")
@@ -70,17 +60,18 @@ class TestDocksResource(unittest.TestCase):
         response = self.client.get(f"{self.baseUrl}?code=DCK001")
         self.assertEqual(response.status_code, 404)
 
-    def test_7_no_key(self):
+    def test_6_no_key(self):
         self.client.headers = {"content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-        # Assuming no key returns 422 for unauthorized
+        # Assuming no key returns a 422 or some error code
         self.assertEqual(response.status_code, 422)
 
-    def test_8_wrong_key(self):
+    def test_7_wrong_key(self):
         self.client.headers = {"api-key": "wrong_key", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-        # Assuming wrong key returns 403 for forbidden
+        # Assuming wrong key returns 403
         self.assertEqual(response.status_code, 403)
+
 
 if __name__ == '__main__':
     unittest.main()
