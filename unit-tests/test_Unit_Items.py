@@ -94,12 +94,14 @@ def test_get_all_items():
 
         mock_sorting.assert_called_once_with(filtered_query, Item, "code", "asc")
         db.query.assert_called_once_with(Item)
+        mock_query.filter.assert_called_once_with(Item.is_deleted == False)  # Assert filter for is_deleted
         filtered_query.offset.assert_called_once_with(0)
         filtered_query.limit.assert_called_once_with(100)
         filtered_query.all.assert_called_once()
 
         assert len(results) == 1
         assert results[0].code == SAMPLE_ITEM_DATA["code"]
+
 
 
 
