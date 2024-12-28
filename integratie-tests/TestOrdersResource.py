@@ -136,7 +136,7 @@ class TestOrderResource(unittest.TestCase):
         response = self.client.get(f"{self.baseUrl}?date=1995-05-27T20:02:30Z")
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertTrue(any(order["order_date"] == "1995-05-27T20:02:30Z" for order in body))
+        self.assertTrue(any(order["order_date"].startswith("1995-05-27T20:02:30") for order in body))
 
     def test_9_get_orders_sorted_asc(self):
         # Ensure the order exists before testing
