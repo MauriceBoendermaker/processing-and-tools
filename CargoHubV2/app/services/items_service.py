@@ -32,7 +32,7 @@ def create_item(db: Session, item_data: dict):
 
 def get_item(db: Session, code: str):
     try:
-        item = db.query(Item).filter(Item.code == code, Item.is_deleted == False).first()
+        item = db.query(Item).filter(Item.code == code).first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
         return item
@@ -41,11 +41,11 @@ def get_item(db: Session, code: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving the item."
         )
-
+    
 
 def get_all_items(db: Session, offset: int = 0, limit: int = 100, sort_by: Optional[str] = "id", order: Optional[str] = "asc"):
     try:
-        query = db.query(Item).filter(Item.is_deleted == False)
+        query = db.query(Item)
         sorted_query = apply_sorting(query, Item, sort_by, order)
         return sorted_query.offset(offset).limit(limit).all()
     except ValueError as e:
@@ -55,7 +55,6 @@ def get_all_items(db: Session, offset: int = 0, limit: int = 100, sort_by: Optio
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving items."
         )
-
 
 
 def update_item(db: Session, code: str, item_data: ItemUpdate):

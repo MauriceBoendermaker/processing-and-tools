@@ -5,10 +5,12 @@ from ..services.docks_service import (
     create_dock,
     get_all_docks,
     get_dock_by_code,
+    get_dock_by_id,
     update_dock,
     delete_dock
 )
 from ..schemas.docks_schema import DockCreate, DockUpdate
+from ..models.docks_model import Dock
 from ..database import get_db
 
 router = APIRouter(
@@ -41,6 +43,14 @@ def get_docks(
     return get_all_docks(db, offset=offset, limit=limit, sort_by=sort_by, order=order)
 
 
+@router.get("/{dock_id}")
+def get_dock_by_id_endpoint(dock_id: int, db: Session = Depends(get_db), api_key: str = Header(...)):
+    """
+    Retrieve a specific dock by its ID.
+    """
+    return get_dock_by_id(db, dock_id)
+
+
 @router.post("/")
 def create_dock_endpoint(dock: DockCreate, db: Session = Depends(get_db), api_key: str = Header(...)):
     db_dock = create_dock(db, dock)
@@ -55,10 +65,12 @@ def delete_dock_endpoint(
     dock_id: int,
     db: Session = Depends(get_db),
     api_key: str = Header(...)):
-
+    """
+    Soft delete a dock by its ID.
+    """
     success = delete_dock(db, dock_id)
     if success:
-        return f"Dock with ID {dock_id} deleted"
+        return {"detail": f"Dock with ID {dock_id} deleted"}
     raise HTTPException(status_code=404, detail="Dock not found")
 
 
@@ -68,7 +80,9 @@ def update_dock_endpoint(
     dock_data: DockUpdate,
     db: Session = Depends(get_db),
     api_key: str = Header(...)):
-
+    """
+    Update a specific dock by its ID.
+    """
     if dock_data:
         return update_dock(db, dock_id, dock_data)
     raise HTTPException(status_code=400, detail="Invalid request body")
