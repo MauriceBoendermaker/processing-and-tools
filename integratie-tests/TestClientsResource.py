@@ -69,6 +69,7 @@ class TestClientResource(unittest.TestCase):
         self.assertEqual(body.get("address"), self.ToPut["address"])
         self.assertEqual(body.get("city"), self.ToPut["city"])
 
+
     def test_5_delete_client(self):
         # Delete the client
         response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
