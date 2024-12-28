@@ -11,7 +11,7 @@ class TestItemsResource(unittest.TestCase):
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.TEST_BODY = {
-            "uid": "P0",
+            "uid": "P011721",
             "code": "tijdelijke-item",
             "description": "Face-to-face clear-thinking complexity",
             "short_description": "must",
@@ -28,9 +28,7 @@ class TestItemsResource(unittest.TestCase):
             "supplier_code": "SUP423",
             "supplier_part_number": "E-86805-uTM",
             "created_at": "2015-02-19 16:08:24",
-            "updated_at": "2015-09-26 06:37:56",
-            "is_deleted": False
-
+            "updated_at": "2015-09-26 06:37:56"
         }
 
         self.ToPut = {
