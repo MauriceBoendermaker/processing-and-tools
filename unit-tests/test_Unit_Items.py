@@ -97,7 +97,14 @@ def test_get_all_items():
 
         # Verify the query chain
         db.query.assert_called_once_with(Item)
-        mock_query.filter.assert_called_once_with(Item.is_deleted == False)  # Assert filter for is_deleted
+
+        # Check that filter was called
+        assert mock_query.filter.call_count == 1
+
+        # Validate filter arguments using string comparison
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(Item.is_deleted == False)  # Compare string representations
+
         filtered_query.offset.assert_called_once_with(0)
         filtered_query.limit.assert_called_once_with(100)
         filtered_query.all.assert_called_once()
@@ -105,6 +112,7 @@ def test_get_all_items():
         # Check the result
         assert len(results) == 1
         assert results[0].code == SAMPLE_ITEM_DATA["code"]
+
 
 
 
