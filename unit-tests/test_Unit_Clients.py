@@ -45,7 +45,8 @@ def test_create_integrity():
         create_client(db, SAMPLE_CLIENT_DATA)
 
     assert excinfo.value.status_code == 400
-    assert "A client with this name already exists." in str(excinfo.value.detail)
+    assert "A client with this name already exists." in str(
+        excinfo.value.detail)
     db.rollback.assert_called_once()
 
 
@@ -63,17 +64,25 @@ def test_get_client_by_id_not_found():
 def test_get_all_clients():
     db = MagicMock()
     query_mock = db.query.return_value
-    filtered_query = query_mock.filter.return_value  # Mock the filtered query
+    filtered_query = query_mock.filter.return_value
     filtered_query.offset.return_value = filtered_query
     filtered_query.limit.return_value = filtered_query
-    filtered_query.all.return_value = [Client(**{**SAMPLE_CLIENT_DATA, "is_deleted": False})]  # Include is_deleted=False
+    filtered_query.all.return_value = [Client(**{**SAMPLE_CLIENT_DATA, "is_deleted": False})]
 
     with patch("CargoHubV2.app.services.clients_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_clients(db, offset=0, limit=100, sort_by="id", order="asc")
 
         assert len(results) == 1
+        assert results[0].id == SAMPLE_CLIENT_DATA["id"]
+
+        # Check that filter was called
         db.query.assert_called_once_with(Client)
-        query_mock.filter.assert_called_once_with(Client.is_deleted == False)  # Assert filter for is_deleted
+        assert query_mock.filter.call_count == 1
+
+        # Extract the actual filter argument
+        filter_args = query_mock.filter.call_args[0][0]
+        assert str(filter_args) == str(Client.is_deleted == False)  # Compare string representations
+
         mock_sorting.assert_called_once_with(filtered_query, Client, "id", "asc")
         filtered_query.offset.assert_called_once_with(0)
         filtered_query.limit.assert_called_once_with(100)
@@ -101,4 +110,3 @@ def test_delete_client_found():
     assert result == {'detail': 'Client soft deleted'}
     assert mock_client.is_deleted is True  # Ensure is_deleted was updated
     db.commit.assert_called_once()
-
