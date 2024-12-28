@@ -124,11 +124,12 @@ def get_orders_by_shipment_id(db: Session, shipment_id: int):
     if not order_ids:
         raise HTTPException(status_code=404, detail="No orders found")
     
-    orders = db.query(Order).filter(Order.id.in_(order_ids)).all()
+    orders = db.query(Order).filter(Order.id.in_(order_ids), Order.is_deleted == False).all()
     if not orders:
-        raise HTTPException(status_code="No orders found with this shipment")
+        raise HTTPException(status_code=404, detail="No orders found with this shipment")
     
     return {"Shipment id": shipment.id, "Order Id's": order_ids, "Order": orders}
+
 
 
 def update_orders_in_shipment(db: Session, shipment_id: int, shipment_data: ShipmentOrderUpdate):
