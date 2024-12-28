@@ -63,19 +63,20 @@ def test_get_client_by_id_not_found():
 def test_get_all_clients():
     db = MagicMock()
     query_mock = db.query.return_value
-    query_mock.offset.return_value = query_mock
-    query_mock.limit.return_value = query_mock
-    query_mock.all.return_value = [Client(**SAMPLE_CLIENT_DATA)]
+    filtered_query = query_mock.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [Client(**{**SAMPLE_CLIENT_DATA, "is_deleted": False})]  # Include is_deleted=False
 
-    with patch("CargoHubV2.app.services.clients_service.apply_sorting", return_value=query_mock) as mock_sorting:
+    with patch("CargoHubV2.app.services.clients_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_clients(db, offset=0, limit=100, sort_by="id", order="asc")
 
         assert len(results) == 1
-        db.query.assert_called_once()
-        mock_sorting.assert_called_once_with(query_mock, Client, "id", "asc")
-        query_mock.offset.assert_called_once_with(0)
-        query_mock.limit.assert_called_once_with(100)
-
+        db.query.assert_called_once_with(Client)
+        query_mock.filter.assert_called_once_with(Client.is_deleted == False)  # Assert filter for is_deleted
+        mock_sorting.assert_called_once_with(filtered_query, Client, "id", "asc")
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(100)
 
 
 def test_update_client_found():
