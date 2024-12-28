@@ -92,16 +92,19 @@ def test_get_all_items():
     with patch("CargoHubV2.app.services.items_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_items(db, offset=0, limit=100, sort_by="code", order="asc")
 
+        # Verify the sorting function was called
         mock_sorting.assert_called_once_with(filtered_query, Item, "code", "asc")
+
+        # Verify the query chain
         db.query.assert_called_once_with(Item)
         mock_query.filter.assert_called_once_with(Item.is_deleted == False)  # Assert filter for is_deleted
         filtered_query.offset.assert_called_once_with(0)
         filtered_query.limit.assert_called_once_with(100)
         filtered_query.all.assert_called_once()
 
+        # Check the result
         assert len(results) == 1
         assert results[0].code == SAMPLE_ITEM_DATA["code"]
-
 
 
 

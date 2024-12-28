@@ -76,20 +76,28 @@ def test_get_order_not_found():
 def test_get_all_orders():
     db = MagicMock()
     mock_query = db.query.return_value
-    mock_query.offset.return_value = mock_query
-    mock_query.limit.return_value = mock_query
-    mock_query.all.return_value = [Order(**SAMPLE_ORDER_DATA)]
+    filtered_query = mock_query.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [Order(**{**SAMPLE_ORDER_DATA, "is_deleted": False})]
 
-    with patch("CargoHubV2.app.services.orders_service.apply_sorting", return_value=mock_query) as mock_sorting:
+    with patch("CargoHubV2.app.services.orders_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_orders(db, offset=0, limit=100, sort_by="id", order="asc")
 
-        mock_sorting.assert_called_once_with(mock_query, Order, "id", "asc")
+        mock_sorting.assert_called_once_with(filtered_query, Order, "id", "asc")
         db.query.assert_called_once_with(Order)
-        mock_query.offset.assert_called_once_with(0)
-        mock_query.limit.assert_called_once_with(100)
-        mock_query.all.assert_called_once()
+        assert mock_query.filter.call_count == 1
+
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(Order.is_deleted == False)
+
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(100)
+        filtered_query.all.assert_called_once()
 
         assert len(results) == 1
+        assert results[0].id == SAMPLE_ORDER_DATA["id"]
+
 
 def test_update_order_found():
     db = MagicMock()
