@@ -151,18 +151,27 @@ def test_delete_order_not_found():
 
 def test_get_order_items_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
+    mock_items = [
+        MagicMock(is_deleted=False),  # Mock an item object with is_deleted=False
+        MagicMock(is_deleted=False),
+    ]
+    db.query().filter().first.return_value = MagicMock(items=mock_items)
+
     result = get_items_in_order(db, 1)
-    assert len(result) == len(SAMPLE_ORDER_DATA["items"])
+
+    assert len(result) == len(mock_items)
     db.query().filter().first.assert_called_once()
+
 
 def test_get_order_items_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
     with pytest.raises(HTTPException) as excinfo:
         get_items_in_order(db, 99)
+
     assert excinfo.value.status_code == 404
-    assert "no items found for this order" in str(excinfo.value.detail)
+    assert "No items found for this order" in str(excinfo.value.detail)  # Correct casing
+
 
 
 def test_get_packinglist_for_order_success():
