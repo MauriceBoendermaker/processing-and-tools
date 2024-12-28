@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, ANY
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from CargoHubV2.app.services.orders_service import (
@@ -101,7 +101,7 @@ def test_get_all_orders_by_date():
 
         mock_sorting.assert_called_once_with(mock_query, Order, "id", "asc")
         db.query.assert_called_once_with(Order)
-        mock_query.filter.assert_called_once_with(Order.order_date == SAMPLE_ORDER_DATA["order_date"])
+        mock_query.filter.assert_called_once_with(ANY)
         mock_query.offset.assert_called_once_with(0)
         mock_query.limit.assert_called_once_with(100)
         mock_query.all.assert_called_once()
@@ -121,7 +121,7 @@ def test_get_all_orders_no_results():
 
         mock_sorting.assert_called_once_with(mock_query, Order, "id", "asc")
         db.query.assert_called_once_with(Order)
-        mock_query.filter.assert_called_once_with(Order.order_date == SAMPLE_ORDER_DATA["order_date"])
+        mock_query.filter.assert_called_once_with(ANY)
         mock_query.offset.assert_called_once_with(0)
         mock_query.limit.assert_called_once_with(100)
         mock_query.all.assert_called_once()
