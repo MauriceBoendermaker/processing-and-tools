@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import List, Optional
 from CargoHubV2.app.services.sorting_service import apply_sorting
 
-
 def create_order(db: Session, order_data: dict):
     order = Order(**order_data)
     db.add(order)
@@ -29,20 +28,19 @@ def create_order(db: Session, order_data: dict):
         )
     return order
 
-
 def get_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
 
-
 def get_all_orders(
     db: Session,
+    date: Optional[datetime] = None,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "id",
-    order: Optional[str] = "asc"
+    sort_by: Optional[str] = "order_date",
+    sort_order: Optional[str] = "asc"
 ):
     try:
         query = db.query(Order).filter(Order.is_deleted == False)
@@ -83,7 +81,6 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
         )
     return order
 
-
 def delete_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
@@ -99,8 +96,6 @@ def delete_order(db: Session, id: int):
         )
     return {"detail": "Order soft deleted"}
 
-
-
 def get_items_in_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order or not order.items:
@@ -108,7 +103,6 @@ def get_items_in_order(db: Session, id: int):
             status_code=404, detail="No items found for this order"
         )
     return [item for item in order.items if not item.is_deleted]
-
 
 
 def get_packinglist_for_order(db: Session, order_id: int):
@@ -142,7 +136,6 @@ def get_packinglist_for_order(db: Session, order_id: int):
 
     return packing_list_id
 
-
 def get_shipments_by_order_id(db: Session, order_id: int):
     order = db.query(Order).filter(Order.id == order_id, Order.is_deleted == False).first()
     if not order:
@@ -157,7 +150,6 @@ def get_shipments_by_order_id(db: Session, order_id: int):
         raise HTTPException(status_code=404, detail="No shipments found for the given order")
     
     return {"Order id": order.id, "Shipment Id's": shipment_ids, "Shipment": shipments}
-
 
 def update_shipments_in_order(db: Session, order_id: int, order_data: OrderShipmentUpdate):
     try:
