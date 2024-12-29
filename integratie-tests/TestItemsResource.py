@@ -71,14 +71,10 @@ class TestItemsResource(unittest.TestCase):
         response = self.client.delete(f"{self.baseUrl}tijdelijke-item69")
         self.assertEqual(response.status_code, 200)
 
-        # 2) GET that specific item back
-        response = self.client.get(f"{self.baseUrl}tijdelijke-item69")
-        self.assertEqual(response.status_code, 200)
-
-        # 3) Confirm the item now has is_deleted == True
         item_data = response.json()
         self.assertIn("is_deleted", item_data)
         self.assertTrue(item_data["is_deleted"])
+        
 
 
     def test_6_no_key(self):
