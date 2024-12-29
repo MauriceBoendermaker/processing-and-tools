@@ -12,7 +12,7 @@ class TestItemsResource(unittest.TestCase):
 
         self.TEST_BODY = {
             "uid": "P011724",
-            "code": "tijdelijke-item",
+            "code": "tijdelijke-item69",
             "description": "Face-to-face clear-thinking complexity",
             "short_description": "must",
             "upc_code": "6523540947122",
