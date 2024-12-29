@@ -96,20 +96,33 @@ def test_get_warehouse_not_found():
 def test_get_all_warehouses():
     db = MagicMock()
     mock_query = db.query.return_value
-    mock_query.offset.return_value = mock_query
-    mock_query.limit.return_value = mock_query
-    mock_query.all.return_value = [Warehouse(**SAMPLE_WAREHOUSE_DATA)]
+    filtered_query = mock_query.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [Warehouse(**{**SAMPLE_WAREHOUSE_DATA, "is_deleted": False})]
 
-    with patch("CargoHubV2.app.services.warehouses_service.apply_sorting", return_value=mock_query) as mock_sorting:
+    with patch("CargoHubV2.app.services.warehouses_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_warehouses(db, offset=0, limit=100, sort_by="id", order="asc")
 
-        mock_sorting.assert_called_once_with(mock_query, Warehouse, "id", "asc")
-        db.query.assert_called_once_with(Warehouse)
-        mock_query.offset.assert_called_once_with(0)
-        mock_query.limit.assert_called_once_with(100)
-        mock_query.all.assert_called_once()
+        # Verify the sorting function was called
+        mock_sorting.assert_called_once_with(filtered_query, Warehouse, "id", "asc")
 
+        # Verify the query chain
+        db.query.assert_called_once_with(Warehouse)
+        assert mock_query.filter.call_count == 1
+
+        # Validate filter arguments using string comparison
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(Warehouse.is_deleted == False)
+
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(100)
+        filtered_query.all.assert_called_once()
+
+        # Check the result
         assert len(results) == 1
+        assert results[0].id == SAMPLE_WAREHOUSE_DATA["id"]
+
 
 
 def test_update_warehouse_found():

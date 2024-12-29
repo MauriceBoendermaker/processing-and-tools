@@ -32,7 +32,7 @@ def create_inventory(db: Session, inventory_data: dict):
 
 def get_inventory(db: Session, item_reference: str):
     try:
-        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference).first()
+        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference, Inventory.is_deleted == False).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="inventory not found")
         return inventory
@@ -51,7 +51,7 @@ def get_all_inventories(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Inventory)
+        query = db.query(Inventory).filter(Inventory.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Inventory, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -62,6 +62,7 @@ def get_all_inventories(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving inventories."
         )
+
 
 
 def update_inventory(db: Session, item_reference: str, inven_data: dict):
@@ -112,13 +113,16 @@ def delete_inventory(db: Session, item_reference: str):
 
 
 
-# locations filter using inventory ID
 def get_locations_by_inventory(db: Session, item_reference: str):
     try:
-        return db.query(Inventory).filter(Inventory.item_reference == item_reference).first().locations
+        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference, Inventory.is_deleted == False).first()
+        if not inventory:
+            raise HTTPException(status_code=404, detail="Inventory not found")
+        return [location for location in inventory.locations if not location.is_deleted]
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while getting the locations."
         )
+

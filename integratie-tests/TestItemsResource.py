@@ -11,8 +11,8 @@ class TestItemsResource(unittest.TestCase):
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.TEST_BODY = {
-            "uid": "P0",
-            "code": "tijdelijke-item",
+            "uid": "P011724",
+            "code": "tijdelijke-item69",
             "description": "Face-to-face clear-thinking complexity",
             "short_description": "must",
             "upc_code": "6523540947122",
@@ -28,10 +28,9 @@ class TestItemsResource(unittest.TestCase):
             "supplier_code": "SUP423",
             "supplier_part_number": "E-86805-uTM",
             "created_at": "2015-02-19 16:08:24",
-            "updated_at": "2015-09-26 06:37:56",
-            "is_deleted": False
-
+            "updated_at": "2015-09-26 06:37:56"
         }
+        #########before pulling from dev branch 321
 
         self.ToPut = {
             "description": "Updated complexity description",
@@ -51,7 +50,7 @@ class TestItemsResource(unittest.TestCase):
         # self.assertTrue(check_code_exists(body, "tijdelijke-item"))
 
     def test_3_get_item(self):
-        response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item")
+        response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item69")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get("code"), self.TEST_BODY["code"])
@@ -59,20 +58,24 @@ class TestItemsResource(unittest.TestCase):
         self.assertEqual(body.get("item_group"), self.TEST_BODY["item_group"])
 
     def test_4_put_item(self):
-        response = self.client.put(f"{self.baseUrl}tijdelijke-item", json=self.ToPut)
+        response = self.client.put(f"{self.baseUrl}tijdelijke-item69", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item")
+        response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item69")
         body = response.json()
         self.assertEqual(body.get("short_description"), self.ToPut["short_description"])
         self.assertEqual(body.get("description"), self.ToPut["description"])
 
     def test_5_delete_item(self):
-        response = self.client.delete(f"{self.baseUrl}tijdelijke-item")
+        # 1) Issue DELETE request
+        response = self.client.delete(f"{self.baseUrl}tijdelijke-item69")
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(self.baseUrl)
-        self.assertFalse(check_code_exists(response.json(), "tijdelijke-item"))
+        item_data = response.json()
+        self.assertIn("is_deleted", item_data)
+        self.assertTrue(item_data["is_deleted"])
+        
+
 
     def test_6_no_key(self):
         self.client.headers = {"content-type": "application/json"}

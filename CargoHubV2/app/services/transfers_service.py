@@ -33,7 +33,7 @@ def create_transfer(db: Session, transfer_data: TransferCreate):
 
 def get_transfer(db: Session, transfer_id: int):
     try:
-        transfer = db.query(Transfer).filter(Transfer.id == transfer_id).first()
+        transfer = db.query(Transfer).filter(Transfer.id == transfer_id, Transfer.is_deleted == False).first()
         if not transfer:
             raise HTTPException(status_code=404, detail="Transfer not found")
         return transfer
@@ -52,7 +52,7 @@ def get_all_transfers(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Transfer)
+        query = db.query(Transfer).filter(Transfer.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Transfer, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -63,6 +63,7 @@ def get_all_transfers(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving transfers."
         )
+
 
 
 def update_transfer(db: Session, transfer_id: int, transfer_data: TransferUpdate):
