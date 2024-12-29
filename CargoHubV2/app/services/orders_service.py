@@ -45,7 +45,7 @@ def get_all_orders(
     try:
         query = db.query(Order).filter(Order.is_deleted == False)
         if sort_by:
-            query = apply_sorting(query, Order, sort_by, order)
+            query = apply_sorting(query, Order, sort_by, sort_order)
         return query.offset(offset).limit(limit).all()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
