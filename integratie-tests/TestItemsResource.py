@@ -67,11 +67,19 @@ class TestItemsResource(unittest.TestCase):
         self.assertEqual(body.get("description"), self.ToPut["description"])
 
     def test_5_delete_item(self):
-        response = self.client.delete(f"{self.baseUrl}tijdelijke-item")
+        # 1) Issue DELETE request
+        response = self.client.delete(f"{self.baseUrl}tijdelijke-item69")
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(self.baseUrl)
-        self.assertFalse(check_code_exists(response.json(), "tijdelijke-item"))
+        # 2) GET that specific item back
+        response = self.client.get(f"{self.baseUrl}tijdelijke-item69")
+        self.assertEqual(response.status_code, 200)
+
+        # 3) Confirm the item now has is_deleted == True
+        item_data = response.json()
+        self.assertIn("is_deleted", item_data)
+        self.assertTrue(item_data["is_deleted"])
+
 
     def test_6_no_key(self):
         self.client.headers = {"content-type": "application/json"}
