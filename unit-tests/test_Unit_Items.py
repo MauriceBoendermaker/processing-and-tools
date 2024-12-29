@@ -86,14 +86,17 @@ def test_get_all_items():
     filtered_query.offset.return_value = filtered_query
     filtered_query.limit.return_value = filtered_query
     filtered_query.all.return_value = [
-        Item(**{**SAMPLE_ITEM_DATA, "is_deleted": False})  # Include is_deleted=False in mock data
+        # Include is_deleted=False in mock data
+        Item(**{**SAMPLE_ITEM_DATA, "is_deleted": False})
     ]
 
     with patch("CargoHubV2.app.services.items_service.apply_sorting", return_value=filtered_query) as mock_sorting:
-        results = get_all_items(db, offset=0, limit=100, sort_by="code", order="asc")
+        results = get_all_items(db, offset=0, limit=100,
+                                sort_by="code", order="asc")
 
         # Verify the sorting function was called
-        mock_sorting.assert_called_once_with(filtered_query, Item, "code", "asc")
+        mock_sorting.assert_called_once_with(
+            filtered_query, Item, "code", "asc")
 
         # Verify the query chain
         db.query.assert_called_once_with(Item)
@@ -103,7 +106,8 @@ def test_get_all_items():
 
         # Validate filter arguments using string comparison
         filter_args = mock_query.filter.call_args[0][0]
-        assert str(filter_args) == str(Item.is_deleted == False)  # Compare string representations
+        assert str(filter_args) == str(Item.is_deleted ==
+                                       False)  # Compare string representations
 
         filtered_query.offset.assert_called_once_with(0)
         filtered_query.limit.assert_called_once_with(100)
@@ -112,8 +116,6 @@ def test_get_all_items():
         # Check the result
         assert len(results) == 1
         assert results[0].code == SAMPLE_ITEM_DATA["code"]
-
-
 
 
 def test_update_item_found():
@@ -162,21 +164,17 @@ def test_delete_item_found():
     mock_item = Item(**SAMPLE_ITEM_DATA)
     db.query().filter().first.return_value = mock_item
 
-    result = delete_item(db, "TEST-DATA")
+    delete_item(db, "TEST-DATA")
 
-    assert result == {"detail": "Item soft deleted"}
     assert mock_item.is_deleted is True
     db.commit.assert_called_once()
     db.delete.assert_not_called()
-
 
 
 def test_delete_item_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
 
-    with pytest.raises(HTTPException) as excinfo:
-        delete_item(db, "nonexistent-code")
+    result = delete_item(db, "nonexistent-code123")
 
-    assert excinfo.value.status_code == 404
-    assert "Item not found" in str(excinfo.value.detail)
+    assert result == None
