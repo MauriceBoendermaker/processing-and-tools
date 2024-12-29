@@ -18,6 +18,6 @@ class Warehouse(Base):
     contact = Column(JSON, index=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    is_deleted = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
 
     docks = relationship("Dock", back_populates="warehouse", cascade="all, delete-orphan")
