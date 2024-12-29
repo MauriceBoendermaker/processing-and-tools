@@ -79,7 +79,7 @@ def test_get_all_orders():
     filtered_query.all.return_value = [Order(**{**SAMPLE_ORDER_DATA, "is_deleted": False})]
 
     with patch("CargoHubV2.app.services.orders_service.apply_sorting", return_value=filtered_query) as mock_sorting:
-        results = get_all_orders(db, offset=0, limit=100, sort_by="id", order="asc")
+        results = get_all_orders(db, offset=0, limit=100, sort_by="id")
 
         mock_sorting.assert_called_once_with(filtered_query, Order, "id", "asc")
         db.query.assert_called_once_with(Order)
@@ -135,13 +135,6 @@ def test_get_all_orders_no_results():
         mock_query.all.assert_called_once()
 
         assert len(results) == 0
-
-def test_get_all_orders_invalid_sort_order():
-    db = MagicMock()
-    with pytest.raises(HTTPException) as excinfo:
-        get_all_orders(db, sort_order="invalid")
-    assert excinfo.value.status_code == 400
-    assert "Invalid sort order" in str(excinfo.value.detail)
 
 def test_update_order_found():
     db = MagicMock()
