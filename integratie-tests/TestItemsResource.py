@@ -11,7 +11,7 @@ class TestItemsResource(unittest.TestCase):
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.TEST_BODY = {
-            "uid": "P011721",
+            "uid": "P011722",
             "code": "tijdelijke-item",
             "description": "Face-to-face clear-thinking complexity",
             "short_description": "must",
