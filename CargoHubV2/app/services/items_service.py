@@ -88,15 +88,15 @@ def delete_item(db: Session, code: str):
     try:
         item = db.query(Item).filter(Item.code == code, Item.is_deleted == False).first()
         if not item:
-            raise HTTPException(status_code=404, detail="Item not found")
-        
-        item.is_deleted = True  # Soft delete by updating the flag
+            return None  # Return None if not found
+        item.is_deleted = True
         db.commit()
+        db.refresh(item)
+        return item     # Return the *item* object
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the item."
         )
-    return {"detail": "Item soft deleted"}
 

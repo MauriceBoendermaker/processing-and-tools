@@ -64,4 +64,4 @@ def delete_item_endpoint(
     item = delete_item(db, code)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-    return {"detail": "Item deleted"}
+    return item  # Returns the item with is_deleted=True
