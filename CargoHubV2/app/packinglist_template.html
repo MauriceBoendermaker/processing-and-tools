@@ -36,23 +36,22 @@
     <p><strong>Order Date:</strong> {{ order_date }}</p>
     <p><strong>Request Date:</strong> {{ request_date }}</p>
     <p><strong>Shipping Notes:</strong> {{ shipping_notes }}</p>
-    <p><strong>Total Items:</strong> {{ total_items }}</p>
+    <p><strong>Total Different Items:</strong> {{ total_items }}</p>
+    <p><strong>Total Amount of Items:</strong> {{ total_amount }}</p>
 
     <h2>Items</h2>
     <table>
         <thead>
             <tr>
-                <th>Item Name</th>
+                <th>Item ID</th>
                 <th>Quantity</th>
-                <th>Description</th>
             </tr>
         </thead>
         <tbody>
             {% for item in items %}
             <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.description }}</td>
+                <td>{{ item.item_id }}</td>
+                <td>{{ item.amount }}</td>
             </tr>
             {% endfor %}
         </tbody>
