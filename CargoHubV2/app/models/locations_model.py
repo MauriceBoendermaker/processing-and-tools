@@ -13,5 +13,5 @@ class Location(Base):
     name = Column(String, index=True)
     created_at = Column(DateTime, index=True)
     updated_at = Column(DateTime, index=True)
-    is_deleted = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
 

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, ANY
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from CargoHubV2.app.services.orders_service import (
@@ -37,7 +37,6 @@ SAMPLE_ORDER_DATA = {
     ]
 }
 
-
 def test_create_order():
     db = MagicMock()
     order_data = OrderCreate(**SAMPLE_ORDER_DATA)
@@ -45,7 +44,6 @@ def test_create_order():
     db.add.assert_called_once()
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(new_order)
-
 
 def test_create_order_integrity_error():
     db = MagicMock()
@@ -56,7 +54,6 @@ def test_create_order_integrity_error():
     assert excinfo.value.status_code == 400
     assert "An order with this reference already exists." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
-
 
 def test_get_order_found():
     db = MagicMock()
@@ -76,20 +73,68 @@ def test_get_order_not_found():
 def test_get_all_orders():
     db = MagicMock()
     mock_query = db.query.return_value
+    filtered_query = mock_query.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [Order(**{**SAMPLE_ORDER_DATA, "is_deleted": False})]
+
+    with patch("CargoHubV2.app.services.orders_service.apply_sorting", return_value=filtered_query) as mock_sorting:
+        results = get_all_orders(db, offset=0, limit=100, sort_by="id")
+
+        mock_sorting.assert_called_once_with(filtered_query, Order, "id", "asc")
+        db.query.assert_called_once_with(Order)
+        assert mock_query.filter.call_count == 1
+
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(Order.is_deleted == False)
+
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(100)
+        filtered_query.all.assert_called_once()
+
+        assert len(results) == 1
+        assert results[0].id == SAMPLE_ORDER_DATA["id"]
+
+
+def test_get_all_orders_by_date():
+    db = MagicMock()
+    mock_query = db.query.return_value
+    mock_query.filter.return_value = mock_query
     mock_query.offset.return_value = mock_query
     mock_query.limit.return_value = mock_query
     mock_query.all.return_value = [Order(**SAMPLE_ORDER_DATA)]
 
     with patch("CargoHubV2.app.services.orders_service.apply_sorting", return_value=mock_query) as mock_sorting:
-        results = get_all_orders(db, offset=0, limit=100, sort_by="id", order="asc")
+        results = get_all_orders(db, date=SAMPLE_ORDER_DATA["order_date"], offset=0, limit=100, sort_by="id", sort_order="asc")
 
         mock_sorting.assert_called_once_with(mock_query, Order, "id", "asc")
         db.query.assert_called_once_with(Order)
+        mock_query.filter.assert_called_once_with(ANY)
         mock_query.offset.assert_called_once_with(0)
         mock_query.limit.assert_called_once_with(100)
         mock_query.all.assert_called_once()
 
         assert len(results) == 1
+
+def test_get_all_orders_no_results():
+    db = MagicMock()
+    mock_query = db.query.return_value
+    mock_query.filter.return_value = mock_query
+    mock_query.offset.return_value = mock_query
+    mock_query.limit.return_value = mock_query
+    mock_query.all.return_value = []
+
+    with patch("CargoHubV2.app.services.orders_service.apply_sorting", return_value=mock_query) as mock_sorting:
+        results = get_all_orders(db, date=SAMPLE_ORDER_DATA["order_date"], offset=0, limit=100, sort_by="id", sort_order="asc")
+
+        mock_sorting.assert_called_once_with(mock_query, Order, "id", "asc")
+        db.query.assert_called_once_with(Order)
+        mock_query.filter.assert_called_once_with(ANY)
+        mock_query.offset.assert_called_once_with(0)
+        mock_query.limit.assert_called_once_with(100)
+        mock_query.all.assert_called_once()
+
+        assert len(results) == 0
 
 def test_update_order_found():
     db = MagicMock()
@@ -122,11 +167,15 @@ def test_update_order_integrity_error():
 
 def test_delete_order_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
+    mock_order = Order(**SAMPLE_ORDER_DATA)
+    db.query().filter().first.return_value = mock_order
+
     result = delete_order(db, 1)
-    assert result == {"detail": "Order deleted"}
-    db.delete.assert_called_once()
+
+    assert result == {"detail": "Order soft deleted"}
+    assert mock_order.is_deleted is True
     db.commit.assert_called_once()
+    db.delete.assert_not_called()
 
 def test_delete_order_not_found():
     db = MagicMock()
@@ -138,18 +187,26 @@ def test_delete_order_not_found():
 
 def test_get_order_items_found():
     db = MagicMock()
-    db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
+    mock_items = [
+        MagicMock(is_deleted=False),  # Mock an item object with is_deleted=False
+        MagicMock(is_deleted=False),
+    ]
+    db.query().filter().first.return_value = MagicMock(items=mock_items)
+
     result = get_items_in_order(db, 1)
-    assert len(result) == len(SAMPLE_ORDER_DATA["items"])
+
+    assert len(result) == len(mock_items)
     db.query().filter().first.assert_called_once()
+
 
 def test_get_order_items_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
     with pytest.raises(HTTPException) as excinfo:
         get_items_in_order(db, 99)
+
     assert excinfo.value.status_code == 404
-    assert "no items found for this order" in str(excinfo.value.detail)
+    assert "No items found for this order" in str(excinfo.value.detail)  # Correct casing
 
 
 def test_get_packinglist_for_order_success():

@@ -17,7 +17,7 @@ def get_all_warehouses(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Warehouse)
+        query = db.query(Warehouse).filter(Warehouse.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Warehouse, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -32,7 +32,7 @@ def get_all_warehouses(
 
 def get_warehouse_by_code(db: Session, code: str):
     try:
-        ware = db.query(Warehouse).filter(Warehouse.code == code).first()
+        ware = db.query(Warehouse).filter(Warehouse.code == code, Warehouse.is_deleted == False).first()
         if not ware:
             raise HTTPException(status_code=404, detail="Warehouse not found")
         return ware
@@ -41,6 +41,7 @@ def get_warehouse_by_code(db: Session, code: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving this warehouse."
         )
+
 
 
 def create_warehouse(db: Session, warehouse: dict):
@@ -67,21 +68,24 @@ def create_warehouse(db: Session, warehouse: dict):
 
 
 def delete_warehouse(db: Session, code: str):
-    to_del = db.query(Warehouse).filter(Warehouse.code == code).first()
+    to_del = db.query(Warehouse).filter(
+        Warehouse.code == code, Warehouse.is_deleted == False
+    ).first()
     if not to_del:
         raise HTTPException(status_code=404, detail="Warehouse not found")
 
     try:
-        db.delete(to_del)
+        to_del.is_deleted = True  # Soft delete by updating the flag
         db.commit()
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occured while deleting the warehouse"
+            detail="An error occurred while deleting the warehouse"
         )
 
-    return True
+    return {"detail": "Warehouse soft deleted"}
+
 
 
 def update_warehouse(db: Session, code: str, warehouse_data: dict) -> WarehouseResponse:

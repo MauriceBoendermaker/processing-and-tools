@@ -12,7 +12,7 @@ class ItemType(Base):
     description = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    is_deleted = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
 
 
     items = relationship("Item", back_populates="item_type_rel")

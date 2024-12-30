@@ -1,0 +1,119 @@
+[33m1ed04ae[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mSoftDeletee[m[33m)[m HEAD@{0}: commit: tests
+[33m5f3f872[m[33m ([m[1;31morigin/SoftDeletee[m[33m)[m HEAD@{1}: commit (merge): Merge branch 'DevBranch' of https://github.com/MauriceBoendermaker/processing-and-tools into SoftDeletee
+[33m27c0f04[m HEAD@{2}: commit: tests
+[33mdc0d231[m HEAD@{3}: commit: shipments supliers transfers
+[33m391a9e2[m HEAD@{4}: commit: items
+[33mac4d283[m HEAD@{5}: commit: items, locations and orders
+[33m6e15a1c[m HEAD@{6}: commit: item lines and types
+[33m964cf49[m HEAD@{7}: commit: item groups and inventories
+[33m1976756[m HEAD@{8}: commit: docks
+[33mab6e190[m HEAD@{9}: commit: client unittest fixed
+[33mfb6dba0[m HEAD@{10}: commit: unittest clients
+[33m40cd034[m HEAD@{11}: commit: unittest items
+[33m16ec014[m HEAD@{12}: commit: shipments
+[33m16fa185[m HEAD@{13}: commit: cov
+[33m41a055b[m HEAD@{14}: commit: cov
+[33mf5ce013[m HEAD@{15}: commit: cov
+[33m6539856[m HEAD@{16}: commit: shipment
+[33m18bcb0d[m HEAD@{17}: commit: get_items_in_order
+[33mcfe9ffa[m HEAD@{18}: commit: shipment by order id
+[33mcd48b04[m HEAD@{19}: commit: get_locations_by_inventory
+[33mc9dd8e0[m HEAD@{20}: commit: warehouse
+[33m0e872f5[m HEAD@{21}: commit: transfers
+[33m155400a[m HEAD@{22}: commit: supplier
+[33m5d84130[m HEAD@{23}: commit: shipments
+[33m74e3b0e[m HEAD@{24}: commit: order
+[33mea13aaf[m HEAD@{25}: commit: location
+[33m30c5997[m HEAD@{26}: commit: item types
+[33mc31dd33[m HEAD@{27}: commit: item lines
+[33m3f5e1dc[m HEAD@{28}: commit: inventories get
+[33m2f41ace[m HEAD@{29}: commit: docks get
+[33me4f878e[m HEAD@{30}: commit: items and clients get and get all changed
+[33m65d8010[m HEAD@{31}: pull --tags origin Docks-branch: Fast-forward
+[33m8937374[m HEAD@{32}: pull --tags origin DevBranch: Merge made by the 'ort' strategy.
+[33m3a295d3[m HEAD@{33}: checkout: moving from DevBranch to SoftDeletee
+[33md14be80[m[33m ([m[1;32mDevBranch[m[33m)[m HEAD@{34}: pull --tags origin DevBranch: Fast-forward
+[33m7925208[m[33m ([m[1;31morigin/Weight-danger-class-feature[m[33m)[m HEAD@{35}: pull --tags origin DevBranch: Fast-forward
+[33m03d6a16[m HEAD@{36}: checkout: moving from Filter-option-for-userss to DevBranch
+[33m9c913a6[m[33m ([m[1;31morigin/Filter-option-for-userss[m[33m, [m[1;32mFilter-option-for-userss[m[33m)[m HEAD@{37}: commit: .
+[33mdde8fd0[m HEAD@{38}: commit: shipments from true to flase
+[33mbc89b20[m HEAD@{39}: commit: from true to false orders
+[33m8243d76[m HEAD@{40}: commit: from true to false
+[33m4f46e19[m HEAD@{41}: commit: fixed integrations tests
+[33m9fffb11[m HEAD@{42}: pull --tags origin Filter-option-for-userss: Fast-forward
+[33m75b9e86[m HEAD@{43}: commit: warehouses tests
+[33mebfb5cf[m HEAD@{44}: commit: transfers tests
+[33m84bfd78[m HEAD@{45}: commit: suppliers test
+[33m861a9e5[m HEAD@{46}: commit: shipments test
+[33mf48aca9[m HEAD@{47}: commit: orders
+[33m24f882d[m HEAD@{48}: commit: locations
+[33m3117979[m HEAD@{49}: commit: items test
+[33m90376ce[m HEAD@{50}: commit: item types
+[33m333127d[m HEAD@{51}: commit: items lines empty
+[33ma4ea653[m HEAD@{52}: commit: item groups empty tests
+[33m21a73f7[m HEAD@{53}: commit: itemlines tests
+[33m262e4b8[m HEAD@{54}: commit: fixing tests
+[33m01dcd5a[m HEAD@{55}: commit: tests fixing
+[33m617b81f[m HEAD@{56}: commit: warehouses controller updated
+[33me1efb8f[m HEAD@{57}: commit: warehouses service updated with filter
+[33mf68bf29[m HEAD@{58}: commit: transfers controller filter added
+[33m2797015[m HEAD@{59}: commit: transfers service
+[33m86812f2[m HEAD@{60}: commit: filter added to suppliers
+[33m3727a3d[m HEAD@{61}: commit: suppliers controller
+[33mbf07207[m HEAD@{62}: commit: shipments controller added with filter
+[33mced2a42[m HEAD@{63}: commit: shipments service filter added
+[33m40f5559[m HEAD@{64}: commit: orders service
+[33m22a51e2[m HEAD@{65}: commit: all orders filter
+[33m6a45f2d[m HEAD@{66}: commit: locations by warehouse id controller
+[33m043ad97[m HEAD@{67}: commit: locations controller
+[33m1861c06[m HEAD@{68}: commit: locations by warehouse id
+[33mc6f9721[m HEAD@{69}: commit: locations
+[33m4c5c03e[m HEAD@{70}: commit: inventories controller filter added
+[33mda7e75d[m HEAD@{71}: commit: updated inventories services
+[33m81dabd4[m HEAD@{72}: commit: added filter to clients
+[33m9038fb8[m HEAD@{73}: commit: importing service
+[33m79a5e7b[m HEAD@{74}: commit: importing service
+[33mc1f79f0[m HEAD@{75}: commit: importing service
+[33m37cb8a7[m HEAD@{76}: commit: importing service
+[33m39f7952[m HEAD@{77}: commit: importing service
+[33m633ca0e[m HEAD@{78}: commit: importing service
+[33me16d32a[m HEAD@{79}: commit: importing filter service
+[33m0663f35[m HEAD@{80}: commit: adding filters import to all classes
+[33m42e1cca[m HEAD@{81}: checkout: moving from Adding-Filter-options-for-user to Filter-option-for-userss
+[33m03176e6[m[33m ([m[1;32mAdding-Filter-options-for-user[m[33m)[m HEAD@{82}: checkout: moving from Test-branch to Adding-Filter-options-for-user
+[33m9c109e9[m[33m ([m[1;32mTest-branch[m[33m)[m HEAD@{83}: pull --tags origin Test-branch: Merge made by the 'ort' strategy.
+[33me783b69[m HEAD@{84}: commit: locations update
+[33mcca124c[m HEAD@{85}: pull --tags origin Test-branch: Fast-forward
+[33mb9d4103[m HEAD@{86}: pull --tags origin Test-branch: Merge made by the 'ort' strategy.
+[33mc22967f[m HEAD@{87}: commit: fixed unit tests for all items related resources
+[33m8b5fbb2[m HEAD@{88}: commit: fixed items groups integrations tests
+[33ma331a3d[m HEAD@{89}: reset: moving to HEAD~
+[33m0e2a327[m HEAD@{90}: commit: fixed items groups integrations tests
+[33ma331a3d[m HEAD@{91}: commit: new integration tests for itemtypes
+[33m1240871[m HEAD@{92}: commit: items lines unittest fixed by adding offset and limiter
+[33m96f0691[m HEAD@{93}: commit: ..
+[33m4655d23[m HEAD@{94}: commit (merge): Merge branch 'DevBranch' of https://github.com/MauriceBoendermaker/processing-and-tools into Test-branch
+[33m483746c[m HEAD@{95}: checkout: moving from DevBranch to Test-branch
+[33m03d6a16[m HEAD@{96}: pull --tags origin DevBranch: Fast-forward
+[33m03176e6[m[33m ([m[1;32mAdding-Filter-options-for-user[m[33m)[m HEAD@{97}: checkout: moving from Adding-Filter-options-for-user to DevBranch
+[33m03176e6[m[33m ([m[1;32mAdding-Filter-options-for-user[m[33m)[m HEAD@{98}: checkout: moving from DevBranch to Adding-Filter-options-for-user
+[33m03176e6[m[33m ([m[1;32mAdding-Filter-options-for-user[m[33m)[m HEAD@{99}: pull --tags origin DevBranch: Fast-forward
+[33ma103a3d[m HEAD@{100}: checkout: moving from Unit-Testing_all-items-related-resoruces to DevBranch
+[33m358abfa[m[33m ([m[1;31morigin/Unit-Testing_all-items-related-resoruces[m[33m, [m[1;32mUnit-Testing_all-items-related-resoruces[m[33m)[m HEAD@{101}: commit: removed unec comments
+[33m01050b2[m HEAD@{102}: commit: removed comments
+[33m42dbf0e[m HEAD@{103}: commit: back to api key req
+[33mebfb237[m HEAD@{104}: commit: trying without api key
+[33meaff1ae[m HEAD@{105}: commit: items groups api key req
+[33mf936377[m HEAD@{106}: commit: items lines api key req
+[33m06a61a6[m HEAD@{107}: commit: api key req
+[33mec1957c[m HEAD@{108}: commit: items groups controller limiter
+[33m37cc60c[m HEAD@{109}: commit: items groups service limiter
+[33mb2c6f05[m HEAD@{110}: commit: items lines controller limiter
+[33mb6eb27e[m HEAD@{111}: commit: items lines service and controller
+[33mc14e908[m HEAD@{112}: commit: offset and limiter for item types
+[33m80cb672[m HEAD@{113}: commit: offset and limiter for items
+[33m7d9cf61[m HEAD@{114}: commit: get all items offset and limit
+[33m66a93df[m HEAD@{115}: pull --tags origin DevBranch: Merge made by the 'ort' strategy.
+[33m50801de[m HEAD@{116}: checkout: moving from DevBranch to Unit-Testing_all-items-related-resoruces
+[33ma103a3d[m HEAD@{117}: pull --tags origin DevBranch: Fast-forward
+[33ma517054[m HEAD@{118}: checkout: moving from Adding-API-key-only-acess-to-the-endpoints to DevBra

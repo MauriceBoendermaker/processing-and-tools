@@ -32,7 +32,7 @@ def create_client(db: Session, client_data: dict):
 
 def get_client(db: Session, client_id: int):
     try:
-        client = db.query(Client).filter(Client.id == client_id).first()
+        client = db.query(Client).filter(Client.id == client_id, Client.is_deleted == False).first()
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
         return client
@@ -51,7 +51,7 @@ def get_all_clients(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Client)
+        query = db.query(Client).filter(Client.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Client, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -62,6 +62,7 @@ def get_all_clients(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving clients."
         )
+
 
 
 def update_client(db: Session, client_id: int, client_data: ClientUpdate):
@@ -92,10 +93,11 @@ def update_client(db: Session, client_id: int, client_data: ClientUpdate):
 
 def delete_client(db: Session, client_id: int):
     try:
-        client = db.query(Client).filter(Client.id == client_id).first()
+        client = db.query(Client).filter(Client.id == client_id, Client.is_deleted == False).first()
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
-        db.delete(client)
+        
+        client.is_deleted = True  # Soft delete by marking the record
         db.commit()
     except SQLAlchemyError:
         db.rollback()
@@ -103,7 +105,7 @@ def delete_client(db: Session, client_id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the client."
         )
-    return {"detail": "Client deleted"}
+    return {"detail": "Client soft deleted"}
 
 
 # Commented out due to missing orders_model
