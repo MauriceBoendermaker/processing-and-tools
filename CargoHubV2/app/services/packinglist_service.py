@@ -24,6 +24,17 @@ TEMPLATE_FILE = Path(os.path.dirname(__file__)).parent / "packinglist_template.h
 
 def generate_packing_list(order: Order):
     try:
+        # Parse the items data from the order
+        try:
+            items = json.loads(order.items) if isinstance(order.items, str) else order.items
+            if not isinstance(items, list):
+                raise ValueError("Items should be a list of dictionaries with 'item_id' and 'amount'.")
+        except json.JSONDecodeError:
+            raise ValueError("Failed to decode order items. Ensure items are in valid JSON format.")
+        
+
+        total_amount = sum(item["amount"] for item in items)
+        
         # Prepare data for the packing list
         content = {
             "warehouse_id": order.warehouse_id,
@@ -32,13 +43,13 @@ def generate_packing_list(order: Order):
             "order_date": order.order_date.strftime("%Y-%m-%d"),
             "order_id": order.id,
             "request_date": order.request_date.strftime("%Y-%m-%d"),
-            "total_items": len(json.loads(order.items)),
-            "items": json.loads(order.items),
+            "total_items": len(items),
+            "total_amount": total_amount,
+            "items": [{"item_id": item["item_id"], "amount": item["amount"]} for item in items],  # Simplified item list
         }
 
         # Load the packing list template
-        packing_list_template = Path(os.path.dirname(__file__)).parent / "packinglist_template.html"
-        with open(packing_list_template, "r") as file:
+        with open(TEMPLATE_FILE, "r") as file:
             html_template = file.read()
 
         # Render the template
@@ -55,5 +66,7 @@ def generate_packing_list(order: Order):
         # Return the file URL or file path
         pdf_url = f"http://127.0.0.1:3000/api/v2/packinglist/get-pdf/{pdf_filename}"
         return JSONResponse({"message": "Packing list PDF generated successfully.", "pdf_url": pdf_url})
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating packing list PDF, {e}")
