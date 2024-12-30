@@ -53,7 +53,7 @@ def generate_packing_list(order: Order):
         pdfkit.from_string(html_content, str(pdf_path))
 
         # Return the file URL or file path
-        pdf_url = f"http://127.0.0.1:3000/api/v2/packinglists/get-pdf/{pdf_filename}"
+        pdf_url = f"http://127.0.0.1:3000/api/v2/packinglist/get-pdf/{pdf_filename}"
         return JSONResponse({"message": "Packing list PDF generated successfully.", "pdf_url": pdf_url})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating packing list PDF, {e}")

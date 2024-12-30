@@ -5,11 +5,11 @@ from CargoHubV2.app.services import packinglist_service
 from CargoHubV2.app.models.orders_model import Order
 
 router = APIRouter(
-    prefix="/api/v2/reports",
-    tags=["reports"]
+    prefix="/api/v2/packinglist",
+    tags=["packinglist"]
 )
 
-@router.get("/api/v2/packinglists/{order_id}")
+@router.get("/api/v2/packinglist/{order_id}")
 def create_packing_list(
     order_id: int, 
     db: Session = Depends(get_db),

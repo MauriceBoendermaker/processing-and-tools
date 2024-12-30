@@ -13,6 +13,8 @@ from CargoHubV2.app.controllers import shipments_controller
 from CargoHubV2.app.controllers import inventories_controller
 from CargoHubV2.app.controllers import orders_controller
 from CargoHubV2.app.controllers import reporting_controller
+from CargoHubV2.app.controllers import packinglist_controller
+
 import time
 from starlette.responses import JSONResponse
 import logging
@@ -37,6 +39,7 @@ app.include_router(clients_controller.router)
 app.include_router(shipments_controller.router)
 app.include_router(inventories_controller.router)
 app.include_router(orders_controller.router)
+app.include_router(packinglist_controller.router)
 
 logger = logging.getLogger("uvicorn.error")
 
