@@ -26,6 +26,11 @@ CarrierDescType = Annotated[
                 ),
             ]
 
+ShipmentType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(I|O)$")
+]
+
 
 class ShipmentItem(BaseModel):
     item_id: str
@@ -38,7 +43,7 @@ class ShipmentBase(BaseModel):
     order_date: datetime
     request_date: datetime
     shipment_date: datetime
-    shipment_type: str
+    shipment_type: ShipmentType
     shipment_status: StatusType
     notes: Optional[str] = None
     carrier_code: CarrierCodeType
@@ -61,7 +66,7 @@ class ShipmentUpdate(BaseModel):
     order_date: Optional[datetime] = None
     request_date: Optional[datetime] = None
     shipment_date: Optional[datetime] = None
-    shipment_type: Optional[str] = None
+    shipment_type: Optional[ShipmentType] = None
     shipment_status: Optional[StatusType] = None
     notes: Optional[str] = None
     carrier_code: Optional[CarrierCodeType] = None
