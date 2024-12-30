@@ -1,8 +1,30 @@
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, StringConstraints
+from typing_extensions import Annotated
 from datetime import datetime
 from typing import List, Optional
 
-StatusType = constr(regex=r"^(Pending|Transit|Delivered)$")
+StatusType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^(Pending|Transit|Delivered)$"
+                ),
+            ]
+
+CarrierCodeType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^(DPD|TNTexpress|DHL|UPS|PostNL|FedEx)$"
+                ),
+            ]
+
+CarrierDescType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"""^(Dynamic Parcel Distribution|TNT Express|
+                    DHL Express|United Parcel Service|
+                    Royal Dutch Post and Parcel Service|Federal Express)$"""
+                ),
+            ]
 
 
 class ShipmentItem(BaseModel):
@@ -17,10 +39,10 @@ class ShipmentBase(BaseModel):
     request_date: datetime
     shipment_date: datetime
     shipment_type: str
-    shipment_status: StatusType  # type: ignore
+    shipment_status: StatusType
     notes: Optional[str] = None
-    carrier_code: str
-    carrier_description: str
+    carrier_code: CarrierCodeType
+    carrier_description: CarrierDescType
     service_code: str
     payment_type: str
     transfer_mode: str
@@ -40,10 +62,10 @@ class ShipmentUpdate(BaseModel):
     request_date: Optional[datetime] = None
     shipment_date: Optional[datetime] = None
     shipment_type: Optional[str] = None
-    shipment_status: Optional[StatusType] = "Pending"  # type: ignore
+    shipment_status: Optional[StatusType] = None
     notes: Optional[str] = None
-    carrier_code: Optional[str] = None
-    carrier_description: Optional[str] = None
+    carrier_code: Optional[CarrierCodeType] = None
+    carrier_description: Optional[CarrierDescType] = None
     service_code: Optional[str] = None
     payment_type: Optional[str] = None
     transfer_mode: Optional[str] = None
