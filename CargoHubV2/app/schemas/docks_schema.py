@@ -1,12 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
 from datetime import datetime
 from typing import Optional
+
+StatusType = constr(regex=r"^(occupied|free)$")
 
 
 class DockBase(BaseModel):
     warehouse_id: int
     code: str
-    status: Optional[str] = "free"
+    status: Optional[StatusType] = "free"  # type: ignore
     description: Optional[str] = None
 
 
