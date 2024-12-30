@@ -1,6 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
 from datetime import datetime
 from typing import List, Optional
+
+StatusType = constr(regex=r"^(Pending|Transit|Delivered)$")
 
 
 class ShipmentItem(BaseModel):
@@ -15,7 +17,7 @@ class ShipmentBase(BaseModel):
     request_date: datetime
     shipment_date: datetime
     shipment_type: str
-    shipment_status: str
+    shipment_status: StatusType  # type: ignore
     notes: Optional[str] = None
     carrier_code: str
     carrier_description: str
@@ -38,7 +40,7 @@ class ShipmentUpdate(BaseModel):
     request_date: Optional[datetime] = None
     shipment_date: Optional[datetime] = None
     shipment_type: Optional[str] = None
-    shipment_status: Optional[str] = None
+    shipment_status: Optional[StatusType] = "Pending"  # type: ignore
     notes: Optional[str] = None
     carrier_code: Optional[str] = None
     carrier_description: Optional[str] = None
