@@ -31,6 +31,21 @@ ShipmentType = Annotated[
     StringConstraints(pattern=r"^(I|O)$")
 ]
 
+ServiceCodeType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(TwoDay|NextDay|Economy|Fastest)$")
+]
+
+PaymentType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(Manual|Automatic)$")
+]
+
+TransferModeType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(Ground|Sea|Air)$")
+]
+
 
 class ShipmentItem(BaseModel):
     item_id: str
@@ -48,9 +63,9 @@ class ShipmentBase(BaseModel):
     notes: Optional[str] = None
     carrier_code: CarrierCodeType
     carrier_description: CarrierDescType
-    service_code: str
-    payment_type: str
-    transfer_mode: str
+    service_code: ServiceCodeType
+    payment_type: PaymentType
+    transfer_mode: TransferModeType
     total_package_count: int
     total_package_weight: float
     items: List[ShipmentItem]
@@ -71,9 +86,9 @@ class ShipmentUpdate(BaseModel):
     notes: Optional[str] = None
     carrier_code: Optional[CarrierCodeType] = None
     carrier_description: Optional[CarrierDescType] = None
-    service_code: Optional[str] = None
-    payment_type: Optional[str] = None
-    transfer_mode: Optional[str] = None
+    service_code: Optional[ServiceCodeType] = None
+    payment_type: Optional[PaymentType] = None
+    transfer_mode: Optional[TransferModeType] = None
     total_package_count: Optional[int] = None
     total_package_weight: Optional[float] = None
     items: Optional[List[ShipmentItem]] = None
