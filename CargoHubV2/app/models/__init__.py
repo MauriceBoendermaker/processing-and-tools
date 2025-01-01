@@ -12,3 +12,4 @@ from .inventories_model import Inventory
 from .clients_model import Client
 from .shipments_model import Shipment
 from .orders_model import Order
+from .docks_model import Dock
