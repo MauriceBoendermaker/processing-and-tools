@@ -20,7 +20,7 @@ SAMPLE_DOCK_DATA = {
     "id": 1,
     "warehouse_id": 101,
     "code": "D1",
-    "status": "free",
+    "status": "Free",
     "description": "Dock 1 for loading",
     "is_deleted": False,
     "created_at": datetime.now(),
@@ -28,7 +28,7 @@ SAMPLE_DOCK_DATA = {
 }
 
 UPDATED_DOCK_DATA = {
-    "status": "occupied",
+    "status": "Occupied",
     "description": "Dock 1 is now occupied",
 }
 
