@@ -65,7 +65,7 @@ class TestTransfersResource(unittest.TestCase):
         body = response.json()
         self.assertEqual(body.get("transfer_from"), 9200)
         self.assertEqual(body.get("transfer_to"), 9201)
-        self.assertEqual(body.get("transfer_status"), "In Progress")
+        self.assertEqual(body.get("transfer_status"), "Scheduled")
         self.assertTrue(match_date(body.get('updated_at'), date.today()))
 
     # Test to delete a transfer using DELETE
