@@ -17,5 +17,5 @@ class Client(Base):
     contact_email = Column(String, index=True)
     created_at = Column(DateTime, index=True, default=datetime.now)
     updated_at = Column(DateTime, index=True, default=datetime.now, onupdate=datetime.now)
-    is_deleted = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
 

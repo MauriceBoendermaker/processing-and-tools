@@ -72,20 +72,33 @@ def test_get_supplier_not_found():
 def test_get_all_suppliers():
     db = MagicMock()
     mock_query = db.query.return_value
-    mock_query.offset.return_value = mock_query
-    mock_query.limit.return_value = mock_query
-    mock_query.all.return_value = [Supplier(**supplier_sample_data)]
+    filtered_query = mock_query.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [Supplier(**{**supplier_sample_data, "is_deleted": False})]
 
-    with patch("CargoHubV2.app.services.suppliers_service.apply_sorting", return_value=mock_query) as mock_sorting:
+    with patch("CargoHubV2.app.services.suppliers_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_suppliers(db, offset=0, limit=10, sort_by="id", order="asc")
 
-        mock_sorting.assert_called_once_with(mock_query, Supplier, "id", "asc")
-        db.query.assert_called_once_with(Supplier)
-        mock_query.offset.assert_called_once_with(0)
-        mock_query.limit.assert_called_once_with(10)
-        mock_query.all.assert_called_once()
+        # Verify the sorting function was called
+        mock_sorting.assert_called_once_with(filtered_query, Supplier, "id", "asc")
 
+        # Verify the query chain
+        db.query.assert_called_once_with(Supplier)
+        assert mock_query.filter.call_count == 1
+
+        # Validate filter arguments using string comparison
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(Supplier.is_deleted == False)
+
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(10)
+        filtered_query.all.assert_called_once()
+
+        # Check the result
         assert len(results) == 1
+        assert results[0].id == supplier_sample_data["id"]
+
 
 
 

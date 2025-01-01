@@ -5,6 +5,7 @@ on:
     branches:
       - 'main'
       - 'DevBranch'
+      - 'SoftDelete'
   pull_request:
     branches:
       - '*'

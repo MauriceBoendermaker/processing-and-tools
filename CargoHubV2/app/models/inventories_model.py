@@ -27,7 +27,7 @@ class Inventory(Base):
     total_available = Column(Integer)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    is_deleted = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
 
 
     # One-to-one relationship met Item (unidirectional)

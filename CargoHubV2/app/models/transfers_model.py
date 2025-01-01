@@ -13,5 +13,5 @@ class Transfer(Base):
     transfer_status = Column(String, default="Scheduled", index=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
-    is_deleted = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
     items = Column(JSON, index=True)

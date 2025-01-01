@@ -6,6 +6,7 @@ from datetime import datetime
 from CargoHubV2.app.services.clients_service import (
     create_client, get_client, get_all_clients, update_client, delete_client
 )
+from unittest.mock import ANY
 from CargoHubV2.app.models.clients_model import Client
 from CargoHubV2.app.schemas.clients_schema import ClientCreate, ClientUpdate
 from CargoHubV2.app.services.sorting_service import apply_sorting
@@ -45,7 +46,8 @@ def test_create_integrity():
         create_client(db, SAMPLE_CLIENT_DATA)
 
     assert excinfo.value.status_code == 400
-    assert "A client with this name already exists." in str(excinfo.value.detail)
+    assert "A client with this name already exists." in str(
+        excinfo.value.detail)
     db.rollback.assert_called_once()
 
 
@@ -63,18 +65,25 @@ def test_get_client_by_id_not_found():
 def test_get_all_clients():
     db = MagicMock()
     query_mock = db.query.return_value
-    query_mock.offset.return_value = query_mock
-    query_mock.limit.return_value = query_mock
-    query_mock.all.return_value = [Client(**SAMPLE_CLIENT_DATA)]
+    filtered_query = query_mock.filter.return_value
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [Client(**SAMPLE_CLIENT_DATA)]
 
-    with patch("CargoHubV2.app.services.clients_service.apply_sorting", return_value=query_mock) as mock_sorting:
+    with patch("CargoHubV2.app.services.clients_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_clients(db, offset=0, limit=100, sort_by="id", order="asc")
 
+        # Assertions
         assert len(results) == 1
-        db.query.assert_called_once()
-        mock_sorting.assert_called_once_with(query_mock, Client, "id", "asc")
-        query_mock.offset.assert_called_once_with(0)
-        query_mock.limit.assert_called_once_with(100)
+        assert results[0].id == SAMPLE_CLIENT_DATA["id"]
+
+        db.query.assert_called_once_with(Client)
+        query_mock.filter.assert_called_once_with(ANY)  # Match any BinaryExpression instance
+        mock_sorting.assert_called_once_with(filtered_query, Client, "id", "asc")
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(100)
+        filtered_query.all.assert_called_once()
+
 
 
 
@@ -100,4 +109,3 @@ def test_delete_client_found():
     assert result == {'detail': 'Client soft deleted'}
     assert mock_client.is_deleted is True  # Ensure is_deleted was updated
     db.commit.assert_called_once()
-

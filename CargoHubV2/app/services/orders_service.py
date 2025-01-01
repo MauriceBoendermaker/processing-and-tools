@@ -29,7 +29,7 @@ def create_order(db: Session, order_data: dict):
     return order
 
 def get_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
@@ -43,12 +43,9 @@ def get_all_orders(
     sort_order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Order)
-        if date:
-            query = query.filter(Order.order_date == date)
-        if sort_order not in ["asc", "desc"]:
-            raise HTTPException(status_code=400, detail="Invalid sort order")
-        query = apply_sorting(query, Order, sort_by, sort_order)
+        query = db.query(Order).filter(Order.is_deleted == False)
+        if sort_by:
+            query = apply_sorting(query, Order, sort_by, sort_order)
         return query.offset(offset).limit(limit).all()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -57,6 +54,8 @@ def get_all_orders(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving orders."
         )
+
+    
 
 def update_order(db: Session, id: int, order_data: OrderUpdate):
     order = db.query(Order).filter(Order.id == id).first()
@@ -98,11 +97,13 @@ def delete_order(db: Session, id: int):
     return {"detail": "Order soft deleted"}
 
 def get_items_in_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order or not order.items:
         raise HTTPException(
-            status_code=404, detail="no items found for this order")
-    return order.items
+            status_code=404, detail="No items found for this order"
+        )
+    return [item for item in order.items if not item.is_deleted]
+
 
 def get_packinglist_for_order(db: Session, order_id: int):
     # Fetch the order and directly access its packing list
@@ -136,7 +137,7 @@ def get_packinglist_for_order(db: Session, order_id: int):
     return packing_list_id
 
 def get_shipments_by_order_id(db: Session, order_id: int):
-    order = db.query(Order).filter(Order.id == order_id).first()
+    order = db.query(Order).filter(Order.id == order_id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     
@@ -144,7 +145,7 @@ def get_shipments_by_order_id(db: Session, order_id: int):
     if not shipment_ids:
         raise HTTPException(status_code=404, detail="No shipment IDs found in the order")
 
-    shipments = db.query(Shipment).filter(Shipment.id.in_(shipment_ids)).all()
+    shipments = db.query(Shipment).filter(Shipment.id.in_(shipment_ids), Shipment.is_deleted == False).all()
     if not shipments:
         raise HTTPException(status_code=404, detail="No shipments found for the given order")
     

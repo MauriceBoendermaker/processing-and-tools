@@ -25,7 +25,7 @@ class Item(Base):
     supplier_part_number = Column(String)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    is_deleted = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
 
 
     item_group_rel = relationship("ItemGroup", back_populates="items")
