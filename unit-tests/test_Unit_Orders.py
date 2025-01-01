@@ -136,34 +136,38 @@ def test_get_all_orders_no_results():
 
         assert len(results) == 0
 
+
 def test_update_order_found():
     db = MagicMock()
     db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
-    order_update_data = OrderUpdate(order_status="Updated")
+    order_update_data = OrderUpdate(order_status="Shipped")
     updated_order = update_order(db, 1, order_update_data)
-    assert updated_order.order_status == "Updated"
+    assert updated_order.order_status == "Shipped"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_order)
+
 
 def test_update_order_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    order_update_data = OrderUpdate(order_status="Updated")
+    order_update_data = OrderUpdate(order_status="Shipped")
     with pytest.raises(HTTPException) as excinfo:
         update_order(db, 99, order_update_data)
     assert excinfo.value.status_code == 404
     assert "Order not found" in str(excinfo.value.detail)
 
+
 def test_update_order_integrity_error():
     db = MagicMock()
     db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    order_update_data = OrderUpdate(order_status="Updated")
+    order_update_data = OrderUpdate(order_status="Shipped")
     with pytest.raises(HTTPException) as excinfo:
         update_order(db, 1, order_update_data)
     assert excinfo.value.status_code == 400
     assert "order already exists." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
+
 
 def test_delete_order_found():
     db = MagicMock()
@@ -177,6 +181,7 @@ def test_delete_order_found():
     db.commit.assert_called_once()
     db.delete.assert_not_called()
 
+
 def test_delete_order_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
@@ -184,6 +189,7 @@ def test_delete_order_not_found():
         delete_order(db, 99)
     assert excinfo.value.status_code == 404
     assert "Order not found" in str(excinfo.value.detail)
+
 
 def test_get_order_items_found():
     db = MagicMock()
@@ -212,9 +218,9 @@ def test_get_order_items_not_found():
 def test_get_packinglist_for_order_success():
     db = MagicMock()
     db.query().filter().first.return_value = Order(**SAMPLE_ORDER_DATA)
-    
+
     result = get_packinglist_for_order(db, 1)
-    
+
     expected_result = [{
         "Warehouse": SAMPLE_ORDER_DATA["warehouse_id"],
         "Order picker": SAMPLE_ORDER_DATA["source_id"],
@@ -223,30 +229,32 @@ def test_get_packinglist_for_order_success():
         "Shipping notes": SAMPLE_ORDER_DATA["shipping_notes"],
         "Items to be picked": SAMPLE_ORDER_DATA["items"]
     }]
-    
+
     assert result == expected_result
     db.query().filter().first.assert_called_once()
+
 
 def test_get_packinglist_for_order_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    
+
     with pytest.raises(HTTPException) as excinfo:
         get_packinglist_for_order(db, 99)
-    
+
     assert excinfo.value.status_code == 404
     assert "Order not found" in str(excinfo.value.detail)
     db.query().filter().first.assert_called_once()
+
 
 def test_get_packinglist_for_order_no_items():
     db = MagicMock()
     order_data_no_items = SAMPLE_ORDER_DATA.copy()
     order_data_no_items["items"] = []
     db.query().filter().first.return_value = Order(**order_data_no_items)
-    
+
     with pytest.raises(HTTPException) as excinfo:
         get_packinglist_for_order(db, 1)
-    
+
     assert excinfo.value.status_code == 404
     assert "No items found in the packing list" in str(excinfo.value.detail)
     db.query().filter().first.assert_called_once()

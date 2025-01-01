@@ -6,7 +6,7 @@ from typing import Optional
 CodeType = Annotated[
                 str,
                 StringConstraints(
-                    pattern=r"^SUP\d{4}$"
+                    pattern=r"^SUP\d{1,4}$"
                 ),
             ]
 

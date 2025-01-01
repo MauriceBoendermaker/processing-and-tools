@@ -31,7 +31,7 @@ class TestTransfersResource(unittest.TestCase):
         self.ToPut = {
             "transfer_from": 9200,
             "transfer_to": 9201,
-            "transfer_status": "In Progress",
+            "transfer_status": "Scheduled",
         }
 
     # Test to create a transfer using POST

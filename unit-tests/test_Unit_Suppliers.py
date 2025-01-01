@@ -26,7 +26,7 @@ supplier_sample_data = {
     "country": "Fictionland",
     "contact_name": "John Doe",
     "phonenumber": "555-1234",
-    "reference": "REF001",
+    "reference": "spO-SUP001",
     "created_at": "2024-11-15T12:00:00",
     "updated_at": "2024-11-15T12:00:00"
 }
@@ -98,8 +98,6 @@ def test_get_all_suppliers():
         # Check the result
         assert len(results) == 1
         assert results[0].id == supplier_sample_data["id"]
-
-
 
 
 def test_update_supplier_found():
