@@ -1,14 +1,25 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
+from typing_extensions import Annotated
 from datetime import datetime
 from typing import Optional
 
+UidType = Annotated[
+    str,
+    StringConstraints(pattern=r"^P\d{6}$")
+]
+
+UpcType = Annotated[
+    str,
+    StringConstraints(pattern=r"^\d{13}$")
+]
+
 
 class ItemBase(BaseModel):
-    uid: str
+    uid: UidType
     code: str
     description: str
     short_description: str
-    upc_code: str
+    upc_code: UpcType
     model_number: str
     commodity_code: str
     item_line: int = None
@@ -30,7 +41,7 @@ class ItemUpdate(BaseModel):
     code: Optional[str] = None
     description: Optional[str] = None
     short_description: Optional[str] = None
-    upc_code: Optional[str] = None
+    upc_code: Optional[UpcType] = None
     model_number: Optional[str] = None
     commodity_code: Optional[str] = None
     item_line: Optional[int] = None
