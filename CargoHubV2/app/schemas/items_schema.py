@@ -2,10 +2,6 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-from .item_groups_schema import ItemGroupResponse
-from .item_lines_schema import ItemLineResponse
-from .item_types_schema import ItemTypeResponse
-
 
 class ItemBase(BaseModel):
     uid: str
