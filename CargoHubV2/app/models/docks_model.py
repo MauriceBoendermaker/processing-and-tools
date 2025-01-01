@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
+from sqlalchemy.ext.declarative import declarative_base
+
 
 
 class Dock(Base):

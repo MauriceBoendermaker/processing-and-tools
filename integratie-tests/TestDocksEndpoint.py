@@ -1,4 +1,3 @@
-'''
 import unittest
 from httpx import Client
 
@@ -76,5 +75,3 @@ class TestDocksResource(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-'''
