@@ -1,6 +1,6 @@
-'''
 import unittest
 from httpx import Client
+
 
 class TestDocksResource(unittest.TestCase):
     @classmethod
@@ -11,11 +11,11 @@ class TestDocksResource(unittest.TestCase):
         cls.TEST_BODY = {
             "warehouse_id": 1,
             "code": "DCK001",
-            "status": "free",
+            "status": "Free",
             "description": "Test Dock"
         }
         cls.ToPut = {
-            "status": "occupied",
+            "status": "Occupied",
             "description": "Updated Test Dock"
         }
         cls.created_id = None  # Initialize to None
@@ -76,5 +76,3 @@ class TestDocksResource(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-'''
