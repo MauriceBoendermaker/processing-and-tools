@@ -1,15 +1,30 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
+from typing_extensions import Annotated
 from typing import List, Optional, Dict
 from datetime import datetime
+
+ReferenceType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^ORD\d{5}$"
+                ),
+            ]
+
+StatusType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^(Pending|Packed|Shipped|Delivered)$"
+                ),
+            ]
 
 
 class OrderBase(BaseModel):
     source_id: int
     order_date: datetime
     request_date: Optional[datetime] = None
-    reference: str
+    reference: ReferenceType
     reference_extra: Optional[str] = None
-    order_status: str
+    order_status: StatusType
     notes: Optional[str] = None
     shipping_notes: Optional[str] = None
     picking_notes: Optional[str] = None
@@ -36,7 +51,7 @@ class OrderCreate(OrderBase):
 
 
 class OrderUpdate(BaseModel):
-    order_status: Optional[str] = None
+    order_status: Optional[StatusType] = None
     notes: Optional[str] = None
     shipping_notes: Optional[str] = None
     picking_notes: Optional[str] = None
