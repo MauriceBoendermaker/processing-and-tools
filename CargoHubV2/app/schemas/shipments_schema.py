@@ -1,6 +1,50 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
+from typing_extensions import Annotated
 from datetime import datetime
 from typing import List, Optional
+
+StatusType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^(Pending|Transit|Delivered)$"
+                ),
+            ]
+
+CarrierCodeType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^(DPD|TNTexpress|DHL|UPS|PostNL|FedEx)$"
+                ),
+            ]
+
+CarrierDescType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"""^(Dynamic Parcel Distribution|TNT Express|
+                    DHL Express|United Parcel Service|
+                    Royal Dutch Post and Parcel Service|Federal Express)$"""
+                ),
+            ]
+
+ShipmentType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(I|O)$")
+]
+
+ServiceCodeType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(TwoDay|NextDay|Economy|Fastest)$")
+]
+
+PaymentType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(Manual|Automatic)$")
+]
+
+TransferModeType = Annotated[
+    str,
+    StringConstraints(pattern=r"^(Ground|Sea|Air)$")
+]
 
 
 class ShipmentItem(BaseModel):
@@ -14,14 +58,14 @@ class ShipmentBase(BaseModel):
     order_date: datetime
     request_date: datetime
     shipment_date: datetime
-    shipment_type: str
-    shipment_status: str
+    shipment_type: ShipmentType
+    shipment_status: StatusType
     notes: Optional[str] = None
-    carrier_code: str
-    carrier_description: str
-    service_code: str
-    payment_type: str
-    transfer_mode: str
+    carrier_code: CarrierCodeType
+    carrier_description: CarrierDescType
+    service_code: ServiceCodeType
+    payment_type: PaymentType
+    transfer_mode: TransferModeType
     total_package_count: int
     total_package_weight: float
     items: List[ShipmentItem]
@@ -37,14 +81,14 @@ class ShipmentUpdate(BaseModel):
     order_date: Optional[datetime] = None
     request_date: Optional[datetime] = None
     shipment_date: Optional[datetime] = None
-    shipment_type: Optional[str] = None
-    shipment_status: Optional[str] = None
+    shipment_type: Optional[ShipmentType] = None
+    shipment_status: Optional[StatusType] = None
     notes: Optional[str] = None
-    carrier_code: Optional[str] = None
-    carrier_description: Optional[str] = None
-    service_code: Optional[str] = None
-    payment_type: Optional[str] = None
-    transfer_mode: Optional[str] = None
+    carrier_code: Optional[CarrierCodeType] = None
+    carrier_description: Optional[CarrierDescType] = None
+    service_code: Optional[ServiceCodeType] = None
+    payment_type: Optional[PaymentType] = None
+    transfer_mode: Optional[TransferModeType] = None
     total_package_count: Optional[int] = None
     total_package_weight: Optional[float] = None
     items: Optional[List[ShipmentItem]] = None

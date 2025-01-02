@@ -15,13 +15,13 @@ SAMPLE_SHIPMENT_DATA = {
     "order_date": datetime(2023, 1, 10),
     "request_date": datetime(2023, 1, 12),
     "shipment_date": datetime(2023, 1, 15),
-    "shipment_type": "Ground",
+    "shipment_type": "I",
     "shipment_status": "Pending",
     "notes": "Sample note",
     "carrier_code": "UPS",
     "carrier_description": "United Parcel Service",
-    "service_code": "Fast",
-    "payment_type": "Prepaid",
+    "service_code": "Fastest",
+    "payment_type": "Manual",
     "transfer_mode": "Air",
     "total_package_count": 3,
     "total_package_weight": 25.0,
@@ -94,15 +94,14 @@ def test_get_all_shipments():
         assert results[0].id == SAMPLE_SHIPMENT_DATA["id"]
 
 
-
 def test_update_shipment_found():
     db = MagicMock()
     db.query().filter().first.return_value = Shipment(**SAMPLE_SHIPMENT_DATA)
-    update_data = ShipmentUpdate(shipment_status="Shipped")
+    update_data = ShipmentUpdate(shipment_status="Delivered")
 
     updated_shipment = update_shipment(db, 1, update_data)
 
-    assert updated_shipment.shipment_status == "Shipped"
+    assert updated_shipment.shipment_status == "Delivered"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_shipment)
 

@@ -9,11 +9,11 @@ from CargoHubV2.app.schemas.items_schema import ItemCreate, ItemUpdate
 
 
 SAMPLE_ITEM_DATA = {
-    "uid": "123e4567-e89b-12d3-a456-426614174000",
+    "uid": "P000001",
     "code": "ITEM-TEST",
     "description": "Test item",
     "short_description": "A test item",
-    "upc_code": "123456789012",
+    "upc_code": "1234567890123",
     "model_number": "MN-TEST",
     "commodity_code": "CC-TEST",
     "item_line": 1,
@@ -73,7 +73,7 @@ def test_get_item_not_found():
     db.query().filter().first.return_value = None
 
     with pytest.raises(HTTPException) as excinfo:
-        get_item(db, "nonexistent-uid")
+        get_item(db, "nonexistent-code")
 
     assert excinfo.value.status_code == 404
     assert "Item not found" in str(excinfo.value.detail)

@@ -97,15 +97,14 @@ def test_get_all_transfers():
         assert results[0].id == SAMPLE_TRANSFER_DATA["id"]
 
 
-
 def test_update_transfer_found():
     db = MagicMock()
     db.query().filter().first.return_value = Transfer(**SAMPLE_TRANSFER_DATA)
-    transfer_update_data = TransferUpdate(transfer_status="Processed")
+    transfer_update_data = TransferUpdate(transfer_status="Completed")
 
     updated_transfer = update_transfer(db, 1, transfer_update_data)
 
-    assert updated_transfer.transfer_status == "Processed"
+    assert updated_transfer.transfer_status == "Completed"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_transfer)
 
@@ -113,7 +112,7 @@ def test_update_transfer_found():
 def test_update_transfer_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    transfer_update_data = TransferUpdate(transfer_status="Processed")
+    transfer_update_data = TransferUpdate(transfer_status="Completed")
 
     with pytest.raises(HTTPException) as excinfo:
         update_transfer(db, 5, transfer_update_data)
@@ -126,7 +125,7 @@ def test_update_transfer_integrity_error():
     db = MagicMock()
     db.query().filter().first.return_value = Transfer(**SAMPLE_TRANSFER_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    transfer_update_data = TransferUpdate(transfer_status="Processed")
+    transfer_update_data = TransferUpdate(transfer_status="Completed")
 
     with pytest.raises(HTTPException) as excinfo:
         update_transfer(db, 1, transfer_update_data)

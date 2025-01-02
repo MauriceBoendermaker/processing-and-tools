@@ -1,6 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
+from typing_extensions import Annotated
 from datetime import datetime
 from typing import Optional
+
+CountryType = Annotated[
+    str,
+    StringConstraints(
+        pattern=r"^[A-Z]{2}$"
+    ),
+]
 
 
 class WarehouseBase(BaseModel):
@@ -10,7 +18,7 @@ class WarehouseBase(BaseModel):
     zip: str
     city: str
     province: str
-    country: str
+    country: CountryType
     contact: dict
 
 
@@ -21,7 +29,7 @@ class WarehouseUpdate(BaseModel):
     zip: Optional[str] = None
     city: Optional[str] = None
     province: Optional[str] = None
-    country: Optional[str] = None
+    country: Optional[CountryType] = None
     contact: Optional[dict] = None
 
 

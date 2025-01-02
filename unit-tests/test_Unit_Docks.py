@@ -20,7 +20,7 @@ SAMPLE_DOCK_DATA = {
     "id": 1,
     "warehouse_id": 101,
     "code": "D1",
-    "status": "free",
+    "status": "Free",
     "description": "Dock 1 for loading",
     "is_deleted": False,
     "created_at": datetime.now(),
@@ -28,7 +28,7 @@ SAMPLE_DOCK_DATA = {
 }
 
 UPDATED_DOCK_DATA = {
-    "status": "occupied",
+    "status": "Occupied",
     "description": "Dock 1 is now occupied",
 }
 
@@ -152,7 +152,7 @@ def test_update_dock_found():
 
     updated_dock = update_dock(db, 1, dock_update_data)
 
-    assert updated_dock.status == "occupied"
+    assert updated_dock.status == "Occupied"
     assert updated_dock.description == "Dock 1 is now occupied"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_dock)

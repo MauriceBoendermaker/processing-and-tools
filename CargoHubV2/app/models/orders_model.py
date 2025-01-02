@@ -30,5 +30,4 @@ class Order(Base):
     items = Column(JSON, nullable=True)
     is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
 
-
     warehouse = relationship("Warehouse")

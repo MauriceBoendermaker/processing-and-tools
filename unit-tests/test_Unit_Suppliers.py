@@ -26,7 +26,7 @@ supplier_sample_data = {
     "country": "Fictionland",
     "contact_name": "John Doe",
     "phonenumber": "555-1234",
-    "reference": "REF001",
+    "reference": "spO-SUP0001",
     "created_at": "2024-11-15T12:00:00",
     "updated_at": "2024-11-15T12:00:00"
 }
@@ -100,8 +100,6 @@ def test_get_all_suppliers():
         assert results[0].id == supplier_sample_data["id"]
 
 
-
-
 def test_update_supplier_found():
     db = MagicMock()
     db.query().filter().first.return_value = Supplier(**supplier_sample_data)
@@ -145,7 +143,6 @@ def test_delete_supplier_found():
     assert mock_supplier.is_deleted is True
     db.commit.assert_called_once()
     db.delete.assert_not_called()
-
 
 
 def test_delete_supplier_not_found():

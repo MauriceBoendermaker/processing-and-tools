@@ -108,13 +108,12 @@ def test_get_all_locations():
         assert results[0].id == SAMPLE_LOCATION_DATA["id"]
 
 
-
 def test_update_location_found():
     db = MagicMock()
     db.query().filter().first.return_value = Location(**SAMPLE_LOCATION_DATA)
-    location_update_data = LocationUpdate(code="Updated code")
-    updated_location = update_location(db, "B.5.2", location_update_data)
-    assert updated_location.code == "Updated code"
+    location_update_data = LocationUpdate(code="A.1.0")
+    updated_location = update_location(db, 1, location_update_data)
+    assert updated_location.code == "A.1.0"
     db.commit.assert_called_once()
     db.refresh.assert_called_once_with(updated_location)
 
@@ -122,9 +121,9 @@ def test_update_location_found():
 def test_update_location_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
-    location_update_data = LocationUpdate(code="Updated code")
+    location_update_data = LocationUpdate(code="A.1.0")
     with pytest.raises(HTTPException) as excinfo:
-        update_location(db, "nonexistent-code", location_update_data)
+        update_location(db, "nonexistent-id", location_update_data)
     assert excinfo.value.status_code == 404
     assert "Location not found" in str(excinfo.value.detail)
 
@@ -133,9 +132,9 @@ def test_update_location_integrity_error():
     db = MagicMock()
     db.query().filter().first.return_value = Location(**SAMPLE_LOCATION_DATA)
     db.commit.side_effect = IntegrityError("mock", "params", "orig")
-    location_update_data = LocationUpdate(code="Updated code")
+    location_update_data = LocationUpdate(code="A.1.0")
     with pytest.raises(HTTPException) as excinfo:
-        update_location(db, "B.5.2", location_update_data)
+        update_location(db, 1, location_update_data)
     assert excinfo.value.status_code == 400
     assert "An integrity error occurred while updating the location." in str(excinfo.value.detail)
     db.rollback.assert_called_once()
@@ -146,7 +145,7 @@ def test_delete_location_found():
     mock_location = Location(**SAMPLE_LOCATION_DATA)
     db.query().filter().first.return_value = mock_location
 
-    result = delete_location(db, "B.5.2")
+    result = delete_location(db, 1)
 
     assert result == {"detail": "Location soft deleted"}
     assert mock_location.is_deleted is True
@@ -154,11 +153,10 @@ def test_delete_location_found():
     db.delete.assert_not_called()
 
 
-
 def test_delete_location_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
     with pytest.raises(HTTPException) as excinfo:
-        delete_location(db, "nonexistent-code")
+        delete_location(db, "nonexistent-id")
     assert excinfo.value.status_code == 404
     assert "Location not found" in str(excinfo.value.detail)
