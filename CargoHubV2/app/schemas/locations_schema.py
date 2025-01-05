@@ -1,17 +1,25 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
+from typing_extensions import Annotated
 from datetime import datetime
 from typing import Optional
+
+CodeType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^[A-Z]\.\d+\.\d+$"
+                ),
+            ]
 
 
 class LocationBase(BaseModel):
     warehouse_id: int
-    code: str
+    code: CodeType
     name: str
 
 
 class LocationUpdate(BaseModel):
     warehouse_id: Optional[int] = None
-    code: Optional[str] = None
+    code: Optional[CodeType] = None
     name: Optional[str] = None
 
 

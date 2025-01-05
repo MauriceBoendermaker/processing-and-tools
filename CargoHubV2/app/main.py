@@ -12,6 +12,9 @@ from CargoHubV2.app.controllers import clients_controller
 from CargoHubV2.app.controllers import shipments_controller
 from CargoHubV2.app.controllers import inventories_controller
 from CargoHubV2.app.controllers import orders_controller
+from CargoHubV2.app.controllers import reporting_controller
+from CargoHubV2.app.controllers import packinglist_controller
+from CargoHubV2.app.controllers import docks_controller
 import time
 from starlette.responses import JSONResponse
 import logging
@@ -22,6 +25,7 @@ app = FastAPI()
 # default port is localhost:8000
 
 # router van de controller gebruiken
+app.include_router(reporting_controller.router)
 app.include_router(item_groups.router)
 app.include_router(item_lines.router)
 app.include_router(item_types.router)
@@ -35,6 +39,8 @@ app.include_router(clients_controller.router)
 app.include_router(shipments_controller.router)
 app.include_router(inventories_controller.router)
 app.include_router(orders_controller.router)
+app.include_router(packinglist_controller.router)
+app.include_router(docks_controller.router)
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -57,9 +63,10 @@ async def shutdown():
 
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
+    excluded = ["/favicon.ico", "/openapi.json", "/docs"]
     try:
         x_api_key = request.headers.get("api-key")
-        if request.url.path == "/docs" or request.url.path == "/openapi.json":
+        if request.url.path in excluded or "/get-pdf" in request.url.path:
             return await call_next(request)
         response: Response = await call_next(request)
 

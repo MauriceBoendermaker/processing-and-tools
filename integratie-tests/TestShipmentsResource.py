@@ -15,7 +15,7 @@ class TestShipmentResource(unittest.TestCase):
 
         self.test_body = {
             "id": self.TEST_ID,
-            "order_id": 6488,
+            "order_id": [6488],
             "source_id": 36,
             "order_date": "2007-08-08",
             "request_date": "2007-08-10",
@@ -32,6 +32,7 @@ class TestShipmentResource(unittest.TestCase):
             "total_package_weight": 480.53,
             "created_at": "2007-08-09T05:51:11Z",
             "updated_at": "2007-08-10T07:51:11Z",
+            "is_deleted": False,
             "items": [
                 {
                     "item_id": "P006938",

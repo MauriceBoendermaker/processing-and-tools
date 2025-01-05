@@ -17,19 +17,19 @@ def create_item_group(db: Session, item_group_data: dict) -> ItemGroup:
 
 
 def get_item_group(db: Session, id: int) -> Optional[ItemGroup]:
-    return db.query(ItemGroup).filter(ItemGroup.id == id).first()
+    return db.query(ItemGroup).filter(ItemGroup.id == id, ItemGroup.is_deleted == False).first()
 
 
 def get_all_item_groups(
     db: Session,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "id",  # Default sort by "id"
-    order: Optional[str] = "asc"   # Default order is ascending
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
 ) -> List[ItemGroup]:
     try:
-        query = db.query(ItemGroup)
-        if sort_by:  # Apply sorting if sort_by is specified
+        query = db.query(ItemGroup).filter(ItemGroup.is_deleted == False)
+        if sort_by:
             query = apply_sorting(query, ItemGroup, sort_by, order)
         return query.offset(offset).limit(limit).all()
     except ValueError as e:
@@ -39,6 +39,7 @@ def get_all_item_groups(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving item groups."
         )
+
 
 
 
@@ -53,9 +54,10 @@ def update_item_group(db: Session, id: int, item_group_data: ItemGroupUpdate) ->
 
 
 def delete_item_group(db: Session, id: int) -> bool:
-    item_group = get_item_group(db, id)
+    item_group = db.query(ItemGroup).filter(ItemGroup.id == id, ItemGroup.is_deleted == False).first()
     if item_group:
-        db.delete(item_group)
+        item_group.is_deleted = True  # Soft delete by updating the flag
         db.commit()
         return True
     return False
+

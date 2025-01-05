@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packing List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Packing List</h1>
+    <p><strong>Warehouse ID:</strong> {{ warehouse_id }}</p>
+    <p><strong>Source ID:</strong> {{ source_id }}</p>
+    <p><strong>Order ID:</strong> {{ order_id }}</p>
+    <p><strong>Order Date:</strong> {{ order_date }}</p>
+    <p><strong>Request Date:</strong> {{ request_date }}</p>
+    <p><strong>Shipping Notes:</strong> {{ shipping_notes }}</p>
+    <p><strong>Total Different Items:</strong> {{ total_items }}</p>
+    <p><strong>Total Amount of Items:</strong> {{ total_amount }}</p>
+
+    <h2>Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Item ID</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.item_id }}</td>
+                <td>{{ item.amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+</html>

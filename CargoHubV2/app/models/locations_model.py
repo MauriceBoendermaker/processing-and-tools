@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from ..database import Base
 from sqlalchemy.orm import relationship
 
@@ -13,3 +13,5 @@ class Location(Base):
     name = Column(String, index=True)
     created_at = Column(DateTime, index=True)
     updated_at = Column(DateTime, index=True)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
+

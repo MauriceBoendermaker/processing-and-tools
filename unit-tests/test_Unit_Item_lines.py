@@ -53,21 +53,27 @@ def test_get_item_line_not_found():
 def test_get_all_item_lines():
     db = MagicMock()
     mock_query = db.query.return_value
-    mock_query.offset.return_value = mock_query
-    mock_query.limit.return_value = mock_query
-    mock_query.all.return_value = [
-        ItemLine(**SAMPLE_ITEM_LINE),
-        ItemLine(name="Line B", description="Another test line"),
+    filtered_query = mock_query.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = [
+        ItemLine(**{**SAMPLE_ITEM_LINE, "is_deleted": False}),
+        ItemLine(name="Line B", description="Another test line", is_deleted=False),
     ]
 
-    with patch("CargoHubV2.app.services.item_lines_service.apply_sorting", return_value=mock_query) as mock_sorting:
+    with patch("CargoHubV2.app.services.item_lines_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_item_lines(db, offset=0, limit=100, sort_by="name", order="asc")
 
-        mock_sorting.assert_called_once_with(mock_query, ItemLine, "name", "asc")
+        mock_sorting.assert_called_once_with(filtered_query, ItemLine, "name", "asc")
         db.query.assert_called_once_with(ItemLine)
-        mock_query.offset.assert_called_once_with(0)
-        mock_query.limit.assert_called_once_with(100)
-        mock_query.all.assert_called_once()
+        assert mock_query.filter.call_count == 1
+
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(ItemLine.is_deleted == False)
+
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(100)
+        filtered_query.all.assert_called_once()
 
         assert len(results) == 2
         assert results[0].name == SAMPLE_ITEM_LINE["name"]
@@ -77,18 +83,24 @@ def test_get_all_item_lines():
 def test_get_all_item_lines_empty():
     db = MagicMock()
     mock_query = db.query.return_value
-    mock_query.offset.return_value = mock_query
-    mock_query.limit.return_value = mock_query
-    mock_query.all.return_value = []
+    filtered_query = mock_query.filter.return_value  # Mock the filtered query
+    filtered_query.offset.return_value = filtered_query
+    filtered_query.limit.return_value = filtered_query
+    filtered_query.all.return_value = []
 
-    with patch("CargoHubV2.app.services.item_lines_service.apply_sorting", return_value=mock_query) as mock_sorting:
+    with patch("CargoHubV2.app.services.item_lines_service.apply_sorting", return_value=filtered_query) as mock_sorting:
         results = get_all_item_lines(db, offset=0, limit=100, sort_by="name", order="asc")
 
-        mock_sorting.assert_called_once_with(mock_query, ItemLine, "name", "asc")
+        mock_sorting.assert_called_once_with(filtered_query, ItemLine, "name", "asc")
         db.query.assert_called_once_with(ItemLine)
-        mock_query.offset.assert_called_once_with(0)
-        mock_query.limit.assert_called_once_with(100)
-        mock_query.all.assert_called_once()
+        assert mock_query.filter.call_count == 1
+
+        filter_args = mock_query.filter.call_args[0][0]
+        assert str(filter_args) == str(ItemLine.is_deleted == False)
+
+        filtered_query.offset.assert_called_once_with(0)
+        filtered_query.limit.assert_called_once_with(100)
+        filtered_query.all.assert_called_once()
 
         assert len(results) == 0
 
@@ -117,16 +129,18 @@ def test_update_item_line_not_found():
     assert result is None
 
 
-# Test delete_item_line
 def test_delete_item_line_found():
     db = MagicMock()
-    db.query().filter().first.return_value = ItemLine(**SAMPLE_ITEM_LINE)
+    mock_item_line = ItemLine(**SAMPLE_ITEM_LINE)
+    db.query().filter().first.return_value = mock_item_line
 
     result = delete_item_line(db, 1)
 
-    db.delete.assert_called_once()
-    db.commit.assert_called_once()
     assert result is True
+    assert mock_item_line.is_deleted is True  # Ensure is_deleted was updated
+    db.commit.assert_called_once()
+    db.delete.assert_not_called()  # Ensure hard delete was not called
+
 
 
 def test_delete_item_line_not_found():
