@@ -1,7 +1,7 @@
 from pydantic import BaseModel, StringConstraints
 from typing_extensions import Annotated
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 CountryType = Annotated[
     str,
@@ -20,6 +20,7 @@ class WarehouseBase(BaseModel):
     province: str
     country: CountryType
     contact: dict
+    forbidden_classifications: Optional[List[str]] = None
 
 
 class WarehouseUpdate(BaseModel):
@@ -31,6 +32,7 @@ class WarehouseUpdate(BaseModel):
     province: Optional[str] = None
     country: Optional[CountryType] = None
     contact: Optional[dict] = None
+    forbidden_classifications: Optional[List[str]] = None
 
 
 class WarehouseCreate(WarehouseBase):

@@ -4,21 +4,21 @@ from httpx import Client
 
 class TestDocksResource(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
-        cls.baseUrl = "http://localhost:3000/api/v2/docks/"
-        cls.client = Client()
-        cls.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
-        cls.TEST_BODY = {
+    def setUpClass(self):
+        self.baseUrl = "http://localhost:3000/api/v2/docks/"
+        self.client = Client()
+        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
+        self.TEST_BODY = {
             "warehouse_id": 1,
             "code": "DCK001",
             "status": "Free",
             "description": "Test Dock"
         }
-        cls.ToPut = {
+        self.ToPut = {
             "status": "Occupied",
             "description": "Updated Test Dock"
         }
-        cls.created_id = None  # Initialize to None
+        self.created_id = None  # Initialize to None
 
     def test_1_post_dock(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
