@@ -25,3 +25,23 @@ metadata = MetaData()
 metadata.reflect(bind=engine)
 
 items_table = metadata.tables["items"]
+
+if "hazard_classification" not in items_table.columns:
+    raise Exception("Column 'hazard_classification' does not exist in 'items' table.")
+
+with engine.begin() as conn:
+    results = conn.execute(select(items_table)).mappings().all()
+    
+    # Randomize de boel
+    for row in results:
+        item_id = row["uid"]
+        random_hazard = random.choice(hazard_classes)
+        
+        conn.execute(
+            items_table.update()
+            .where(items_table.c.uid == item_id)
+            .values(hazard_classification=random_hazard)
+        )
+        print(f"Updated item UID {item_id} with hazard classification '{random_hazard}'")
+
+print("Hazard classifications populated!")
