@@ -10,6 +10,33 @@ from datetime import datetime
 from typing import Optional
 
 
+def get_item(db: Session, code: str):
+    try:
+        item = db.query(Item).filter(Item.code == code, Item.is_deleted == False).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return item
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving the item."
+        )
+
+
+def get_all_items(db: Session, offset: int = 0, limit: int = 100, sort_by: Optional[str] = "id", order: Optional[str] = "asc"):
+    try:
+        query = db.query(Item).filter(Item.is_deleted == False)
+        sorted_query = apply_sorting(query, Item, sort_by, order)
+        return sorted_query.offset(offset).limit(limit).all()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving items."
+        )
+
+
 def create_item(db: Session, item_data: dict):
     warehouse = db.query(Warehouse).filter(Warehouse.id == item_data.get("warehouse_id")).first()
     if warehouse and warehouse.forbidden_classifications:
@@ -38,6 +65,7 @@ def create_item(db: Session, item_data: dict):
         )
     return item
 
+
 def update_item(db: Session, code: str, item_data: ItemUpdate):
     item = db.query(Item).filter(Item.code == code).first()
     if not item:
@@ -58,3 +86,20 @@ def update_item(db: Session, code: str, item_data: ItemUpdate):
     db.commit()
     db.refresh(item)
     return item
+
+
+def delete_item(db: Session, code: str):
+    try:
+        item = db.query(Item).filter(Item.code == code, Item.is_deleted == False).first()
+        if not item:
+            return None
+        item.is_deleted = True
+        db.commit()
+        db.refresh(item)
+        return item
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while deleting the item."
+        )
