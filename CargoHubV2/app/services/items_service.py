@@ -75,8 +75,15 @@ def update_item(db: Session, code: str, item_data: ItemUpdate):
     for key, value in update_data.items():
         setattr(item, key, value)
     item.updated_at = datetime.now()
-    db.commit()
-    db.refresh(item)
+    try:
+        db.commit()
+        db.refresh(item)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An item with this code already exists."
+        )
     return item
 
 
