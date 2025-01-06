@@ -42,7 +42,7 @@ def get_client(db: Session, client_id: int):
         )
 
 
-def get_clients_by_country(
+def get_country_clients(
     db: Session,
     country: str,
     offset: int = 0,
@@ -117,7 +117,7 @@ def delete_client(db: Session, client_id: int):
         client = db.query(Client).filter(Client.id == client_id, Client.is_deleted == False).first()
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
-        
+
         client.is_deleted = True  # Soft delete by marking the record
         db.commit()
     except SQLAlchemyError:

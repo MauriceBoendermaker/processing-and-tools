@@ -39,6 +39,19 @@ def get_clients(
     return get_all_clients(db, offset, limit, sort_by, order)
 
 
+@router.get("/{country}")
+def get_clients_by_country(
+    country: str,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc",
+    db: Session = Depends(get_db),
+    api_key: str = Header(...),
+):
+    return get_country_clients(db, country, offset, limit, sort_by, order)
+
+
 @router.put("/{id}", response_model=ClientResponse)
 def update_client_endpoint(
     id: int,
