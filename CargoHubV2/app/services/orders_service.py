@@ -116,6 +116,14 @@ def delete_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    if order.order_status != "Delivered":
+        for item_id, amount in order.items.items():
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted is False).first()
+            if not inventory:
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_id} in the given order")
+            inventory.total_ordered -= amount
+            inventory.total_available += amount
+            inventory.updated_at = datetime.now()
     try:
         order.is_deleted = True  # Soft delete by updating the flag
         db.commit()
