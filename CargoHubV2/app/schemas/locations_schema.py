@@ -15,7 +15,7 @@ class LocationBase(BaseModel):
     warehouse_id: int
     code: CodeType
     name: str
-    max_weight: float
+    max_weight: Optional[float] = None
     stock: list[dict]
 
 
