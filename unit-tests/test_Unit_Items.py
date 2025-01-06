@@ -26,7 +26,8 @@ SAMPLE_ITEM_DATA = {
     "supplier_code": "SUP-TEST",
     "supplier_part_number": "SPN-TEST",
     "created_at": datetime.now(),
-    "updated_at": datetime.now()
+    "updated_at": datetime.now(),
+    "hazard_classification": "Toxic"
 }
 
 

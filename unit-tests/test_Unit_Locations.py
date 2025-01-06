@@ -14,7 +14,7 @@ SAMPLE_LOCATION_DATA = {
     "name": "Row: B, Rack: 5, Shelf: 2",
     "is_deleted": False,
     "max_weight": 10000.50,
-    "stock": {"P009941": 190}
+    "stock": [{"P009941": 190}]
 }
 
 
