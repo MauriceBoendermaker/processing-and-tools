@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import Optional
 
 
-
 def create_client(db: Session, client_data: dict):
     client = Client(**client_data)
     db.add(client)
@@ -43,6 +42,29 @@ def get_client(db: Session, client_id: int):
         )
 
 
+def get_clients_by_country(
+    db: Session,
+    country: str,
+    offset: int = 0,
+    limit: int = 100,
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
+):
+    try:
+        query = db.query(Client).filter(Client.country == country, Client.is_deleted == False)
+        if sort_by:
+            query = apply_sorting(query, Client, sort_by, order)
+        clients = query.offset(offset).limit(limit).all()
+        if not clients:
+            raise HTTPException(status_code=404, detail="No clients from this country")
+        return clients
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving the clients."
+        )
+
+
 def get_all_clients(
     db: Session,
     offset: int = 0,
@@ -62,7 +84,6 @@ def get_all_clients(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving clients."
         )
-
 
 
 def update_client(db: Session, client_id: int, client_data: ClientUpdate):
