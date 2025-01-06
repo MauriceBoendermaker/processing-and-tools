@@ -4,7 +4,7 @@ from test_utils import check_id_exists, match_date
 from datetime import datetime
 
 
-class TestLocationResource(unittest.TestCase):
+class TestLocationsResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/locations/"
         self.client = Client()
