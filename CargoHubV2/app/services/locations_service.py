@@ -67,6 +67,8 @@ def create_location(db: Session, location_data: LocationCreate):
         warehouse_id=location_data.warehouse_id,
         code=location_data.code,
         name=location_data.name,
+        stock=location_data.stock,
+        max_weight=location_data.max_weight,
         created_at=datetime.now(),
         updated_at=datetime.now()
     )

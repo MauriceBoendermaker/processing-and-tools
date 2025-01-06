@@ -17,7 +17,7 @@ class TestLocationsResource(unittest.TestCase):
             "code": "A.1.0",
             "name": "Row: A, Rack: 1, Shelf: 0",
             "is_deleted": False,
-            "max_weight": None,
+            "max_weight": 100000.50,
             "stock": [{"empty": 0}]
         }
 
