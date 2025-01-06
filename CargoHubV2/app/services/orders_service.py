@@ -84,7 +84,7 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
 
     old_status = order.order_status
     update_data = order_data.model_dump(exclude_unset=True)
-    if update_data["order_status"] == "Delivered" and old_status != "Delivered":
+    if update_data.get("order_status") == "Delivered" and old_status != "Delivered":
         for item_dict in order.items:
             inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
             if not inventory:

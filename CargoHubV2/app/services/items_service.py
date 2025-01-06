@@ -71,14 +71,6 @@ def update_item(db: Session, code: str, item_data: ItemUpdate):
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    warehouse = db.query(Warehouse).filter(Warehouse.id == item.warehouse_id).first()
-    if warehouse and warehouse.forbidden_classifications:
-        if item_data.hazard_classification in warehouse.forbidden_classifications:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Item's hazard classification is not allowed in the warehouse."
-            )
-
     update_data = item_data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(item, key, value)

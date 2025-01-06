@@ -22,7 +22,7 @@ class ItemBase(BaseModel):
     upc_code: UpcType
     model_number: str
     commodity_code: str
-    hazard_classification: Optional[str] = None
+    hazard_classification: str
     item_line: int = None
     item_group: int = None
     item_type: int = None
