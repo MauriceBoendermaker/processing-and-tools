@@ -23,6 +23,7 @@ def create_order(db: Session, order_data: dict):
             inventory.total_on_hand -= amount
         else:
             inventory.total_ordered += amount
+        inventory.updated_at = datetime.now()
 
     order = Order(**order_data)
     db.add(order)
@@ -77,7 +78,10 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
     order = db.query(Order).filter(Order.id == id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    old_status = order.order_status
     update_data = order_data.model_dump(exclude_unset=True)
+
     for key, value in update_data.items():
         setattr(order, key, value)
     order.updated_at = datetime.utcnow()
