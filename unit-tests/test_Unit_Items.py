@@ -155,7 +155,7 @@ def test_update_item_integrity_error():
                     item_update_data)
 
     assert excinfo.value.status_code == 400
-    assert "An integrity error occurred while updating the item." in str(
+    assert "An item with this code already exists." in str(
         excinfo.value.detail)
     db.rollback.assert_called_once()
 
