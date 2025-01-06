@@ -1,14 +1,29 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from CargoHubV2.app.models.orders_model import Order
+from CargoHubV2.app.models.inventories_model import Inventory
 from CargoHubV2.app.models.shipments_model import Shipment
 from CargoHubV2.app.schemas.orders_schema import OrderUpdate, OrderShipmentUpdate
 from fastapi import HTTPException, status
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 from CargoHubV2.app.services.sorting_service import apply_sorting
 
+
 def create_order(db: Session, order_data: dict):
+    for item_id, amount in order_data["items"].items():
+        inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted is False).first()
+        if inventory.total_available < amount:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Item {item_id} in order only {inventory.total_available} available, ordered {amount}"
+            )
+        inventory.total_available -= amount
+        if order_data["order_status"] == "Delivered":
+            inventory.total_on_hand -= amount
+        else:
+            inventory.total_ordered += amount
+
     order = Order(**order_data)
     db.add(order)
     try:
@@ -28,11 +43,13 @@ def create_order(db: Session, order_data: dict):
         )
     return order
 
+
 def get_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted is False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
 
 def get_all_orders(
     db: Session,
@@ -55,7 +72,6 @@ def get_all_orders(
             detail="An error occurred while retrieving orders."
         )
 
-    
 
 def update_order(db: Session, id: int, order_data: OrderUpdate):
     order = db.query(Order).filter(Order.id == id).first()
@@ -81,6 +97,7 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
         )
     return order
 
+
 def delete_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
@@ -95,6 +112,7 @@ def delete_order(db: Session, id: int):
             detail="An error occurred while deleting the order."
         )
     return {"detail": "Order soft deleted"}
+
 
 def get_items_in_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
