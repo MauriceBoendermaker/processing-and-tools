@@ -85,12 +85,12 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
     old_status = order.order_status
     update_data = order_data.model_dump(exclude_unset=True)
     if update_data["order_status"] == "Delivered" and old_status != "Delivered":
-        for item_id, amount in order.items.items():
-            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted == 0).first()
+        for item_dict in order.items:
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
             if not inventory:
-                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_id} in the given order")
-            inventory.total_ordered -= amount
-            inventory.total_on_hand -= amount
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+            inventory.total_ordered -= item_dict["amount"]
+            inventory.total_on_hand -= item_dict["amount"]
             inventory.updated_at = datetime.now()
 
     for key, value in update_data.items():
@@ -118,12 +118,12 @@ def delete_order(db: Session, id: int):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     if order.order_status != "Delivered":
-        for item_id, amount in order.items.items():
-            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted == 0).first()
+        for item_dict in order.items:
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
             if not inventory:
-                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_id} in the given order")
-            inventory.total_ordered -= amount
-            inventory.total_available += amount
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+            inventory.total_ordered -= item_dict["amount"]
+            inventory.total_available += item_dict["amount"]
             inventory.updated_at = datetime.now()
     try:
         order.is_deleted = True  # Soft delete by updating the flag
