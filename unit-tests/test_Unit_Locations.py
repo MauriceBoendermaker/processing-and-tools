@@ -11,7 +11,10 @@ SAMPLE_LOCATION_DATA = {
     "id": 1,
     "warehouse_id": 100,
     "code": "B.5.2",
-    "name": "Row: B, Rack: 5, Shelf: 2"
+    "name": "Row: B, Rack: 5, Shelf: 2",
+    "is_deleted": False,
+    "max_weight": 10000.50,
+    "stock": {"P009941": 190}
 }
 
 

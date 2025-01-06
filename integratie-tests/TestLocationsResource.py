@@ -16,7 +16,9 @@ class TestLocationsResource(unittest.TestCase):
             "warehouse_id": 58,
             "code": "A.1.0",
             "name": "Row: A, Rack: 1, Shelf: 0",
-            "is_deleted": False
+            "is_deleted": False,
+            "max_weight": 10000.50,
+            "stock": {"P009941": 190}
         }
 
         self.ToPut = {
