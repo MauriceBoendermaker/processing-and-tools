@@ -3,7 +3,7 @@ from httpx import Client
 
 
 class TestDocksResource(unittest.TestCase):
-    def setUpClass(self):
+    def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/docks/"
         self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
