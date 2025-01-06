@@ -3,7 +3,6 @@ from httpx import Client
 
 
 class TestDocksResource(unittest.TestCase):
-    @classmethod
     def setUpClass(self):
         self.baseUrl = "http://localhost:3000/api/v2/docks/"
         self.client = Client()
