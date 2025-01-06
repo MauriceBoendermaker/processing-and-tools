@@ -81,6 +81,12 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
 
     old_status = order.order_status
     update_data = order_data.model_dump(exclude_unset=True)
+    if update_data["order_status"] == "Delivered" and old_status != "Delivered":
+        for item_id, amount in order.items.items():
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted is False).first()
+            inventory.total_ordered -= amount
+            inventory.total_on_hand -= amount
+            inventory.updated_at = datetime.now()
 
     for key, value in update_data.items():
         setattr(order, key, value)
