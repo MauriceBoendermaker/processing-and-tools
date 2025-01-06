@@ -11,20 +11,21 @@ from CargoHubV2.app.services.sorting_service import apply_sorting
 
 
 def create_order(db: Session, order_data: dict):
-    for item_id, amount in order_data["items"].items():
-        inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted is False).first()
+    for item_dict in order_data["items"]:
+        inventory_id = int(item_dict["item_id"].split("0")[-1])
+        inventory = db.query(Inventory).filter(Inventory.id == inventory_id, Inventory.is_deleted == False).first()
         if not inventory:
-            raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_id} in the given order")
-        if inventory.total_available < amount:
+            raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+        if inventory.total_available < item_dict["amount"]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Item {item_id} in order only {inventory.total_available} available, ordered {amount}"
+                detail=f"Item {item_dict["item_id"]} in order only {inventory.total_available} available, ordered {item_dict["amount"]}"
             )
-        inventory.total_available -= amount
+        inventory.total_available -= item_dict["amount"]
         if order_data["order_status"] == "Delivered":
-            inventory.total_on_hand -= amount
+            inventory.total_on_hand -= item_dict["amount"]
         else:
-            inventory.total_ordered += amount
+            inventory.total_ordered += item_dict["amount"]
         inventory.updated_at = datetime.now()
 
     order = Order(**order_data)
@@ -48,7 +49,7 @@ def create_order(db: Session, order_data: dict):
 
 
 def get_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id, Order.is_deleted is False).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
@@ -63,7 +64,7 @@ def get_all_orders(
     sort_order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Order).filter(Order.is_deleted == False)
+        query = db.query(Order).filter(Order.is_deleted == 0)
         if sort_by:
             query = apply_sorting(query, Order, sort_by, sort_order)
         return query.offset(offset).limit(limit).all()
@@ -85,7 +86,7 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
     update_data = order_data.model_dump(exclude_unset=True)
     if update_data["order_status"] == "Delivered" and old_status != "Delivered":
         for item_id, amount in order.items.items():
-            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted is False).first()
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted == 0).first()
             if not inventory:
                 raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_id} in the given order")
             inventory.total_ordered -= amount
@@ -113,12 +114,12 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
 
 
 def delete_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     if order.order_status != "Delivered":
         for item_id, amount in order.items.items():
-            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted is False).first()
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_id, Inventory.is_deleted == 0).first()
             if not inventory:
                 raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_id} in the given order")
             inventory.total_ordered -= amount
@@ -137,7 +138,7 @@ def delete_order(db: Session, id: int):
 
 
 def get_items_in_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
     if not order or not order.items:
         raise HTTPException(
             status_code=404, detail="No items found for this order"
@@ -178,7 +179,7 @@ def get_packinglist_for_order(db: Session, order_id: int):
 
 
 def get_shipments_by_order_id(db: Session, order_id: int):
-    order = db.query(Order).filter(Order.id == order_id, Order.is_deleted == False).first()
+    order = db.query(Order).filter(Order.id == order_id, Order.is_deleted == 0).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
@@ -186,7 +187,7 @@ def get_shipments_by_order_id(db: Session, order_id: int):
     if not shipment_ids:
         raise HTTPException(status_code=404, detail="No shipment IDs found in the order")
 
-    shipments = db.query(Shipment).filter(Shipment.id.in_(shipment_ids), Shipment.is_deleted == False).all()
+    shipments = db.query(Shipment).filter(Shipment.id.in_(shipment_ids), Shipment.is_deleted == 0).all()
     if not shipments:
         raise HTTPException(status_code=404, detail="No shipments found for the given order")
 
