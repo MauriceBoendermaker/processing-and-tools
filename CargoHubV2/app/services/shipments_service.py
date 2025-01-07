@@ -9,7 +9,6 @@ from typing import List, Optional
 from CargoHubV2.app.services.sorting_service import apply_sorting
 
 
-
 def create_shipment(db: Session, shipment_data: dict):
     shipment = Shipment(**shipment_data)
     db.add(shipment)
@@ -34,7 +33,7 @@ def create_shipment(db: Session, shipment_data: dict):
 def get_shipment(db: Session, shipment_id: int):
     try:
         shipment = db.query(Shipment).filter(
-            Shipment.id == shipment_id, Shipment.is_deleted == False
+            Shipment.id == shipment_id, Shipment.is_deleted == 0
         ).first()
         if not shipment:
             raise HTTPException(status_code=404, detail="Shipment not found")

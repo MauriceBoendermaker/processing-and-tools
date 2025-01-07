@@ -16,6 +16,7 @@ class Warehouse(Base):
     province = Column(String, index=True)
     country = Column(String, index=True)
     contact = Column(JSON, index=True)
+    forbidden_classifications = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
