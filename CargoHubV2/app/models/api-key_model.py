@@ -10,6 +10,6 @@ class APIKey(Base):
     id = Column(String, primary_key=True, index=True)
     encrypted_key = Column(Text, nullable=False)
     access_scope = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=datetime, nullable=False)
     expires_at = Column(DateTime, nullable=True)
     last_used_at = Column(DateTime, nullable=True)

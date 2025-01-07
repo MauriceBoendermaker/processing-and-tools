@@ -7,7 +7,7 @@ from .warehouses_model import Warehouse
 from .locations_model import Location
 from .transfers_model import Transfer
 from .suppliers_model import Supplier
-from .api_keys_model import APIKey
+from .api-key_model import APIKey
 from .inventories_model import Inventory
 from .clients_model import Client
 from .shipments_model import Shipment
