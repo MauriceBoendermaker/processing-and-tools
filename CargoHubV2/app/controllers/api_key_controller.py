@@ -20,7 +20,7 @@ def create_api_key(
     access_scope: str,
     expires_in_days: int,
     db: Session = Depends(get_db),
-    # current_api_key: APIKey = Depends(get_valid_api_key),
+    current_api_key: APIKey = Depends(get_valid_api_key),
 ):
     """Create a new API key."""
     # Optional: If you want only 'admin' scope to create keys, check:
