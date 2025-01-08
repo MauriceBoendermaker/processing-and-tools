@@ -67,7 +67,13 @@ async def shutdown():
 
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
-    excluded = ["/favicon.ico", "/openapi.json", "/docs"]
+    excluded = [
+        "/favicon.ico", 
+        "/openapi.json", 
+        "/docs",
+        "/api/v2/api-keys",        # Add your new routes here (prefix)
+        "/api/v2/api-keys/",       # If needed, or to be safe 
+    ]
 
     try:
         # Skip API key validation for excluded paths
