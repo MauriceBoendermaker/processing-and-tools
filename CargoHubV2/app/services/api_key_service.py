@@ -31,6 +31,34 @@ class APIKeyService:
         self.db.add(api_key)
         self.db.commit()
         return api_key
+    
+    def validate_api_key(self, raw_api_key: str) -> APIKey:
+        """
+        1. Decrypt or just compare if you store plaintext vs. encrypted.
+        2. Check if the key is in the DB.
+        3. Check expiration, update last_used_at, etc.
+        4. If invalid, raise an exception (which we can catch in the dependency).
+        """
+        # If you're storing the encrypted version in DB, you might do something like:
+        encrypted_input = self.encryption_utility.encrypt(raw_api_key)
+
+        api_key_data = (
+            self.db.query(APIKey)
+            .filter(APIKey.encrypted_key == encrypted_input)
+            .first()
+        )
+        if not api_key_data:
+            raise ValueError("API key not found")
+
+        # Check expiration
+        if api_key_data.expires_at and api_key_data.expires_at < datetime.utcnow():
+            raise ValueError("API key has expired")
+
+        # Update last used
+        api_key_data.last_used_at = datetime.utcnow()
+        self.db.commit()
+
+        return api_key_data
 
     def get_api_key(self, key_id: str):
         """Retrieve an API key by its ID."""
