@@ -14,7 +14,6 @@ class APIKeyService:
         secret_key = os.getenv("SECRET_KEY")
         if not secret_key:
             raise RuntimeError("SECRET_KEY not set in .env or environment variables")
-        print(secret_key)
         # Initialize encryption utility with the loaded SECRET_KEY
         self.encryption_utility = EncryptionUtility(secret_key=secret_key)
         self.db = db
