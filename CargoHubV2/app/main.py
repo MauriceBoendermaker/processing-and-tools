@@ -68,26 +68,29 @@ async def shutdown():
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
     excluded = ["/favicon.ico", "/openapi.json", "/docs"]
+
     try:
-        x_api_key = request.headers.get("api-key")
+        # Skip API key validation for excluded paths
         if request.url.path in excluded or "/get-pdf" in request.url.path:
             return await call_next(request)
-        response: Response = await call_next(request)
 
+        # Get the API key from the headers
+        x_api_key = request.headers.get("api-key")
+
+        # Validate the API key before calling call_next
         if not x_api_key:
             logger.warning("Missing API key")
-            response.status_code = 422
             raise HTTPException(status_code=422, detail="Missing API key")
 
         if x_api_key != "a1b2c3d4e5":
             logger.warning("Invalid API key")
-            response.status_code = 403
             raise HTTPException(status_code=403, detail="Invalid API key")
 
+        # Only proceed to the route if the API key is valid
+        response: Response = await call_next(request)
         return response
 
     except HTTPException as http_exc:
-
         logger.error(f"HTTPException raised: {http_exc.detail}")
         return JSONResponse(
             status_code=http_exc.status_code, content={"detail": http_exc.detail}
@@ -95,6 +98,7 @@ async def api_key_middleware(request: Request, call_next):
     except Exception as exc:
         logger.exception("Unexpected error occurred in middleware")
         raise exc
+
 
 '''
 
