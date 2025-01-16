@@ -15,11 +15,11 @@ def create_order(db: Session, order_data: dict):
         inventory_id = int(item_dict["item_id"].split("0")[-1])
         inventory = db.query(Inventory).filter(Inventory.id == inventory_id, Inventory.is_deleted == False).first()
         if not inventory:
-            raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+            raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
         if inventory.total_available < item_dict["amount"]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Item {item_dict["item_id"]} in order only {inventory.total_available} available, ordered {item_dict["amount"]}"
+                detail=f"Item {item_dict['item_id']} in order only {inventory.total_available} available, ordered {item_dict['amount']}"
             )
         inventory.total_available -= item_dict["amount"]
         if order_data["order_status"] == "Delivered":
@@ -88,7 +88,7 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
         for item_dict in order.items:
             inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
             if not inventory:
-                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
             inventory.total_ordered -= item_dict["amount"]
             inventory.total_on_hand -= item_dict["amount"]
             inventory.updated_at = datetime.now()
@@ -122,9 +122,9 @@ def delete_order(db: Session, id: int):
         raise HTTPException(status_code=404, detail="Order not found")
     if order.order_status != "Delivered":
         for item_dict in order.items:
-            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict['item_id'], Inventory.is_deleted == 0).first()
             if not inventory:
-                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
             inventory.total_ordered -= item_dict["amount"]
             inventory.total_available += item_dict["amount"]
             inventory.updated_at = datetime.now()
