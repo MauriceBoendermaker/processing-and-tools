@@ -93,6 +93,9 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
             inventory.total_on_hand -= item_dict["amount"]
             inventory.updated_at = datetime.now()
 
+    if old_status == "Delivered" and update_data.get("order_status") != "Delivered":
+        raise HTTPException(status_code=403, detail="Unable to change order status back from Delivered")
+
     for key, value in update_data.items():
         setattr(order, key, value)
     order.updated_at = datetime.utcnow()
