@@ -120,7 +120,8 @@ def delete_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    
+
+    # bij delete de voorraaden terug veranderen
     if order.order_status != "Delivered":
         for item_dict in order.items:
             inventory = db.query(Inventory).filter(Inventory.item_id == item_dict['item_id'], Inventory.is_deleted == 0).first()
@@ -129,6 +130,15 @@ def delete_order(db: Session, id: int):
             inventory.total_ordered -= item_dict["amount"]
             inventory.total_available += item_dict["amount"]
             inventory.updated_at = datetime.now()
+    else:
+        for item_dict in order.items:
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict['item_id'], Inventory.is_deleted == 0).first()
+            if not inventory:
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
+            inventory.total_available += item_dict["amount"]
+            inventory.total_on_hand += item_dict["amount"]
+            inventory.updated_at = datetime.now()
+
     try:
         order.is_deleted = True  # Soft delete by updating the flag
         db.commit()
