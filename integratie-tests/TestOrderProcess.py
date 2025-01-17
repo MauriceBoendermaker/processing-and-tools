@@ -52,6 +52,7 @@ class TestOrderResource(unittest.TestCase):
         }
 
     def test_1_order_input_validation(self):
+        # probeert order met fout veld, en checkt voor 422
         response = self.client.post(self.ordersUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 422)
         print(response.json())
@@ -59,24 +60,37 @@ class TestOrderResource(unittest.TestCase):
     def test_2_invalid_stock(self):
         response = self.client.get(f"{self.inventoriesUrl}1")
         inven = response.json()
-
-        order_body = self.TEST_BODY
+        # pakt beschikbaar van een inventory, bestelt te veel.
         available = inven["total_available"]
-        order_body["items"] = [{"item_id": f"{inven['item_id']}",
-                                "amount": available + 1}]
+        self.TEST_BODY["items"] = [{"item_id": f"{inven['item_id']}",
+                                    "amount": available + 1}]
 
-        response = self.client.post(self.ordersUrl, json=order_body)
+        response = self.client.post(self.ordersUrl, json=self.TEST_BODY)
 
+        # checkt op 409 conflict en foutmelding
         self.assertEqual(response.status_code, 409)
         self.assertIn(
             f"only {available} available", response.json().get("detail"))
 
-    def test_4_order_status_change(self):
+    def test_3_stock_after_order(self):
+        response_inventory_before = self.client.get(f"{self.inventoriesUrl}1")
+        inven_before = response_inventory_before.json()
+
         self.TEST_BODY["order_status"] = "Pending"
+        self.TEST_BODY["items"][0]["amount"] = 1
 
         response = self.client.post(self.ordersUrl, json=self.TEST_BODY)
-        assert self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
+        response_inventory_after = self.client.get(f"{self.inventoriesUrl}1")
+        inven_after = response_inventory_after.json()
+
+        self.assertEqual(inven_before["total_available"] - 1,
+                         inven_after["total_available"])
+        self.assertEqual(inven_before["total_ordered"] + 1,
+                         inven_after["total_ordered"])
+
+    def test_4_order_status_change(self):
         update_response = self.client.put(
             f"{self.ordersUrl}{self.ORDER_TEST_ID}",
             json={"order_status": "Completed"})
@@ -87,7 +101,7 @@ class TestOrderResource(unittest.TestCase):
             json={"order_status": "Completed"})
         self.assertEqual(invalid_update_response.status_code, 403)
         self.assertIn("Unable to change order status back from Delivered",
-                      response.json().get("detail"))
+                      update_response.json().get("detail"))
 
 
 if __name__ == '__main__':
