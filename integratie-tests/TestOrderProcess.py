@@ -9,7 +9,8 @@ class TestOrderResource(unittest.TestCase):
         self.ordersUrl = "http://localhost:3000/api/v2/orders/"
         self.inventoriesUrl = "http://localhost:3000/api/v2/inventories/"
         self.client = Client()
-        self.client.headers = {"api-key": "a1b2c3d4e5", "Content-Type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5",
+                               "Content-Type": "application/json"}
 
         self.ORDER_TEST_ID = 13348
 
@@ -47,6 +48,7 @@ class TestOrderResource(unittest.TestCase):
             "notes": "UPDATED TEKST.",
             "shipping_notes": "UPDATED TEKST.",
             "picking_notes": "UPDATED TEKST."
+            "order_status"
         }
 
     def test_1_order_input_validation(self):
@@ -60,12 +62,32 @@ class TestOrderResource(unittest.TestCase):
 
         order_body = self.TEST_BODY
         available = inven["total_available"]
-        order_body["items"] = [{"item_id": f"{inven['item_id']}", "amount": available + 1}]
+        order_body["items"] = [{"item_id": f"{inven['item_id']}",
+                                "amount": available + 1}]
 
         response = self.client.post(self.ordersUrl, json=order_body)
 
         self.assertEqual(response.status_code, 409)
-        self.assertIn(f"only {available} available", response.json().get("detail"))
+        self.assertIn(
+            f"only {available} available", response.json().get("detail"))
+
+    def test_4_order_status_change(self):
+        self.TEST_BODY["order_status"] = "Pending"
+
+        response = self.client.post(self.ordersUrl, json=self.TEST_BODY)
+        assert self.assertEqual(response.status_code, 200)
+
+        update_response = self.client.put(
+            f"{self.ordersUrl}{self.ORDER_TEST_ID}",
+            json={"order_status": "Completed"})
+        self.assertEqual(update_response.status_code, 200)
+
+        invalid_update_response = self.client.put(
+            f"{self.ordersUrl}{self.ORDER_TEST_ID}",
+            json={"order_status": "Completed"})
+        self.assertEqual(invalid_update_response.status_code, 403)
+        self.assertIn("Unable to change order status back from Delivered",
+                      response.json().get("detail"))
 
 
 if __name__ == '__main__':
