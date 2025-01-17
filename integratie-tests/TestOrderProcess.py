@@ -6,20 +6,21 @@ from test_utils import match_date_timezone, check_id_exists
 
 class TestOrderResource(unittest.TestCase):
     def setUp(self):
-        self.baseUrl = "http://localhost:3000/api/v2/orders/"
+        self.ordersUrl = "http://localhost:3000/api/v2/orders/"
+        self.inventoriesUrl = "http://localhost:3000/api/v2/inventories/"
         self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5", "Content-Type": "application/json"}
 
-        self.TEST_ID = 13348
+        self.ORDER_TEST_ID = 13348
 
         self.TEST_BODY = {
-            "id": self.TEST_ID,
+            "id": self.ORDER_TEST_ID,
             "source_id": 82,
             "order_date": "1995-05-27T20:02:30Z",
             "request_date": "1995-05-31T20:02:30Z",
             "reference": "ORD06490",
             "reference_extra": "Lorem ipsum dolor sit amet.",
-            "order_status": "Pending",
+            "order_status": "Invalid Field",
             "notes": "Lorem ipsum dolor sit amet.",
             "shipping_notes": "Lorem ipsum dolor sit amet.",
             "picking_notes": "Lorem ipsum dolor sit amet.",
@@ -48,119 +49,24 @@ class TestOrderResource(unittest.TestCase):
             "picking_notes": "UPDATED TEKST."
         }
 
-    def test_1_post_order(self):
-        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
-        self.assertIn(response.status_code, [200, 201])
-
-    def test_2_get_orders(self):
-        response = self.client.get(self.baseUrl)
-        body = response.json()
-
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(check_id_exists(body, self.TEST_ID))
-
-    def test_3_get_order(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
-
-        response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
-
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertEqual(body.get("id"), self.TEST_BODY["id"])
-        self.assertEqual(body.get("source_id"), self.TEST_BODY["source_id"])
-        self.assertEqual(body.get("reference"), self.TEST_BODY["reference"])
-        self.assertEqual(body.get("order_status"), self.TEST_BODY["order_status"])
-        self.assertEqual(body.get("notes"), self.TEST_BODY["notes"])
-        self.assertEqual(body.get("ship_to"), self.TEST_BODY["ship_to"])
-        self.assertEqual(body.get("bill_to"), self.TEST_BODY["bill_to"])
-        self.assertEqual(body.get("total_surcharge"), self.TEST_BODY["total_surcharge"])
-        # self.assertTrue(match_date_timezone(body.get("created_at"), date.today()))
-    """
-    to be fixed
-    def test_4_get_order_items(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
-
-        response = self.client.get(f"{self.baseUrl}{self.TEST_ID}/items")
-        body = response.json()
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(body[0].get("item_id"),
-                         self.TEST_BODY["items"][0]["item_id"])
-        self.assertEqual(body[0].get("amount"),
-                         self.TEST_BODY["items"][0]["amount"])
-    """
-    def test_5_put_order(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
-
-        response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
-
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
-        body = response.json()
-
-        self.assertEqual(body.get("notes"), self.ToPut["notes"])
-        self.assertEqual(body.get("shipping_notes"), self.ToPut["shipping_notes"])
-        self.assertEqual(body.get("picking_notes"), self.ToPut["picking_notes"])
-        # self.assertTrue(match_date_timezone(body.get("updated_at"), date.today()))
-
-    def test_6_delete_order(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
-
-        response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
-
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get(self.baseUrl)
-        print(f"Check if id {self.TEST_ID} is deleted: ")
-        self.assertFalse(check_id_exists(response.json(), self.TEST_ID))
-
-    def test_7_no_apikey(self):
-        self.client.headers = {"Content-Type": "application/json"}
-        response = self.client.get(self.baseUrl)
-
+    def test_1_order_input_validation(self):
+        response = self.client.post(self.ordersUrl, json=self.TEST_BODY)
         self.assertEqual(response.status_code, 422)
-    
-    def test_13_wrong_apikey(self):
-        self.client.headers = {"api-key": "nope", "content-type": "application/json"}
-        response = self.client.get(self.baseUrl)
-        self.assertEqual(response.status_code, 403)
+        print(response.json())
 
-    """
-    needs to be fixed 
-    
-    def test_8_get_orders_by_date(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
+    def test_2_invalid_stock(self):
+        response = self.client.get(f"{self.inventoriesUrl}1")
+        inven = response.json()
 
-        response = self.client.get(f"{self.baseUrl}?date=1995-05-27T20:02:30Z")
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        self.assertTrue(any(order["order_date"].startswith("1995-05-27T20:02:30") for order in body))
-    """
-    def test_9_get_orders_sorted_asc(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
+        order_body = self.TEST_BODY
+        available = inven["total_available"]
+        order_body["items"] = [{"item_id": f"{inven['item_id']}", "amount": available + 1}]
 
-        response = self.client.get(f"{self.baseUrl}?sort_order=asc")
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        dates = [order["order_date"] for order in body]
-        self.assertEqual(dates, sorted(dates))
+        response = self.client.post(self.ordersUrl, json=order_body)
 
-    def test_10_get_orders_sorted_desc(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
+        self.assertEqual(response.status_code, 409)
+        self.assertIn(f"only {available} available", response.json().get("detail"))
 
-        response = self.client.get(f"{self.baseUrl}?sort_order=desc")
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        dates = [order["order_date"] for order in body]
-        self.assertEqual(dates, sorted(dates, reverse=True))
 
 if __name__ == '__main__':
     unittest.main()

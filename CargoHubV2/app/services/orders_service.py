@@ -18,7 +18,7 @@ def create_order(db: Session, order_data: dict):
             raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
         if inventory.total_available < item_dict["amount"]:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail=f"Item {item_dict['item_id']} in order only {inventory.total_available} available, ordered {item_dict['amount']}"
             )
         inventory.total_available -= item_dict["amount"]
@@ -120,6 +120,7 @@ def delete_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    
     if order.order_status != "Delivered":
         for item_dict in order.items:
             inventory = db.query(Inventory).filter(Inventory.item_id == item_dict['item_id'], Inventory.is_deleted == 0).first()
@@ -128,6 +129,8 @@ def delete_order(db: Session, id: int):
             inventory.total_ordered -= item_dict["amount"]
             inventory.total_available += item_dict["amount"]
             inventory.updated_at = datetime.now()
+    else:
+        raise HTTPException(status_code=403, detail="Cannot delete a completed order.")
     try:
         order.is_deleted = True  # Soft delete by updating the flag
         db.commit()
