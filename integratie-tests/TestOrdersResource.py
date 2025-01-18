@@ -139,5 +139,6 @@ class TestOrderResource(unittest.TestCase):
         print(f"Check if id {self.TEST_ID} is deleted: ")
         self.assertFalse(check_id_exists(response.json(), self.TEST_ID))
 
+
 if __name__ == '__main__':
     unittest.main()

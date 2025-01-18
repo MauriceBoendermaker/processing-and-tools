@@ -35,8 +35,6 @@ def get_orders(
 ):
     if id:
         order = get_order(db, id)
-        if not order:
-            raise HTTPException(status_code=404, detail="Order not found")
         return order
     orders = get_all_orders(db, date=date, offset=offset, limit=limit, sort_by=sort_by, sort_order=sort_order)
     if not orders:

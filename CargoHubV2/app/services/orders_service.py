@@ -67,7 +67,7 @@ def create_order(db: Session, order_data: dict):
 
 
 def get_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
