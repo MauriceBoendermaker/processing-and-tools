@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import Optional
 
 
-
 def create_inventory(db: Session, inventory_data: dict):
     inventory = Inventory(**inventory_data)
     db.add(inventory)
@@ -64,10 +63,9 @@ def get_all_inventories(
         )
 
 
-
 def update_inventory(db: Session, item_reference: str, inven_data: dict):
     try:
-        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference).first()
+        inventory = db.query(Inventory).filter(Inventory.item_id == item_reference).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="Inventory not found")
 
@@ -95,7 +93,7 @@ def update_inventory(db: Session, item_reference: str, inven_data: dict):
 def delete_inventory(db: Session, item_reference: str):
     try:
         inv = db.query(Inventory).filter(
-            Inventory.item_reference == item_reference, 
+            Inventory.item_id == item_reference, 
             Inventory.is_deleted == False
         ).first()
         if not inv:
@@ -112,10 +110,9 @@ def delete_inventory(db: Session, item_reference: str):
     return {"detail": "Inventory soft deleted"}
 
 
-
 def get_locations_by_inventory(db: Session, item_reference: str):
     try:
-        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference, Inventory.is_deleted == False).first()
+        inventory = db.query(Inventory).filter(Inventory.item_id == item_reference, Inventory.is_deleted == False).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="Inventory not found")
         return [location for location in inventory.locations if not location.is_deleted]
@@ -125,4 +122,3 @@ def get_locations_by_inventory(db: Session, item_reference: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while getting the locations."
         )
-

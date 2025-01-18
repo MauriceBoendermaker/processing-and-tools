@@ -40,7 +40,7 @@ def get_item_groups(
     return get_all_item_groups(db, offset, limit, sort_by, order)
 
 
-@router.put("/{id}", response_model=ItemGroupResponse)
+@router.put("/{id}")
 def update_item_group_endpoint(
     id: int,
     item_group_data: ItemGroupUpdate,

@@ -98,10 +98,15 @@ class TestInventoriesEndpoint(unittest.TestCase):
                          self.ToPut["total_ordered"])
         self.assertTrue(match_date(body.get("updated_at"), date.today()))
 
-    def test_5_delete_inventory(self):
+    def test_5_get_locations(self):
+        response = self.client.get(
+            f"{self.baseUrl}P000000/locations", json=self.ToPut)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(30113, response.json())
+
+    def test_6_delete_inventory(self):
         # cleanup/teardown
         response = self.client.delete(f"{self.baseUrl}P000000")
-        self.client.delete("http://localhost:3000/api/v2/items/tijdelijke-item")
 
         self.assertEqual(response.status_code, 200)
 
@@ -109,13 +114,13 @@ class TestInventoriesEndpoint(unittest.TestCase):
         response = self.client.get(self.baseUrl)
         self.assertFalse(check_reference_exists(response.json(), "tijdelijke-item"))
 
-    def test_6_no_key(self):
+    def test_7_no_key(self):
         self.client.headers = {"Content-Type": "application/json"}
         response = self.client.get(self.baseUrl)
 
         self.assertEqual(response.status_code, 422)
 
-    def test_7_wrong_key(self):
+    def test_8_wrong_key(self):
         self.client.headers = {"api-key": "poging", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
 
