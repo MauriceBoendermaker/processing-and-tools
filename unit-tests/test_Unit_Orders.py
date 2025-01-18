@@ -33,7 +33,6 @@ SAMPLE_ORDER_DATA = {
     "updated_at": "2019-04-05T07:33:15Z",
     "shipping_notes": "Handle with care",
     "items": [
-        {"item_id": "P007435", "amount": 23},
         {"item_id": "P009557", "amount": 1}
     ]
 }
