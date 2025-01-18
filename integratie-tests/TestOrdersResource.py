@@ -8,9 +8,10 @@ class TestOrderResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/orders/"
         self.client = Client()
-        self.client.headers = {"api-key": "a1b2c3d4e5", "Content-Type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5",
+                               "Content-Type": "application/json"}
 
-        self.TEST_ID = 13348
+        self.TEST_ID = 13354
 
         self.TEST_BODY = {
             "id": self.TEST_ID,
@@ -43,9 +44,9 @@ class TestOrderResource(unittest.TestCase):
         }
 
         self.ToPut = {
-            "notes": "UPDATED TEKST.",
-            "shipping_notes": "UPDATED TEKST.",
-            "picking_notes": "UPDATED TEKST."
+            "notes": "UPDATED.",
+            "shipping_notes": "UPDATED.",
+            "picking_notes": "UPDATED."
         }
 
     def test_1_post_order(self):
@@ -60,9 +61,6 @@ class TestOrderResource(unittest.TestCase):
         self.assertFalse(check_id_exists(body, self.TEST_ID))
 
     def test_3_get_order(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
-
         response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
 
         self.assertEqual(response.status_code, 200)
@@ -70,11 +68,13 @@ class TestOrderResource(unittest.TestCase):
         self.assertEqual(body.get("id"), self.TEST_BODY["id"])
         self.assertEqual(body.get("source_id"), self.TEST_BODY["source_id"])
         self.assertEqual(body.get("reference"), self.TEST_BODY["reference"])
-        self.assertEqual(body.get("order_status"), self.TEST_BODY["order_status"])
+        self.assertEqual(body.get("order_status"),
+                         self.TEST_BODY["order_status"])
         self.assertEqual(body.get("notes"), self.TEST_BODY["notes"])
         self.assertEqual(body.get("ship_to"), self.TEST_BODY["ship_to"])
         self.assertEqual(body.get("bill_to"), self.TEST_BODY["bill_to"])
-        self.assertEqual(body.get("total_surcharge"), self.TEST_BODY["total_surcharge"])
+        self.assertEqual(body.get("total_surcharge"),
+                         self.TEST_BODY["total_surcharge"])
         # self.assertTrue(match_date_timezone(body.get("created_at"), date.today()))
 
     def test_4_get_order_items(self):
@@ -89,7 +89,8 @@ class TestOrderResource(unittest.TestCase):
                          self.TEST_BODY["items"][0]["amount"])
 
     def test_5_put_order(self):
-        response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
+        response = self.client.put(
+            f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)
 
@@ -97,8 +98,10 @@ class TestOrderResource(unittest.TestCase):
         body = response.json()
 
         self.assertEqual(body.get("notes"), self.ToPut["notes"])
-        self.assertEqual(body.get("shipping_notes"), self.ToPut["shipping_notes"])
-        self.assertEqual(body.get("picking_notes"), self.ToPut["picking_notes"])
+        self.assertEqual(body.get("shipping_notes"),
+                         self.ToPut["shipping_notes"])
+        self.assertEqual(body.get("picking_notes"),
+                         self.ToPut["picking_notes"])
         # self.assertTrue(match_date_timezone(body.get("updated_at"), date.today()))
 
     def test_7_no_apikey(self):
@@ -127,7 +130,7 @@ class TestOrderResource(unittest.TestCase):
         dates = [order["order_date"] for order in body]
         self.assertEqual(dates, sorted(dates, reverse=True))
 
-    def test_10_delete_order(self):
+    def test__10_delete_order(self):
         # Ensure the order exists before testing
         # self.client.post(self.baseUrl, json=self.TEST_BODY)
 
