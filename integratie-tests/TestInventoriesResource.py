@@ -13,7 +13,8 @@ class TestInventoriesEndpoint(unittest.TestCase):
         self.TEST_ID = 11721
 
         self.TEST_BODY = {
-            "item_id": "p000000",
+            "id": self.TEST_ID,
+            "item_id": "P000000",
             "description": "Down-sized system-worthy productivity",
             "item_reference": "tijdelijke-item",
             "total_on_hand": 334,
@@ -27,7 +28,6 @@ class TestInventoriesEndpoint(unittest.TestCase):
                         26883, 9308, 22330, 14470, 8871,
                         8326, 18266, 17880, 33186, 33547],
             "is_deleted": False
-
         }
 
         self.ToPut = {

@@ -41,8 +41,6 @@ def get_all_item_groups(
         )
 
 
-
-
 def update_item_group(db: Session, id: int, item_group_data: ItemGroupUpdate) -> Optional[ItemGroup]:
     item_group = get_item_group(db, id)
     if item_group:
