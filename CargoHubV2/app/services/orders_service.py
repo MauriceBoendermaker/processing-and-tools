@@ -11,6 +11,7 @@ from CargoHubV2.app.services.sorting_service import apply_sorting
 
 
 def create_order(db: Session, order_data: dict):
+    order_data["shipment_id"] = order_data.get("shipment_id")[0]
     for item_dict in order_data["items"]:
         inventory_id = int(item_dict["item_id"].split("0")[-1])
         inventory = db.query(Inventory).filter(Inventory.id == inventory_id, Inventory.is_deleted == False).first()
@@ -28,20 +29,21 @@ def create_order(db: Session, order_data: dict):
             inventory.total_ordered += item_dict["amount"]
         inventory.updated_at = datetime.now()
 
-    for shipment_id in order_data["shipment_id"]:
-        shipment = db.query(Shipment).filter(Shipment.id == shipment_id, Shipment.is_deleted == False).first()
+    shipment = order_data["shipment_id"]
+    if shipment:
+        shipment = db.query(Shipment).filter(Shipment.id == shipment, Shipment.is_deleted == False).first()
         if not shipment:
             raise HTTPException(
                 status_code=404,
-                detail=f"Shipment with id: {shipment_id} does not exist")
+                detail=f"Shipment with id: {shipment} does not exist")
         if shipment.shipment_type == "I":
             raise HTTPException(
                 status_code=409,
-                detail=f"cannot link order with an incoming shipment {shipment_id}")
+                detail=f"cannot link order with an incoming shipment {shipment}")
         if shipment.shipment_status == "Delivered":
             raise HTTPException(
                 status_code=409,
-                detail=f"cannot link order with Delivered shipment {shipment_id}")
+                detail=f"cannot link order with Delivered shipment {shipment}")
 
     order = Order(**order_data)
     db.add(order)

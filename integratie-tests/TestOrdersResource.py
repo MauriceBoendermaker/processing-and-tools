@@ -92,9 +92,6 @@ class TestOrderResource(unittest.TestCase):
                          self.TEST_BODY["items"][0]["amount"])
     """
     def test_5_put_order(self):
-        # Ensure the order exists before testing
-        self.client.post(self.baseUrl, json=self.TEST_BODY)
-
         response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)

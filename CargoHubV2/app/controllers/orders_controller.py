@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=OrderResponse)
+@router.post("/")
 def create_order_endpoint(
     order_data: OrderCreate,
     db: Session = Depends(get_db),
@@ -57,7 +57,7 @@ def get_order_items(
     return items
 
 
-@router.put("/{id}", response_model=OrderResponse)
+@router.put("/{id}")
 def update_order_endpoint(
     id: int,
     order_data: OrderUpdate,
