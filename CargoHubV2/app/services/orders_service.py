@@ -28,6 +28,21 @@ def create_order(db: Session, order_data: dict):
             inventory.total_ordered += item_dict["amount"]
         inventory.updated_at = datetime.now()
 
+    for shipment_id in order_data["shipment_id"]:
+        shipment = db.query(Shipment).filter(Shipment.id == shipment_id, Shipment.is_deleted == False).first()
+        if not shipment:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Shipment with id: {shipment_id} does not exist")
+        if shipment.shipment_type == "I":
+            raise HTTPException(
+                status_code=409,
+                detail=f"cannot link order with an incoming shipment {shipment_id}")
+        if shipment.shipment_status == "Delivered":
+            raise HTTPException(
+                status_code=409,
+                detail=f"cannot link order with Delivered shipment {shipment_id}")
+
     order = Order(**order_data)
     db.add(order)
     try:

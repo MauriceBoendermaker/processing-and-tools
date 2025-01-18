@@ -72,7 +72,7 @@ class TestInventoriesEndpoint(unittest.TestCase):
         self.assertEqual(len(body), 100)
 
     def test_3_get_inventory(self):
-        response = self.client.get(f"{self.baseUrl}?item_reference=tijdelijke-item")
+        response = self.client.get(f"{self.baseUrl}?item_reference=P000000")
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
@@ -84,7 +84,7 @@ class TestInventoriesEndpoint(unittest.TestCase):
 
     def test_4_put_inventory(self):
         response = self.client.put(
-            f"{self.baseUrl}tijdelijke-item", json=self.ToPut)
+            f"{self.baseUrl}P000000", json=self.ToPut)
 
         self.assertEqual(response.status_code, 200)
 
@@ -100,7 +100,7 @@ class TestInventoriesEndpoint(unittest.TestCase):
 
     def test_5_delete_inventory(self):
         # cleanup/teardown
-        response = self.client.delete(f"{self.baseUrl}tijdelijke-item")
+        response = self.client.delete(f"{self.baseUrl}P000000")
         self.client.delete("http://localhost:3000/api/v2/items/tijdelijke-item")
 
         self.assertEqual(response.status_code, 200)

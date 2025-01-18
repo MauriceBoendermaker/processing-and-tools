@@ -32,7 +32,7 @@ def create_inventory(db: Session, inventory_data: dict):
 
 def get_inventory(db: Session, item_reference: str):
     try:
-        inventory = db.query(Inventory).filter(Inventory.item_reference == item_reference, Inventory.is_deleted == False).first()
+        inventory = db.query(Inventory).filter(Inventory.item_id == item_reference, Inventory.is_deleted == False).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="inventory not found")
         return inventory
