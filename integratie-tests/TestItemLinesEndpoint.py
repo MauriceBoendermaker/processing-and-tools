@@ -11,7 +11,7 @@ class TestItemLinesResource(unittest.TestCase):
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.TEST_BODY = {
-            "id": 97,
+            "id": 98,
             "name": "New Gadget Line",
             "description": "Latest gadget releases",
             "created_at": "2024-10-14 12:00:00",
@@ -38,25 +38,25 @@ class TestItemLinesResource(unittest.TestCase):
         response = self.client.get(self.baseUrl)
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        # Check laatste ID 97
-        self.assertTrue(check_id_exists(body, 97))
+        # Check laatste ID 98
+        self.assertTrue(check_id_exists(body, 98))
 
     # Test to get a single item line by ID using GET
     def test_3_get_item_line_by_id(self):
-        response = self.client.get(f"{self.baseUrl}?id=97")
+        response = self.client.get(f"{self.baseUrl}?id=98")
         body = response.json()
         self.assertIn(response.status_code, [200, 201])
-        self.assertEqual(body.get("id"), 97)
+        self.assertEqual(body.get("id"), 98)
         self.assertEqual(body.get("name"), self.TEST_BODY["name"])
         self.assertEqual(body.get("description"), "Latest gadget releases")
 
     # Test to update an item line using PUT
     def test_4_put_item_line(self):
-        response = self.client.put(f"{self.baseUrl}97", json=self.ToPut)
+        response = self.client.put(f"{self.baseUrl}98", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
         # Fetch the updated item line
-        response = self.client.get(f"{self.baseUrl}?id=97")
+        response = self.client.get(f"{self.baseUrl}?id=98")
         body = response.json()
         self.assertEqual(body.get("name"), "Updated Gadget Line")
         self.assertEqual(body.get("description"), "Updated gadget releases")
@@ -64,12 +64,12 @@ class TestItemLinesResource(unittest.TestCase):
 
     # Test to delete an item line using DELETE
     def test_5_delete_item_line(self):
-        response = self.client.delete(f"{self.baseUrl}97")
+        response = self.client.delete(f"{self.baseUrl}98")
         self.assertEqual(response.status_code, 200)
 
         # Verify it was deleted
         response = self.client.get(self.baseUrl)
-        self.assertFalse(check_id_exists(response.json(), 97))
+        self.assertFalse(check_id_exists(response.json(), 98))
 
     # Test unauthorized access by removing the API key
     def test_6_no_key(self):
