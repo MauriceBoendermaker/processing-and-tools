@@ -115,7 +115,7 @@ def get_locations_by_inventory(db: Session, item_reference: str):
         inventory = db.query(Inventory).filter(Inventory.item_id == item_reference, Inventory.is_deleted == False).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="Inventory not found")
-        return [location for location in inventory.locations if not location.is_deleted]
+        return [location for location in inventory.locations]
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(

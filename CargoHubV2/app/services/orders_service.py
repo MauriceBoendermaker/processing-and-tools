@@ -176,7 +176,7 @@ def get_items_in_order(db: Session, id: int):
         raise HTTPException(
             status_code=404, detail="No items found for this order"
         )
-    return [item for item in order.items if not item.is_deleted]
+    return [item for item in order.items]
 
 
 def get_packinglist_for_order(db: Session, order_id: int):
