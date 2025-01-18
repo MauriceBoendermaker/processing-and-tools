@@ -11,7 +11,7 @@ class TestItemGroupsResource(unittest.TestCase):
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.TEST_BODY = {
-            "id": 100,
+            "id": 101,
             "name": "Test Group",
             "description": "Group for testing purposes",
             "created_at": "2024-10-14 12:00:00",
@@ -38,7 +38,7 @@ class TestItemGroupsResource(unittest.TestCase):
 
     # Test to GET a single item group by ID
     def test_3_get_item_group_by_id(self):
-        response = self.client.get(f"{self.baseUrl}?id=100")  # Query parameter for ID
+        response = self.client.get(f"{self.baseUrl}?id=101")  # Query parameter for ID
         self.assertIn(response.status_code, [200, 201])
         body = response.json()
         self.assertEqual(body[0].get("id"), self.TEST_BODY["id"])
@@ -47,11 +47,11 @@ class TestItemGroupsResource(unittest.TestCase):
 
     # Test to PUT (update) an item group
     def test_4_put_item_group(self):
-        response = self.client.put(f"{self.baseUrl}100", json=self.ToPut)
+        response = self.client.put(f"{self.baseUrl}101", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
         # Verify the update
-        response = self.client.get(f"{self.baseUrl}?id=100")
+        response = self.client.get(f"{self.baseUrl}?id=101")
         body = response.json()
         self.assertEqual(body[0].get("name"), "Updated Group")
         self.assertEqual(body[0].get("description"), "Updated description for the test group")
@@ -59,7 +59,7 @@ class TestItemGroupsResource(unittest.TestCase):
 
     # Test to DELETE an item group
     def test_5_delete_item_group(self):
-        response = self.client.delete(f"{self.baseUrl}100")
+        response = self.client.delete(f"{self.baseUrl}101")
         self.assertEqual(response.status_code, 200)
 
         # Verify deletion

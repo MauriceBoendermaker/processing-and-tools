@@ -13,6 +13,7 @@ from CargoHubV2.app.services.sorting_service import apply_sorting
 def create_order(db: Session, order_data: dict):
     order_data["shipment_id"] = order_data.get("shipment_id")[0]
     for item_dict in order_data["items"]:
+        # getal uit item Uid
         inventory_id = int(item_dict["item_id"].split("0")[-1])
         inventory = db.query(Inventory).filter(Inventory.id == inventory_id, Inventory.is_deleted == False).first()
         if not inventory:
@@ -101,6 +102,10 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
 
     old_status = order.order_status
     update_data = order_data.model_dump(exclude_unset=True)
+
+    if (old_status == "Delivered") and (update_data.get("order_status") != "Delivered"):
+        raise HTTPException(status_code=403, detail="Unable to change order status back from Delivered")
+
     if update_data.get("order_status") == "Delivered" and old_status != "Delivered":
         for item_dict in order.items:
             inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
@@ -109,9 +114,6 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
             inventory.total_ordered -= item_dict["amount"]
             inventory.total_on_hand -= item_dict["amount"]
             inventory.updated_at = datetime.now()
-
-    if old_status == "Delivered" and update_data.get("order_status") != "Delivered":
-        raise HTTPException(status_code=403, detail="Unable to change order status back from Delivered")
 
     for key, value in update_data.items():
         setattr(order, key, value)
