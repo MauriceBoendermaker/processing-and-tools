@@ -11,7 +11,7 @@ class TestOrderResource(unittest.TestCase):
         self.client.headers = {"api-key": "a1b2c3d4e5",
                                "Content-Type": "application/json"}
 
-        self.TEST_ID = 13354
+        self.TEST_ID = 13349
 
         self.TEST_BODY = {
             "id": self.TEST_ID,

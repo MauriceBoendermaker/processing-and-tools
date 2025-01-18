@@ -4,7 +4,7 @@ from datetime import date
 from test_utils import match_date_timezone, check_id_exists
 
 
-class TestOrderResource(unittest.TestCase):
+class TestOrderProcess(unittest.TestCase):
     def setUp(self):
         self.ordersUrl = "http://localhost:3000/api/v2/orders/"
         self.inventoriesUrl = "http://localhost:3000/api/v2/inventories/"
