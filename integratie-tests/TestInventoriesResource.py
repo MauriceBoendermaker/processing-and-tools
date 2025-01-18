@@ -100,7 +100,7 @@ class TestInventoriesEndpoint(unittest.TestCase):
 
     def test_5_get_locations(self):
         response = self.client.get(
-            f"{self.baseUrl}P000000/locations", json=self.ToPut)
+            f"{self.baseUrl}P000000/locations")
         self.assertEqual(response.status_code, 200)
         self.assertIn(30113, response.json())
 

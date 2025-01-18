@@ -58,4 +58,3 @@ def delete_item_group(db: Session, id: int) -> bool:
         db.commit()
         return True
     return False
-

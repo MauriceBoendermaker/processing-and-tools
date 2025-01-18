@@ -98,7 +98,7 @@ def delete_inventory(db: Session, item_reference: str):
         ).first()
         if not inv:
             raise HTTPException(status_code=404, detail="Inventory not found")
-        
+
         inv.is_deleted = True  # Soft delete by updating the flag
         db.commit()
     except SQLAlchemyError:
