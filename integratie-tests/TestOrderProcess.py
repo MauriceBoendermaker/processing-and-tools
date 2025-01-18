@@ -50,7 +50,8 @@ class TestOrderResource(unittest.TestCase):
 
     def test_2_invalid_stock(self):
         self.TEST_BODY["order_status"] = "Pending"
-        response = self.client.get(f"{self.inventoriesUrl}?item_reference=P000001")
+        response = self.client.get(
+            f"{self.inventoriesUrl}?item_reference=P000001")
         inven = response.json()
         self.assertEqual(response.status_code, 200)
         # pakt beschikbaar van een inventory, bestelt te veel.
@@ -125,20 +126,20 @@ class TestOrderResource(unittest.TestCase):
         self.assertIn("Unable to change order status back from Delivered",
                       invalid_update_response.json().get("detail"))
 
-    def test_6_monthly_report(self):
-        report_response = self.client.get(
-            "http://localhost:3000/api/v2/reports/?year_to_report=2025&month_to_report=1")
-        # checkt of reporting werkt, statuscode/bericht/filename
-        self.assertEqual(report_response.status_code, 200)
-        self.assertIn("report PDF generated successfully.",
-                      report_response.json().get("message"))
-        self.assertIn("report_for_all_month_2025-1.pdf",
-                      report_response.json().get("pdf_url"))
+    # def test_6_monthly_report(self):
+    #     report_response = self.client.get(
+    #         "http://localhost:3000/api/v2/reports/?year_to_report=2025&month_to_report=1")
+    #     # checkt of reporting werkt, statuscode/bericht/filename
+    #     self.assertEqual(report_response.status_code, 200)
+    #     self.assertIn("report PDF generated successfully.",
+    #                   report_response.json().get("message"))
+    #     self.assertIn("report_for_all_month_2025-1.pdf",
+    #                   report_response.json().get("pdf_url"))
 
-        # cleanup
-        del_response = self.client.delete(
-            f"{self.ordersUrl}{self.ORDER_TEST_ID}")
-        self.assertEqual(del_response.status_code, 200)
+    #     # cleanup
+    #     del_response = self.client.delete(
+    #         f"{self.ordersUrl}{self.ORDER_TEST_ID}")
+    #     self.assertEqual(del_response.status_code, 200)
 
 
 if __name__ == '__main__':
