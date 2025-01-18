@@ -198,8 +198,7 @@ def test_delete_order_found():
     db = MagicMock()
     mock_order = Order(**SAMPLE_ORDER_DATA)
     mock_inven = Inventory(**SAMPLE_INVEN_DATA)
-    db.query().filter().first.return_value = mock_order
-    db.query(Inventory).filter().first.return_value = mock_inven
+    db.query().filter().first.side_effect = [mock_order, mock_inven]
 
     result = delete_order(db, 1)
 
