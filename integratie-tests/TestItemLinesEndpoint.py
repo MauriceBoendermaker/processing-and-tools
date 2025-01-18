@@ -8,7 +8,8 @@ class TestItemLinesResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/item_lines/"
         self.client = Client()
-        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5",
+                               "content-type": "application/json"}
 
         self.TEST_BODY = {
             "id": 98,
@@ -21,8 +22,8 @@ class TestItemLinesResource(unittest.TestCase):
         }
 
         self.ToPut = {
-            "name": "Updated Gadget Line",
-            "description": "Updated gadget releases",
+            "name": "Updated",
+            "description": "Updated",
         }
 
         self.original = {"id": 95, "name": "Exhibition Equipment", "description": "",
@@ -58,8 +59,8 @@ class TestItemLinesResource(unittest.TestCase):
         # Fetch the updated item line
         response = self.client.get(f"{self.baseUrl}?id=98")
         body = response.json()
-        self.assertEqual(body.get("name"), "Updated Gadget Line")
-        self.assertEqual(body.get("description"), "Updated gadget releases")
+        self.assertEqual(body.get("name"), "Updated")
+        self.assertEqual(body.get("description"), "Updated")
         self.assertTrue(match_date(body.get('updated_at'), date.today()))
 
     # Test to delete an item line using DELETE
@@ -78,7 +79,8 @@ class TestItemLinesResource(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_7_wrong_key(self):
-        self.client.headers = {"api-key": "nope", "content-type": "application/json"}
+        self.client.headers = {"api-key": "nope",
+                               "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 403)
 
