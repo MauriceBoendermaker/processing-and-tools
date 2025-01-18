@@ -10,7 +10,7 @@ class TestInventoriesEndpoint(unittest.TestCase):
         self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5", "Content-Type": "application/json"}
 
-        self.TEST_ID = 11722
+        self.TEST_ID = 11721
 
         self.TEST_BODY = {
             "item_id": "p000000",

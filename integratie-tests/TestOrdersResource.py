@@ -26,7 +26,7 @@ class TestOrderResource(unittest.TestCase):
             "warehouse_id": 36,
             "ship_to": 5254,
             "bill_to": 3016,
-            "shipment_id": [5555],
+            "shipment_id": [8737],
             "total_amount": 6070.46,
             "total_discount": 295.5,
             "total_tax": 388.58,
