@@ -12,6 +12,7 @@ from CargoHubV2.app.services.orders_service import (
     get_packinglist_for_order
 )
 from CargoHubV2.app.models.orders_model import Order
+from CargoHubV2.app.models.inventories_model import Inventory
 from CargoHubV2.app.schemas.orders_schema import OrderCreate, OrderUpdate
 from datetime import datetime as dt
 import datetime
@@ -22,7 +23,7 @@ SAMPLE_ORDER_DATA = {
     "order_date": dt.now(datetime.timezone.utc),
     "request_date": dt.now(datetime.timezone.utc),
     "reference": "ORD00001",
-    "order_status": "Delivered",
+    "order_status": "Pending",
     "warehouse_id": 1,
     "total_amount": 9905.13,
     "total_discount": 150.77,
@@ -32,9 +33,26 @@ SAMPLE_ORDER_DATA = {
     "updated_at": "2019-04-05T07:33:15Z",
     "shipping_notes": "Handle with care",
     "items": [
-        {"item_id": "P007435", "amount": 23},
         {"item_id": "P009557", "amount": 1}
     ]
+}
+SAMPLE_INVEN_DATA = {
+    "id": 9557,
+    "item_id": "P009557",
+    "description": "Advanced eco-centric orchestration",
+    "item_reference": "gjg98549Y",
+    "locations": [9199, 13459, 13402,
+                  22498, 26120, 19728, 19882,
+                  28260, 27159, 27314, 14417,
+                  14246, 16824, 16857, 27185, 27602],
+    "total_on_hand": 205,
+    "total_expected": 0,
+    "total_ordered": 49,
+    "total_allocated": 60,
+    "total_available": 96,
+    "created_at": "2008-05-19T00:14:42",
+    "updated_at": "2013-04-24 16:19:43.000000",
+    "is_deleted": False
 }
 # fix later, mock db werkt nu niet ivm andere queries in de service
 '''
@@ -66,6 +84,7 @@ def test_get_order_found():
     assert result.id == SAMPLE_ORDER_DATA["id"]
     db.query().filter().first.assert_called_once()
 
+
 def test_get_order_not_found():
     db = MagicMock()
     db.query().filter().first.return_value = None
@@ -73,6 +92,7 @@ def test_get_order_not_found():
         get_order(db, 99)
     assert excinfo.value.status_code == 404
     assert "Order not found" in str(excinfo.value.detail)
+
 
 def test_get_all_orders():
     db = MagicMock()
@@ -118,6 +138,7 @@ def test_get_all_orders_by_date():
         mock_query.all.assert_called_once()
 
         assert len(results) == 1
+
 
 def test_get_all_orders_no_results():
     db = MagicMock()
@@ -175,7 +196,8 @@ def test_update_order_integrity_error():
 def test_delete_order_found():
     db = MagicMock()
     mock_order = Order(**SAMPLE_ORDER_DATA)
-    db.query().filter().first.return_value = mock_order
+    mock_inven = Inventory(**SAMPLE_INVEN_DATA)
+    db.query().filter().first.side_effect = [mock_order, mock_inven]
 
     result = delete_order(db, 1)
 

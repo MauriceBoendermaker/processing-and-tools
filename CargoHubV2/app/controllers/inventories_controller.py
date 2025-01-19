@@ -66,7 +66,7 @@ def delete_inventory_endpoint(
 
 
 # locations waar een specifieke inventory is (filter)
-@router.get("/{item_reference}/locations", response_model=List[Location])
+@router.get("/{item_reference}/locations")
 def get_locations_from(
     item_reference: str = None,
     db: Session = Depends(get_db),

@@ -10,7 +10,7 @@ class TestDocksResource(unittest.TestCase):
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
         self.TEST_BODY = {
             "warehouse_id": 1,
-            "code": "DCK001",
+            "code": "DCK002",
             "status": "Free",
             "description": "Test Dock"
         }
@@ -32,7 +32,7 @@ class TestDocksResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_3_get_dock(self):
-        response = self.client.get(f"{self.baseUrl}?code=DCK001")
+        response = self.client.get(f"{self.baseUrl}?code=DCK002")
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertEqual(body.get("code"), self.TEST_BODY["code"])
@@ -45,7 +45,7 @@ class TestDocksResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Fetch again by code to verify changes
-        response = self.client.get(f"{self.baseUrl}?code=DCK001")
+        response = self.client.get(f"{self.baseUrl}?code=DCK002")
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertEqual(body.get("status"), self.ToPut["status"])
@@ -58,7 +58,7 @@ class TestDocksResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         # After deleting, getting by code should return 404
-        response = self.client.get(f"{self.baseUrl}?code=DCK001")
+        response = self.client.get(f"{self.baseUrl}?code=DCK002")
         self.assertEqual(response.status_code, 404)
 
     def test_6_no_key(self):

@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=OrderResponse)
+@router.post("/")
 def create_order_endpoint(
     order_data: OrderCreate,
     db: Session = Depends(get_db),
@@ -35,8 +35,6 @@ def get_orders(
 ):
     if id:
         order = get_order(db, id)
-        if not order:
-            raise HTTPException(status_code=404, detail="Order not found")
         return order
     orders = get_all_orders(db, date=date, offset=offset, limit=limit, sort_by=sort_by, sort_order=sort_order)
     if not orders:
@@ -57,7 +55,7 @@ def get_order_items(
     return items
 
 
-@router.put("/{id}", response_model=OrderResponse)
+@router.put("/{id}")
 def update_order_endpoint(
     id: int,
     order_data: OrderUpdate,

@@ -39,8 +39,7 @@ def get_item_types(
     return get_all_item_types(db, offset, limit, sort_by, order)
 
 
-
-@router.put("/{id}", response_model=ItemTypeResponse)
+@router.put("/{id}")
 def update_item_type_endpoint(
     id: int,
     item_type_data: ItemTypeUpdate,
