@@ -1,10 +1,15 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
+from typing import Optional, List
+
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.schemas.items_schema import *
 from CargoHubV2.app.services.items_service import *
-
-from typing import Optional, List
+from CargoHubV2.app.dependencies.api_dependencies import (
+    get_valid_api_key,
+    role_required
+)
+from CargoHubV2.app.models.api_key_model import APIKey
 
 router = APIRouter(
     prefix="/api/v2/items",
@@ -16,7 +21,7 @@ router = APIRouter(
 def create_item_endpoint(
     item_data: ItemCreate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
 ):
     item = create_item(db, item_data.model_dump())
     return item
@@ -30,7 +35,7 @@ def get_items(
     sort_by: Optional[str] = "uid",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager"])),
 ):
     if code:
         item = get_item(db, code)
@@ -47,7 +52,7 @@ def update_item_endpoint(
     code: str,
     item_data: ItemUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
 ):
     item = update_item(db, code, item_data)
     if not item:
@@ -59,7 +64,7 @@ def update_item_endpoint(
 def delete_item_endpoint(
     code: str,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager"]))
 ):
     item = delete_item(db, code)
     if not item:

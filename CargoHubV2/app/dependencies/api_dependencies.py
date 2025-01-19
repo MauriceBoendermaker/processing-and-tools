@@ -32,6 +32,7 @@ def role_required(allowed_roles: List[str]):
     3. Raises 403 if not.
     """
     def wrapper(current_api_key: APIKey = Depends(get_valid_api_key)) -> APIKey:
+        print(APIKey)
         if current_api_key.access_scope not in allowed_roles:
             raise HTTPException(
                 status_code=403,

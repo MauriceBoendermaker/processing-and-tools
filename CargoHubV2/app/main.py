@@ -64,7 +64,7 @@ async def shutdown():
     # Close any resources (e.g., database connections, files, sockets) here
     print("Shutting down gracefully...")
 
-
+'''
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
     excluded = [
@@ -104,7 +104,7 @@ async def api_key_middleware(request: Request, call_next):
     except Exception as exc:
         logger.exception("Unexpected error occurred in middleware")
         raise exc
-
+'''
 
 '''
 

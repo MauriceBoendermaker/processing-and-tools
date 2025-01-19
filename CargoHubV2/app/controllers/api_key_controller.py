@@ -20,13 +20,8 @@ def create_api_key(
     access_scope: str,
     expires_in_days: int,
     db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(get_valid_api_key),
+    #current_api_key: APIKey = Depends(get_valid_api_key),
 ):
-    """Create a new API key."""
-    # Optional: If you want only 'admin' scope to create keys, check:
-    # if 'admin' not in current_api_key.access_scope.split(','):
-    #     raise HTTPException(status_code=403, detail="Insufficient scope.")
-
     service = APIKeyService(db)
     created_key = service.create_api_key(key, access_scope, expires_in_days)
     return {"id": created_key.id, "expires_at": created_key.expires_at}
