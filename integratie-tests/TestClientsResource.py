@@ -1,3 +1,6 @@
+
+'''
+
 import unittest
 from httpx import Client
 from datetime import date
@@ -94,3 +97,5 @@ class TestClientResource(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+'''

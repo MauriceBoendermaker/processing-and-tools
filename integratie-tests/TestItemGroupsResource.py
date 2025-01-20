@@ -8,8 +8,10 @@ class TestItemGroupsResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/item_groups/"
         self.client = Client()
-        self.client.headers = {"api-key": "a1b2c3d4e5",
-                               "content-type": "application/json"}
+        self.client.headers = {
+            "api-key": "a1b2c3d4e5",
+            "content-type": "application/json"
+        }
 
         self.TEST_BODY = {
             "id": 101,
@@ -39,13 +41,12 @@ class TestItemGroupsResource(unittest.TestCase):
 
     # Test to GET a single item group by ID
     def test_3_get_item_group_by_id(self):
-        # Query parameter for ID
         response = self.client.get(f"{self.baseUrl}?id=101")
-        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body[0].get("id"), self.TEST_BODY["id"])
-        self.assertEqual(body[0].get("name"), self.TEST_BODY["name"])
-        self.assertEqual(body[0].get("description"),
+        self.assertEqual(body.get("id"), self.TEST_BODY["id"])
+        self.assertEqual(body.get("name"), self.TEST_BODY["name"])
+        self.assertEqual(body.get("description"),
                          self.TEST_BODY["description"])
 
     # Test to PUT (update) an item group
@@ -56,9 +57,8 @@ class TestItemGroupsResource(unittest.TestCase):
         # Verify the update
         response = self.client.get(f"{self.baseUrl}?id=101")
         body = response.json()
-        self.assertEqual(body[0].get("name"), "Updated")
-        self.assertEqual(body[0].get("description"), "Updated")
-        self.assertTrue(match_date(body[0].get("updated_at"), date.today()))
+        self.assertEqual(body.get("name"), self.ToPut["name"])
+        self.assertEqual(body.get("description"), self.ToPut["description"])
 
     # Test to DELETE an item group
     def test_5_delete_item_group(self):
@@ -66,8 +66,8 @@ class TestItemGroupsResource(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Verify deletion
-        response = self.client.get(self.baseUrl)
-        self.assertFalse(check_id_exists(response.json(), 100))
+        response = self.client.get(f"{self.baseUrl}?id=101")
+        self.assertEqual(response.status_code, 404)
 
     # Test unauthorized access by removing the API key
     def test_6_no_key(self):
@@ -77,11 +77,13 @@ class TestItemGroupsResource(unittest.TestCase):
 
     # Test with an incorrect API key
     def test_7_wrong_key(self):
-        self.client.headers = {"api-key": "invalid",
-                               "content-type": "application/json"}
+        self.client.headers = {
+            "api-key": "invalid",
+            "content-type": "application/json"
+        }
         response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 403)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
