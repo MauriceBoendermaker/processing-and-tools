@@ -1,88 +1,99 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
-from sqlalchemy.orm import Session
-from CargoHubV2.app.database import get_db
-from CargoHubV2.app.schemas.clients_schema import *
-from CargoHubV2.app.services.clients_service import *
-from typing import Optional, List
+import unittest
+from fastapi.testclient import TestClient
+from CargoHubV2.app.main import app  # Replace with the actual FastAPI app import
+from CargoHubV2.app.dependencies.api_dependencies import role_required, get_valid_api_key
+from fastapi import Depends
 
-from CargoHubV2.app.dependencies.api_dependencies import (
-    get_valid_api_key,
-    role_required
-)
-from CargoHubV2.app.models.api_key_model import APIKey
+# Mock dependencies for testing
 
-router = APIRouter(
-    prefix="/api/v2/clients",
-    tags=["clients"]
-)
+def mock_valid_api_key(api_key: str):
+    class MockAPIKey:
+        access_scope = "Manager"
 
+    return MockAPIKey()
 
-@router.post("/", response_model=ClientResponse)
-def create_client_endpoint(
-    client_data: ClientCreate,
-    db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(
-        role_required(["Manager", "FloorManager", "Worker"])),
-):
-    client = create_client(db, client_data.model_dump()),
-    return client
+def mock_role_required(allowed_roles):
+    def mock_dependency(current_api_key=Depends(mock_valid_api_key)):
+        return current_api_key
+
+    return mock_dependency
+
+# Apply dependency overrides
+app.dependency_overrides[get_valid_api_key] = mock_valid_api_key
+app.dependency_overrides[role_required] = mock_role_required
 
 
-@router.get("/")
-def get_clients(
-    id: Optional[int] = None,
-    offset: int = 0,
-    limit: int = 100,
-    sort_by: Optional[str] = "id",
-    order: Optional[str] = "asc",
-    db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(
-        role_required(["Manager", "FloorManager", "Worker"])),
-):
-    if id:
-        client = get_client(db, id)
-        if not client:
-            raise HTTPException(status_code=404, detail="Client not found")
-        return client
-    return get_all_clients(db, offset, limit, sort_by, order)
+class TestClientResource(unittest.TestCase):
+    def setUp(self):
+        self.baseUrl = "http://localhost:3000/api/v2/clients/"
+        self.client = TestClient(app)
+        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
+
+        self.TEST_ID = 9838
+
+        self.TEST_BODY = {
+            "id": self.TEST_ID,
+            "name": "test client",
+            "address": "Carstenallee 2",
+            "city": "Herzberg",
+            "zip_code": "89685",
+            "province": "Niedersachsen",
+            "country": "Germany",
+            "contact_name": "Ing. Ferdi Steckel MBA.",
+            "contact_phone": "+49(0)5162 147719",
+            "contact_email": "conradikati@example.net"
+        }
+
+        self.ToPut = {
+            "address": "Wijnhaven 107",
+            "city": "Rotterdam"
+        }
+
+    def test_1_post_client(self):
+        response = self.client.post(self.baseUrl, json=self.TEST_BODY)
+        self.assertIn(response.status_code, [201, 200])
+
+    def test_2_get_clients(self):
+        response = self.client.get(self.baseUrl)
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertIsInstance(body, list)
+
+    def test_3_get_client(self):
+        response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body.get("id"), self.TEST_ID)
+        self.assertEqual(body.get("name"), self.TEST_BODY["name"])
+        self.assertEqual(body.get("address"), self.TEST_BODY["address"])
+        self.assertEqual(body.get("city"), self.TEST_BODY["city"])
+
+    def test_4_put_client(self):
+        response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
+        body = response.json()
+        self.assertEqual(body.get("address"), self.ToPut["address"])
+        self.assertEqual(body.get("city"), self.ToPut["city"])
+
+    def test_5_delete_client(self):
+        response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
+        self.assertEqual(response.status_code, 404)
+
+    def test_6_no_key(self):
+        self.client.headers = {"content-type": "application/json"}
+        response = self.client.get(self.baseUrl)
+        self.assertEqual(response.status_code, 422)
+
+    def test_7_wrong_key(self):
+        self.client.headers = {"api-key": "invalid-key", "content-type": "application/json"}
+        response = self.client.get(self.baseUrl)
+        self.assertEqual(response.status_code, 403)
 
 
-@router.get("/{country}")
-def get_clients_by_country(
-    country: str,
-    offset: int = 0,
-    limit: int = 100,
-    sort_by: Optional[str] = "id",
-    order: Optional[str] = "asc",
-    db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(
-        role_required(["Manager", "FloorManager", "Worker"])),
-):
-    return get_country_clients(db, country, offset, limit, sort_by, order)
-
-
-@router.put("/{id}", response_model=ClientResponse)
-def update_client_endpoint(
-    id: int,
-    client_data: ClientUpdate,
-    db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(
-        role_required(["Manager", "FloorManager", "Worker"])),
-):
-    client = update_client(db, id, client_data)
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    return client
-
-
-@router.delete("/{id}")
-def delete_client_endpoint(
-    id: int,
-    db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(
-        role_required(["Manager", "FloorManager", "Worker"])),
-):
-    client = delete_client(db, id)
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    return client
+if __name__ == '__main__':
+    unittest.main()
