@@ -1,9 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
+from typing import Optional, List
+
 from CargoHubV2.app.database import get_db
 from CargoHubV2.app.schemas.item_types_schema import ItemTypeCreate, ItemTypeUpdate, ItemTypeResponse
 from CargoHubV2.app.services.item_types_service import create_item_type, get_item_type, get_all_item_types, update_item_type, delete_item_type
-from typing import Optional, List
+from CargoHubV2.app.dependencies.api_dependencies import (
+    get_valid_api_key,
+    role_required
+)
+from CargoHubV2.app.models.api_key_model import APIKey
 
 router = APIRouter(
     prefix="/api/v2/item_types",  # Use underscore (_) instead of hyphen (-)
@@ -15,7 +21,7 @@ router = APIRouter(
 def create_item_type_endpoint(
     item_type_data: ItemTypeCreate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
 ):
     item_type = create_item_type(db, item_type_data.model_dump())
     return item_type
@@ -29,7 +35,7 @@ def get_item_types(
     sort_by: Optional[str] = "id",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager", "Worker"])),
 ):
     if id:
         item_type = get_item_type(db, id)
@@ -44,7 +50,7 @@ def update_item_type_endpoint(
     id: int,
     item_type_data: ItemTypeUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
 ):
     item_type = update_item_type(db, id, item_type_data)
     if not item_type:
@@ -56,7 +62,7 @@ def update_item_type_endpoint(
 def delete_item_type_endpoint(
     id: int,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager"]))
 ):
     item_type = delete_item_type(db, id)
     if not item_type:

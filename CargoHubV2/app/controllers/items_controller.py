@@ -35,7 +35,7 @@ def get_items(
     sort_by: Optional[str] = "uid",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(role_required(["Manager"])),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager", "Worker"])),
 ):
     if code:
         item = get_item(db, code)

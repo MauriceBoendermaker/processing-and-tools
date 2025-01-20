@@ -5,6 +5,11 @@ from CargoHubV2.app.schemas.item_groups_schema import ItemGroupCreate, ItemGroup
 from CargoHubV2.app.services.item_groups_service import create_item_group, get_item_group, get_all_item_groups, update_item_group, delete_item_group
 from typing import Optional, List
 
+from CargoHubV2.app.dependencies.api_dependencies import (
+    get_valid_api_key,
+    role_required
+)
+from CargoHubV2.app.models.api_key_model import APIKey
 
 router = APIRouter(
     prefix="/api/v2/item_groups",
@@ -16,7 +21,7 @@ router = APIRouter(
 def create_item_group_endpoint(
     item_group_data: ItemGroupCreate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),  # API key required
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
 ):
     item_group = create_item_group(db, item_group_data.model_dump())
     return item_group
@@ -30,7 +35,7 @@ def get_item_groups(
     sort_by: Optional[str] = "id",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager", "Worker"])),
 ):
     if id:
         item_group = get_item_group(db, id)
@@ -45,7 +50,7 @@ def update_item_group_endpoint(
     id: int,
     item_group_data: ItemGroupUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
 ):
     item_group = update_item_group(db, id, item_group_data)
     if not item_group:
@@ -57,7 +62,7 @@ def update_item_group_endpoint(
 def delete_item_group_endpoint(
     id: int,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(role_required(["Manager"]))
 ):
     item_group = delete_item_group(db, id)
     if not item_group:
