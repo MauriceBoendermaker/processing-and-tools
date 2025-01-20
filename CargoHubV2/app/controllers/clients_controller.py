@@ -5,6 +5,12 @@ from CargoHubV2.app.schemas.clients_schema import *
 from CargoHubV2.app.services.clients_service import *
 from typing import Optional, List
 
+from CargoHubV2.app.dependencies.api_dependencies import (
+    get_valid_api_key,
+    role_required
+)
+from CargoHubV2.app.models.api_key_model import APIKey
+
 router = APIRouter(
     prefix="/api/v2/clients",
     tags=["clients"]
@@ -15,9 +21,10 @@ router = APIRouter(
 def create_client_endpoint(
     client_data: ClientCreate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager", "Worker"])),
 ):
-    client = create_client(db, client_data.model_dump())
+    client = create_client(db, client_data.model_dump()),
     return client
 
 
@@ -29,7 +36,8 @@ def get_clients(
     sort_by: Optional[str] = "id",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager", "Worker"])),
 ):
     if id:
         client = get_client(db, id)
@@ -47,7 +55,8 @@ def get_clients_by_country(
     sort_by: Optional[str] = "id",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager", "Worker"])),
 ):
     return get_country_clients(db, country, offset, limit, sort_by, order)
 
@@ -57,7 +66,8 @@ def update_client_endpoint(
     id: int,
     client_data: ClientUpdate,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager", "Worker"])),
 ):
     client = update_client(db, id, client_data)
     if not client:
@@ -69,7 +79,8 @@ def update_client_endpoint(
 def delete_client_endpoint(
     id: int,
     db: Session = Depends(get_db),
-    api_key: str = Header(...),
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager", "Worker"])),
 ):
     client = delete_client(db, id)
     if not client:

@@ -6,6 +6,12 @@ from CargoHubV2.app.models.orders_model import Order
 from fastapi.responses import FileResponse
 from pathlib import Path
 
+from CargoHubV2.app.dependencies.api_dependencies import (
+    get_valid_api_key,
+    role_required
+)
+from CargoHubV2.app.models.api_key_model import APIKey
+
 router = APIRouter(
     prefix="/api/v2/packinglist",
     tags=["packinglist"]

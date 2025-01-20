@@ -6,6 +6,12 @@ from CargoHubV2.app.services import reporting_service
 from typing import List, Optional
 from pathlib import Path
 
+from CargoHubV2.app.dependencies.api_dependencies import (
+    get_valid_api_key,
+    role_required
+)
+from CargoHubV2.app.models.api_key_model import APIKey
+
 router = APIRouter(
     prefix="/api/v2/reports",
     tags=["reports"]

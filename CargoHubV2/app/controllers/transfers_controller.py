@@ -5,6 +5,11 @@ from CargoHubV2.app.schemas import transfers_schema
 from CargoHubV2.app.database import get_db
 from typing import Optional
 
+from CargoHubV2.app.dependencies.api_dependencies import (
+    get_valid_api_key,
+    role_required
+)
+from CargoHubV2.app.models.api_key_model import APIKey
 
 router = APIRouter(
     prefix="/api/v2/transfers",
