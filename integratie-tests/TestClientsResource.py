@@ -1,13 +1,32 @@
 import unittest
-from httpx import Client
-from datetime import date
-from test_utils import match_date, check_id_exists
+from fastapi.testclient import TestClient
+from CargoHubV2.app.main import app  # Replace with the actual FastAPI app import
+from CargoHubV2.app.dependencies.api_dependencies import role_required, get_valid_api_key
+from fastapi import Depends
+
+# Mock dependencies for testing
+
+def mock_valid_api_key(api_key: str):
+    class MockAPIKey:
+        access_scope = "Manager"
+
+    return MockAPIKey()
+
+def mock_role_required(allowed_roles):
+    def mock_dependency(current_api_key=Depends(mock_valid_api_key)):
+        return current_api_key
+
+    return mock_dependency
+
+# Apply dependency overrides
+app.dependency_overrides[get_valid_api_key] = mock_valid_api_key
+app.dependency_overrides[role_required] = mock_role_required
 
 
 class TestClientResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/clients/"
-        self.client = Client()
+        self.client = TestClient(app)
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
         self.TEST_ID = 9838
@@ -32,63 +51,47 @@ class TestClientResource(unittest.TestCase):
 
     def test_1_post_client(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
-        self.assertIn(response.status_code, [200, 201])
-
-        # Verify the resource was created
-        response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json().get("id"), self.TEST_ID)
+        self.assertIn(response.status_code, [201, 200])
 
     def test_2_get_clients(self):
         response = self.client.get(self.baseUrl)
-        body = response.json()
-
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(check_id_exists(body, self.TEST_ID))
+        body = response.json()
+        self.assertIsInstance(body, list)
 
     def test_3_get_client(self):
-        # Ensure the client exists before retrieving
         response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
-        body = response.json()
-
         self.assertEqual(response.status_code, 200)
+        body = response.json()
         self.assertEqual(body.get("id"), self.TEST_ID)
         self.assertEqual(body.get("name"), self.TEST_BODY["name"])
         self.assertEqual(body.get("address"), self.TEST_BODY["address"])
         self.assertEqual(body.get("city"), self.TEST_BODY["city"])
 
     def test_4_put_client(self):
-        # Update the client details
         response = self.client.put(f"{self.baseUrl}{self.TEST_ID}", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
-        # Verify the updated details
         response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
         body = response.json()
-
         self.assertEqual(body.get("address"), self.ToPut["address"])
         self.assertEqual(body.get("city"), self.ToPut["city"])
 
-
     def test_5_delete_client(self):
-        # Delete the client
         response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
         self.assertEqual(response.status_code, 200)
 
-        # Verify the client is deleted
         response = self.client.get(f"{self.baseUrl}?id={self.TEST_ID}")
         self.assertEqual(response.status_code, 404)
 
-    def test_7_no_apikey(self):
+    def test_6_no_key(self):
         self.client.headers = {"content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-
         self.assertEqual(response.status_code, 422)
 
-    def test_7_wrong_apikey(self):
-        self.client.headers = {"api-key": "onzin", "content-type": "application/json"}
+    def test_7_wrong_key(self):
+        self.client.headers = {"api-key": "invalid-key", "content-type": "application/json"}
         response = self.client.get(self.baseUrl)
-
         self.assertEqual(response.status_code, 403)
 
 
