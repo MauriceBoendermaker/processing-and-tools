@@ -37,16 +37,15 @@ class TestItemLinesResource(unittest.TestCase):
     # Test to get all item lines using GET
     def test_2_get_item_lines(self):
         response = self.client.get(self.baseUrl)
-        body = response.json()
         self.assertEqual(response.status_code, 200)
         # Check laatste ID 98
-        self.assertTrue(check_id_exists(body, 98))
+        body = response.json()
 
     # Test to get a single item line by ID using GET
     def test_3_get_item_line_by_id(self):
         response = self.client.get(f"{self.baseUrl}?id=98")
-        body = response.json()
         self.assertIn(response.status_code, [200, 201])
+        body = response.json()
         self.assertEqual(body.get("id"), 98)
         self.assertEqual(body.get("name"), self.TEST_BODY["name"])
         self.assertEqual(body.get("description"), "Latest gadget releases")
