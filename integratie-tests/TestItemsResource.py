@@ -30,8 +30,8 @@ app.dependency_overrides[role_required] = mock_role_required
 class TestItemsResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/items/"
-        self.client = TestClient(app)
-        self.client.headers = {"api-key": "mocked-key",
+        self.client = TestClient()
+        self.client.headers = {"api-key": "a1b2c3d4e5",
                                "content-type": "application/json"}
 
         self.TEST_BODY = {
