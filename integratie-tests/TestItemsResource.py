@@ -1,5 +1,6 @@
 import unittest
 from fastapi.testclient import TestClient
+from httpx import Client
 from datetime import date
 from CargoHubV2.app.main import app  # Replace with the actual FastAPI app import
 from CargoHubV2.app.dependencies.api_dependencies import role_required, get_valid_api_key
@@ -30,7 +31,7 @@ app.dependency_overrides[role_required] = mock_role_required
 class TestItemsResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/items/"
-        self.client = TestClient()
+        self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5",
                                "content-type": "application/json"}
 
