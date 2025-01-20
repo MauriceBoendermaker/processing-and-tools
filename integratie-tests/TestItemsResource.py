@@ -46,14 +46,16 @@ class TestItemsResource(unittest.TestCase):
 
     def test_2_get_items(self):
         response = self.client.get(self.baseUrl)
-        body = response.json()
+        # Confirm it was successful
         self.assertEqual(response.status_code, 200)
-        # self.assertTrue(check_code_exists(body, "tijdelijke-item"))
+        body = response.json()
+        # Optionally check something in 'body', e.g. an item list
 
+    # 3) Retrieve a single item by 'code'
     def test_3_get_item(self):
         response = self.client.get(f"{self.baseUrl}?code=tijdelijke-item69")
-        body = response.json()
         self.assertEqual(response.status_code, 200)
+        body = response.json()
         self.assertEqual(body.get("code"), self.TEST_BODY["code"])
         self.assertEqual(body.get("description"), self.TEST_BODY["description"])
         self.assertEqual(body.get("item_group"), self.TEST_BODY["item_group"])
