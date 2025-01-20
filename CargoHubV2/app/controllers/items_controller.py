@@ -21,7 +21,8 @@ router = APIRouter(
 def create_item_endpoint(
     item_data: ItemCreate,
     db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager"]))
 ):
     item = create_item(db, item_data.model_dump())
     return item
@@ -35,7 +36,8 @@ def get_items(
     sort_by: Optional[str] = "uid",
     order: Optional[str] = "asc",
     db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager", "Worker"])),
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager", "Worker"])),
 ):
     if code:
         item = get_item(db, code)
@@ -45,14 +47,13 @@ def get_items(
     return get_all_items(db, offset, limit, sort_by or "id", order)
 
 
-
-
 @router.put("/{code}", response_model=ItemResponse)
 def update_item_endpoint(
     code: str,
     item_data: ItemUpdate,
     db: Session = Depends(get_db),
-    current_api_key: APIKey = Depends(role_required(["Manager", "FloorManager"]))
+    current_api_key: APIKey = Depends(
+        role_required(["Manager", "FloorManager"]))
 ):
     item = update_item(db, code, item_data)
     if not item:

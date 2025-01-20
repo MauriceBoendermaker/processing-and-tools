@@ -1,8 +1,9 @@
 import unittest
-from fastapi.testclient import TestClient, Depends
+from fastapi.testclient import TestClient
 from datetime import date
 from CargoHubV2.app.main import app  # Replace with the actual FastAPI app import
 from CargoHubV2.app.dependencies.api_dependencies import role_required, get_valid_api_key
+from fastapi import Depends
 
 # Mock dependencies for testing
 
