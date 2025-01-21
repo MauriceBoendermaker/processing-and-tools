@@ -91,20 +91,3 @@ async def api_key_middleware(request: Request, call_next):
     except Exception as exc:
         logger.exception("Unexpected error occurred in middleware")
         raise exc
-
-'''
-
-# script voor migrations voor later
-from database import Base, engine
-from models import warehouse_model, items_model, location_model, transfers_model # alle models die je wil migraten
-
-
-# maakt alle tables
-def init_db():
-    Base.metadata.create_all(bind=engine)
-
-
-if __name__ == "__main__":
-    init_db()
-    print("Tables created successfully!")
-'''
