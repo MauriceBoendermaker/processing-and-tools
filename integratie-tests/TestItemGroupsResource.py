@@ -15,7 +15,7 @@ class TestItemGroupsResource(unittest.TestCase):
         """
         cls.db = SessionLocal()
         cls.api_key_service = APIKeyService(cls.db)
-        
+
         # Create a key with scope='Manager' and 30-day expiration
         # so test calls that pass "a1b2c3d4e5" will be valid.
         cls.api_key_service.create_api_key(
@@ -60,6 +60,8 @@ class TestItemGroupsResource(unittest.TestCase):
 
     def test_1_post_item_group(self):
         response = self.client.post(self.baseUrl, json=self.TEST_BODY)
+        print("DEBUG - POST item_group response status:", response.status_code)
+        print("DEBUG - POST item_group response body:", response.text)
         self.assertIn(response.status_code, [200, 201])
 
     def test_2_get_item_groups(self):
@@ -74,7 +76,8 @@ class TestItemGroupsResource(unittest.TestCase):
         body = response.json()
         self.assertEqual(body.get("id"), self.TEST_BODY["id"])
         self.assertEqual(body.get("name"), self.TEST_BODY["name"])
-        self.assertEqual(body.get("description"), self.TEST_BODY["description"])
+        self.assertEqual(body.get("description"),
+                         self.TEST_BODY["description"])
 
     def test_4_put_item_group(self):
         response = self.client.put(f"{self.baseUrl}101", json=self.ToPut)
