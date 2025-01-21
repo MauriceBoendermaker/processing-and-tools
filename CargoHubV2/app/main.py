@@ -102,21 +102,27 @@ async def api_key_middleware(request: Request, call_next):
             if x_api_key != warehouse_manager:
                 logger.warning("Invalid API key")
                 response.status_code = 403
-                raise HTTPException(status_code=403, detail="Invalid API key")
+                raise HTTPException(
+                    status_code=403,
+                    detail="Invalid API key, need to be Warehouse manager")
 
         if any(path in request.url.path for path in all_managers):
 
             if x_api_key != warehouse_manager and x_api_key != floor_manager:
                 logger.warning("Invalid API key")
                 response.status_code = 403
-                raise HTTPException(status_code=403, detail="Invalid API key")
+                raise HTTPException(
+                    status_code=403,
+                    detail="Invalid API key, only Floor/Warehouse managers")
 
         if any(path in request.url.path for path in all):
 
             if x_api_key != warehouse_manager and x_api_key != floor_manager and x_api_key != employee:
                 logger.warning("Invalid API key")
                 response.status_code = 403
-                raise HTTPException(status_code=403, detail="Invalid API key")
+                raise HTTPException(
+                    status_code=403,
+                    detail="Invalid API key, need to be employee of CargoHub")
 
         return response
 
