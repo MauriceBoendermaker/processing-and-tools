@@ -38,10 +38,18 @@ def generate_general_report(
 
 
 @router.get("/get-pdf/{filename}")
-def get_pdf(filename: str):
+def get_pdf(filename: str, api_key: str = Header(...)):
     PDF_DIR = Path("generated_pdfs")
-    pdf_path = PDF_DIR/filename
+    # voorkomt path traversal
+    sanitized_filename = Path(filename).name
+    pdf_path = PDF_DIR/sanitized_filename
+
+    if not str(pdf_path).startswith(str(PDF_DIR)):
+        raise HTTPException(status_code=403, detail="Base path modified")
+
     if pdf_path.exists():
-        return FileResponse(pdf_path, media_type="application/pdf", filename=filename)
+        return FileResponse(
+            pdf_path,
+            media_type="application/pdf", filename=sanitized_filename)
     else:
         raise HTTPException(status_code=404, detail="PDF not found")

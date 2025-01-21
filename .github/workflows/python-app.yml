@@ -76,6 +76,10 @@ jobs:
       run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
     - name: run CargoHubV2 server
+      env:
+        WAREHOUSE_MANAGER: ${{ secrets.WAREHOUSE_MANAGER}}
+        FLOOR_MANAGER: ${{ secrets.FLOOR_MANAGER }}
+        EMPLOYEE: ${{ secrets.EMPLOYEE }}
       run: |
         uvicorn CargoHubV2.app.main:app --port 3000 &
         sleep 10
