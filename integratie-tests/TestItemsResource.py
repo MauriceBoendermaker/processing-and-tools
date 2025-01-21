@@ -1,31 +1,6 @@
 import unittest
-from fastapi.testclient import TestClient
 from httpx import Client
 from datetime import date
-from CargoHubV2.app.main import app  # Replace with the actual FastAPI app import
-from CargoHubV2.app.dependencies.api_dependencies import role_required, get_valid_api_key
-from fastapi import Depends
-
-# Mock dependencies for testing
-
-
-def mock_valid_api_key(api_key: str):
-    class MockAPIKey:
-        access_scope = "Manager"
-
-    return MockAPIKey()
-
-
-def mock_role_required(allowed_roles):
-    def mock_dependency(current_api_key=Depends(mock_valid_api_key)):
-        return current_api_key
-
-    return mock_dependency
-
-
-# Apply dependency overrides
-app.dependency_overrides[get_valid_api_key] = mock_valid_api_key
-app.dependency_overrides[role_required] = mock_role_required
 
 
 class TestItemsResource(unittest.TestCase):
