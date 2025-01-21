@@ -11,6 +11,7 @@ router = APIRouter(
     tags=["packinglist"]
 )
 
+
 @router.get("/api/v2/packinglist/{order_id}")
 def create_packing_list(
     order_id: int, 
@@ -26,8 +27,12 @@ def create_packing_list(
 @router.get("/get-pdf/{filename}")
 def get_pdf(filename: str):
     PDF_DIR = Path("generated_pdfs")
-    pdf_path = PDF_DIR/filename
+
+    # voorkomt path traversal
+    sanitized_filename = Path(filename).name
+    pdf_path = PDF_DIR/sanitized_filename
+
     if pdf_path.exists():
-        return FileResponse(pdf_path, media_type="application/pdf", filename=filename)
+        return FileResponse(pdf_path, media_type="application/pdf", filename=sanitized_filename)
     else:
         raise HTTPException(status_code=404, detail="PDF not found")
