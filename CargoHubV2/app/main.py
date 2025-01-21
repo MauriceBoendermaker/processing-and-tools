@@ -26,7 +26,7 @@ app = FastAPI()
 # welke port hij runt kan je bij command aanpassen
 # default port is localhost:8000
 
-# router van de controller gebruiken
+# routers van de controllers gebruiken
 app.include_router(reporting_controller.router)
 app.include_router(item_groups.router)
 app.include_router(item_lines.router)
@@ -36,7 +36,6 @@ app.include_router(locations_controller.router)
 app.include_router(transfers_controller.router)
 app.include_router(suppliers_controller.router)
 app.include_router(warehouses_controller.router)
-app.include_router(load_controller.router)
 app.include_router(clients_controller.router)
 app.include_router(shipments_controller.router)
 app.include_router(inventories_controller.router)
@@ -53,9 +52,11 @@ load_dotenv()
 warehouse_manager = os.getenv("WAREHOUSE_MANAGER")
 floor_manager = os.getenv("FLOOR_MANAGER")
 employee = os.getenv("EMPLOYEE")
+'''
 print(warehouse_manager)
 print(floor_manager)
 print(employee)
+'''
 
 
 @app.get("/")
@@ -79,6 +80,12 @@ async def api_key_middleware(request: Request, call_next):
     # anders kan de documentatie niet bereikt worden
     excluded = ["/favicon.ico", "/openapi.json", "/docs"]
 
+    w_man_only = ["v2/reports", "v2/warehouses", "v2/clients"]
+    all_managers = ["v2/item_groups", "v2/item_lines", "v2/item_types", "v2/items",
+                    "v2/shipments", "v2/docks"]
+    all = ["v2/locations", "v2/transfers", "v2/orders", "v2/inventories",
+           "v2/packinglist"]
+
     try:
         x_api_key = request.headers.get("api-key")
         if request.url.path in excluded:
@@ -90,10 +97,26 @@ async def api_key_middleware(request: Request, call_next):
             response.status_code = 422
             raise HTTPException(status_code=422, detail="Missing API key")
 
-        if x_api_key != "a1b2c3d4e5":
-            logger.warning("Invalid API key")
-            response.status_code = 403
-            raise HTTPException(status_code=403, detail="Invalid API key")
+        if any(path in request.url.path for path in w_man_only):
+
+            if x_api_key != warehouse_manager:
+                logger.warning("Invalid API key")
+                response.status_code = 403
+                raise HTTPException(status_code=403, detail="Invalid API key")
+
+        if any(path in request.url.path for path in all_managers):
+
+            if x_api_key != warehouse_manager and x_api_key != floor_manager:
+                logger.warning("Invalid API key")
+                response.status_code = 403
+                raise HTTPException(status_code=403, detail="Invalid API key")
+
+        if any(path in request.url.path for path in all):
+
+            if x_api_key != warehouse_manager and x_api_key != floor_manager and x_api_key != employee:
+                logger.warning("Invalid API key")
+                response.status_code = 403
+                raise HTTPException(status_code=403, detail="Invalid API key")
 
         return response
 
