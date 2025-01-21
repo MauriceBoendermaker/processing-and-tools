@@ -10,7 +10,7 @@ class TestClientResource(unittest.TestCase):
         self.client = Client()
         self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
 
-        self.TEST_ID = 9837
+        self.TEST_ID = 9838
 
         self.TEST_BODY = {
             "id": self.TEST_ID,

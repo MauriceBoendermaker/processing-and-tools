@@ -40,7 +40,7 @@ def get_item_lines(
     return get_all_item_lines(db, offset, limit, sort_by, order)
 
 
-@router.put("/{id}", response_model=ItemLineResponse)
+@router.put("/{id}")
 def update_item_line_endpoint(
     id: int,
     item_line_data: ItemLineUpdate,

@@ -11,15 +11,17 @@ from CargoHubV2.app.services.sorting_service import apply_sorting
 
 
 def create_order(db: Session, order_data: dict):
+    order_data["shipment_id"] = order_data.get("shipment_id")[0]
     for item_dict in order_data["items"]:
+        # getal uit item Uid
         inventory_id = int(item_dict["item_id"].split("0")[-1])
         inventory = db.query(Inventory).filter(Inventory.id == inventory_id, Inventory.is_deleted == False).first()
         if not inventory:
-            raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+            raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
         if inventory.total_available < item_dict["amount"]:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Item {item_dict["item_id"]} in order only {inventory.total_available} available, ordered {item_dict["amount"]}"
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Item {item_dict['item_id']} in order only {inventory.total_available} available, ordered {item_dict['amount']}"
             )
         inventory.total_available -= item_dict["amount"]
         if order_data["order_status"] == "Delivered":
@@ -27,6 +29,22 @@ def create_order(db: Session, order_data: dict):
         else:
             inventory.total_ordered += item_dict["amount"]
         inventory.updated_at = datetime.now()
+
+    shipment = order_data["shipment_id"]
+    if shipment:
+        shipment = db.query(Shipment).filter(Shipment.id == shipment, Shipment.is_deleted == False).first()
+        if not shipment:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Shipment with id: {shipment} does not exist")
+        if shipment.shipment_type == "I":
+            raise HTTPException(
+                status_code=409,
+                detail=f"cannot link order with an incoming shipment {shipment}")
+        if shipment.shipment_status == "Delivered":
+            raise HTTPException(
+                status_code=409,
+                detail=f"cannot link order with Delivered shipment {shipment}")
 
     order = Order(**order_data)
     db.add(order)
@@ -49,7 +67,7 @@ def create_order(db: Session, order_data: dict):
 
 
 def get_order(db: Session, id: int):
-    order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
+    order = db.query(Order).filter(Order.id == id, Order.is_deleted == False).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
@@ -84,11 +102,15 @@ def update_order(db: Session, id: int, order_data: OrderUpdate):
 
     old_status = order.order_status
     update_data = order_data.model_dump(exclude_unset=True)
+
+    if (old_status == "Delivered") and (update_data.get("order_status") != "Delivered"):
+        raise HTTPException(status_code=403, detail="Unable to change order status back from Delivered")
+
     if update_data.get("order_status") == "Delivered" and old_status != "Delivered":
         for item_dict in order.items:
             inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
             if not inventory:
-                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
             inventory.total_ordered -= item_dict["amount"]
             inventory.total_on_hand -= item_dict["amount"]
             inventory.updated_at = datetime.now()
@@ -117,14 +139,25 @@ def delete_order(db: Session, id: int):
     order = db.query(Order).filter(Order.id == id, Order.is_deleted == 0).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    # bij delete de voorraaden terug veranderen
     if order.order_status != "Delivered":
         for item_dict in order.items:
-            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict["item_id"], Inventory.is_deleted == 0).first()
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict['item_id'], Inventory.is_deleted == 0).first()
             if not inventory:
-                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict["item_id"]} in the given order")
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
             inventory.total_ordered -= item_dict["amount"]
             inventory.total_available += item_dict["amount"]
             inventory.updated_at = datetime.now()
+    else:
+        for item_dict in order.items:
+            inventory = db.query(Inventory).filter(Inventory.item_id == item_dict['item_id'], Inventory.is_deleted == 0).first()
+            if not inventory:
+                raise HTTPException(status_code=404, detail=f"No inventory exists for item {item_dict['item_id']} in the given order")
+            inventory.total_available += item_dict["amount"]
+            inventory.total_on_hand += item_dict["amount"]
+            inventory.updated_at = datetime.now()
+
     try:
         order.is_deleted = True  # Soft delete by updating the flag
         db.commit()
@@ -143,7 +176,7 @@ def get_items_in_order(db: Session, id: int):
         raise HTTPException(
             status_code=404, detail="No items found for this order"
         )
-    return [item for item in order.items if not item.is_deleted]
+    return [item for item in order.items]
 
 
 def get_packinglist_for_order(db: Session, order_id: int):
