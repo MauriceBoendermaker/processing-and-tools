@@ -15,7 +15,9 @@ from CargoHubV2.app.controllers import orders_controller
 from CargoHubV2.app.controllers import reporting_controller
 from CargoHubV2.app.controllers import packinglist_controller
 from CargoHubV2.app.controllers import docks_controller
-import time
+
+import os
+from dotenv import load_dotenv
 from starlette.responses import JSONResponse
 import logging
 
@@ -44,6 +46,17 @@ app.include_router(docks_controller.router)
 
 logger = logging.getLogger("uvicorn.error")
 
+# haalt api keys uit env variabelen
+# in github werkt dit ook, uit GH secrets
+# voor lokaal runnen, moet er een .env zijn met deze 3 variabelen
+load_dotenv()
+warehouse_manager = os.getenv("WAREHOUSE_MANAGER")
+floor_manager = os.getenv("FLOOR_MANAGER")
+employee = os.getenv("EMPLOYEE")
+print(warehouse_manager)
+print(floor_manager)
+print(employee)
+
 
 @app.get("/")
 async def root():
@@ -63,10 +76,12 @@ async def shutdown():
 
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
+    # anders kan de documentatie niet bereikt worden
     excluded = ["/favicon.ico", "/openapi.json", "/docs"]
+
     try:
         x_api_key = request.headers.get("api-key")
-        if request.url.path in excluded or "/get-pdf" in request.url.path:
+        if request.url.path in excluded:
             return await call_next(request)
         response: Response = await call_next(request)
 
