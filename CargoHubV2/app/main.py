@@ -80,7 +80,7 @@ async def api_key_middleware(request: Request, call_next):
     # anders kan de documentatie niet bereikt worden
     excluded = ["/favicon.ico", "/openapi.json", "/docs"]
 
-    w_man_only = ["v2/reports", "v2/warehouses", "v2/clients"]
+    w_man_only = ["v2/reports", "v2/warehouses", "v2/clients", "v2/suppliers"]
     all_managers = ["v2/item_groups", "v2/item_lines", "v2/item_types", "v2/items",
                     "v2/shipments", "v2/docks"]
     all = ["v2/locations", "v2/transfers", "v2/orders", "v2/inventories",
