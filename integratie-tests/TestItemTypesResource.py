@@ -8,19 +8,22 @@ class TestItemTypesResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/item_types/"
         self.client = Client()
-        self.client.headers = {"api-key": "a1b2c3d4e5", "content-type": "application/json"}
+        self.client.headers = {"api-key": "a1b2c3d4e5",
+                               "content-type": "application/json"}
 
         self.TEST_BODY = {
-            "id": 100,
+            "id": 101,
             "name": "Tester",
             "description": "Electronics category",
             "created_at": "2024-10-14 12:00:00",
             "updated_at": "2024-10-14 12:00:00",
+            "is_deleted": False
+
         }
 
         self.ToPut = {
-            "name": "Updated Laptop",
-            "description": "Updated electronics category",
+            "name": "Updated",
+            "description": "Updated",
         }
 
         self.original = {"id": 1, "name": "Desktop", "description": "Computers and accessories",
@@ -39,33 +42,36 @@ class TestItemTypesResource(unittest.TestCase):
 
     # Test to get a single item type by ID using GET
     def test_3_get_item_type_by_id(self):
-        response = self.client.get(f"{self.baseUrl}?id=100")  # Query parameter for ID
+        # Query parameter for ID
+        response = self.client.get(f"{self.baseUrl}?id=101")
         body = response.json()
         self.assertIn(response.status_code, [200, 201])
-        self.assertEqual(body[0].get("id"), 100)  # Response is a list with a single item
+        # Response is a list with a single item
+        self.assertEqual(body[0].get("id"), 101)
         self.assertEqual(body[0].get("name"), self.TEST_BODY["name"])
-        self.assertEqual(body[0].get("description"), self.TEST_BODY["description"])
+        self.assertEqual(body[0].get("description"),
+                         self.TEST_BODY["description"])
 
     # Test to update an item type using PUT
     def test_4_put_item_type(self):
-        response = self.client.put(f"{self.baseUrl}100", json=self.ToPut)
+        response = self.client.put(f"{self.baseUrl}101", json=self.ToPut)
         self.assertEqual(response.status_code, 200)
 
         # Fetch the updated item type
-        response = self.client.get(f"{self.baseUrl}?id=100")
+        response = self.client.get(f"{self.baseUrl}?id=101")
         body = response.json()
-        self.assertEqual(body[0].get("name"), "Updated Laptop")
-        self.assertEqual(body[0].get("description"), "Updated electronics category")
+        self.assertEqual(body[0].get("name"), "Updated")
+        self.assertEqual(body[0].get("description"), "Updated")
         self.assertTrue(match_date(body[0].get('updated_at'), date.today()))
 
     # Test to delete an item type using DELETE
     def test_5_delete_item_type(self):
-        response = self.client.delete(f"{self.baseUrl}100")
+        response = self.client.delete(f"{self.baseUrl}101")
         self.assertEqual(response.status_code, 200)
 
         # Verify it was deleted
         response = self.client.get(self.baseUrl)
-        self.assertFalse(check_id_exists(response.json(), 100))
+        self.assertFalse(check_id_exists(response.json(), 101))
 
     # Test unauthorized access by removing the API key
     def test_6_no_key(self):
@@ -75,8 +81,9 @@ class TestItemTypesResource(unittest.TestCase):
 
     # Test with a wrong API key
     def test_7_wrong_key(self):
-        self.client.headers = {"api-key": "nope", "content-type": "application/json"}
-        response = self.client.get(self.baseUrl )
+        self.client.headers = {"api-key": "nope",
+                               "content-type": "application/json"}
+        response = self.client.get(self.baseUrl)
         self.assertEqual(response.status_code, 403)
 
 

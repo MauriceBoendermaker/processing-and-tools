@@ -9,7 +9,6 @@ from fastapi import HTTPException, status
 from typing import Optional
 
 
-
 def get_all_locations(
     db: Session,
     offset: int = 0,
@@ -18,7 +17,7 @@ def get_all_locations(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Location)
+        query = db.query(Location).filter(Location.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Location, sort_by, order)
         return query.offset(offset).limit(limit).all()
@@ -32,7 +31,7 @@ def get_all_locations(
 
 
 def get_location_by_id(db: Session, id: int):
-    location = db.query(Location).filter(Location.id == id).first()
+    location = db.query(Location).filter(Location.id == id, Location.is_deleted == False).first()
     if location is None:
         raise HTTPException(status_code=404, detail="Location id not found")
     return location
@@ -47,7 +46,7 @@ def get_locations_by_warehouse_id(
     order: Optional[str] = "asc"
 ):
     try:
-        query = db.query(Location).filter(Location.warehouse_id == warehouse_id)
+        query = db.query(Location).filter(Location.warehouse_id == warehouse_id, Location.is_deleted == False)
         if sort_by:
             query = apply_sorting(query, Location, sort_by, order)
         locations = query.offset(offset).limit(limit).all()
@@ -68,6 +67,8 @@ def create_location(db: Session, location_data: LocationCreate):
         warehouse_id=location_data.warehouse_id,
         code=location_data.code,
         name=location_data.name,
+        stock=location_data.stock,
+        max_weight=location_data.max_weight,
         created_at=datetime.now(),
         updated_at=datetime.now()
     )
@@ -90,13 +91,14 @@ def create_location(db: Session, location_data: LocationCreate):
     return location
 
 
-def delete_location(db: Session, id: str) -> dict:
-    location_to_delete = db.query(Location).filter(Location.id == id).first()
+def delete_location(db: Session, id: int) -> dict:
+    location_to_delete = db.query(Location).filter(Location.id == id, Location.is_deleted == False).first()
     if not location_to_delete:
         raise HTTPException(status_code=404, detail="Location not found")
-    db.delete(location_to_delete)
+
+    location_to_delete.is_deleted = True  # Soft delete by updating the flag
     db.commit()
-    return {"detail": "location deleted"}
+    return {"detail": "Location soft deleted"}
 
 
 def update_location(db: Session, id: int, location_data: LocationUpdate) -> Location:

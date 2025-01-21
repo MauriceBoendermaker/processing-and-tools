@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Float, JSON, Boolean
 from ..database import Base
 from datetime import datetime
 
@@ -7,7 +7,7 @@ class Shipment(Base):
     __tablename__ = "shipments"
 
     id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, index=True)
+    order_id = Column(JSON)
     source_id = Column(Integer, index=True)
     order_date = Column(DateTime, index=True)
     request_date = Column(DateTime, index=True)
@@ -25,3 +25,5 @@ class Shipment(Base):
     items = Column(JSON)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default='0')
+

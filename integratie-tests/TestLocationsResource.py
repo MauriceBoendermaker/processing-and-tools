@@ -4,7 +4,7 @@ from test_utils import check_id_exists, match_date
 from datetime import datetime
 
 
-class TestLocationResource(unittest.TestCase):
+class TestLocationsResource(unittest.TestCase):
     def setUp(self):
         self.baseUrl = "http://localhost:3000/api/v2/locations/"
         self.client = Client()
@@ -15,7 +15,10 @@ class TestLocationResource(unittest.TestCase):
             "id": self.TEST_ID,
             "warehouse_id": 58,
             "code": "A.1.0",
-            "name": "Row: A, Rack: 1, Shelf: 0"
+            "name": "Row: A, Rack: 1, Shelf: 0",
+            "is_deleted": False,
+            "max_weight": 100000.50,
+            "stock": [{"empty": 0}]
         }
 
         self.ToPut = {
@@ -63,16 +66,17 @@ class TestLocationResource(unittest.TestCase):
         self.assertEqual(body["name"], self.ToPut["name"])
         self.assertTrue(match_date(body["updated_at"], datetime.today().date()))
 
-    # Test to delete a location using DELETE
     def test_6_delete_location(self):
+        # Perform DELETE request
         response = self.client.delete(f"{self.baseUrl}{self.TEST_ID}")
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["detail"], "Location deleted")
+        self.assertEqual(body["detail"], "Location soft deleted")
 
-        # Verify it was deleted
+        # Verify the location is no longer accessible
         response = self.client.get(f"{self.baseUrl}{self.TEST_ID}")
         self.assertEqual(response.status_code, 404)
+
 
     # Test unauthorized access by removing the API key
     def test_7_nokey(self):

@@ -25,19 +25,19 @@ def create_item_line(db: Session, item_line_data: dict) -> ItemLine:
 
 
 def get_item_line(db: Session, id: int) -> Optional[ItemLine]:
-    return db.query(ItemLine).filter(ItemLine.id == id).first()
+    return db.query(ItemLine).filter(ItemLine.id == id, ItemLine.is_deleted == False).first()
 
 
 def get_all_item_lines(
     db: Session,
     offset: int = 0,
     limit: int = 100,
-    sort_by: Optional[str] = "id",  # Default sort by "id"
-    order: Optional[str] = "asc"   # Default order is ascending
+    sort_by: Optional[str] = "id",
+    order: Optional[str] = "asc"
 ) -> List[ItemLine]:
     try:
-        query = db.query(ItemLine)
-        if sort_by:  # Apply sorting only if sort_by is specified
+        query = db.query(ItemLine).filter(ItemLine.is_deleted == False)
+        if sort_by:
             query = apply_sorting(query, ItemLine, sort_by, order)
         return query.offset(offset).limit(limit).all()
     except ValueError as e:
@@ -47,6 +47,7 @@ def get_all_item_lines(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving item lines."
         )
+
 
 
 
@@ -61,9 +62,10 @@ def update_item_line(db: Session, id: int, item_line_data: ItemLineUpdate) -> Op
 
 
 def delete_item_line(db: Session, id: int) -> bool:
-    item_line = get_item_line(db, id)
+    item_line = db.query(ItemLine).filter(ItemLine.id == id, ItemLine.is_deleted == False).first()
     if item_line:
-        db.delete(item_line)
+        item_line.is_deleted = True  # Soft delete by updating the flag
         db.commit()
         return True
     return False
+

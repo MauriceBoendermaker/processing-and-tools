@@ -27,7 +27,9 @@ class TestSupplierResource(unittest.TestCase):
             "phonenumber": "(786)666-7146",
             "reference": "N-SUP0498",
             "created_at": "1987-06-10 04:33:51",
-            "updated_at": "2014-06-24 16:12:58"
+            "updated_at": "2014-06-24 16:12:58",
+            "is_deleted": False
+
         }
 
         self.ToPut = {

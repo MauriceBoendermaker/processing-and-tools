@@ -1,13 +1,28 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
+from typing_extensions import Annotated
 from datetime import datetime
 from typing import Optional, List, Dict
 
+ReferenceType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^TR\d{5,6}$"
+                ),
+            ]
+
+StatusType = Annotated[
+                str,
+                StringConstraints(
+                    pattern=r"^(Scheduled|Completed)$"
+                ),
+            ]
+
 
 class TransferBase(BaseModel):
-    reference: str
+    reference: ReferenceType
     transfer_from: Optional[int] = None
     transfer_to: int
-    transfer_status: str
+    transfer_status: StatusType
     items: List[Dict]
 
 
@@ -16,16 +31,15 @@ class TransferCreate(TransferBase):
 
 
 class TransferUpdate(BaseModel):
-    reference: Optional[str] = None
+    reference: Optional[ReferenceType] = None
     transfer_from: Optional[int] = None
     transfer_to: Optional[int] = None
     items: Optional[List[Dict]] = None
-    transfer_status: Optional[str] = None
+    transfer_status: Optional[StatusType] = None
 
 
 class Transfer(TransferBase):
     id: int
-    transfer_status: str
     created_at: datetime
     updated_at: datetime
 

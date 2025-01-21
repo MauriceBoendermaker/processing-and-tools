@@ -13,7 +13,11 @@ from CargoHubV2.app.controllers import shipments_controller
 from CargoHubV2.app.controllers import inventories_controller
 from CargoHubV2.app.controllers import orders_controller
 from CargoHubV2.app.controllers import reporting_controller
-import time
+from CargoHubV2.app.controllers import packinglist_controller
+from CargoHubV2.app.controllers import docks_controller
+
+import os
+from dotenv import load_dotenv
 from starlette.responses import JSONResponse
 import logging
 
@@ -22,7 +26,7 @@ app = FastAPI()
 # welke port hij runt kan je bij command aanpassen
 # default port is localhost:8000
 
-# router van de controller gebruiken
+# routers van de controllers gebruiken
 app.include_router(reporting_controller.router)
 app.include_router(item_groups.router)
 app.include_router(item_lines.router)
@@ -32,13 +36,27 @@ app.include_router(locations_controller.router)
 app.include_router(transfers_controller.router)
 app.include_router(suppliers_controller.router)
 app.include_router(warehouses_controller.router)
-app.include_router(load_controller.router)
 app.include_router(clients_controller.router)
 app.include_router(shipments_controller.router)
 app.include_router(inventories_controller.router)
 app.include_router(orders_controller.router)
+app.include_router(packinglist_controller.router)
+app.include_router(docks_controller.router)
 
 logger = logging.getLogger("uvicorn.error")
+
+# haalt api keys uit env variabelen
+# in github werkt dit ook, uit GH secrets
+# voor lokaal runnen, moet er een .env zijn met deze 3 variabelen
+load_dotenv()
+warehouse_manager = os.getenv("WAREHOUSE_MANAGER")
+floor_manager = os.getenv("FLOOR_MANAGER")
+employee = os.getenv("EMPLOYEE")
+'''
+print(warehouse_manager)
+print(floor_manager)
+print(employee)
+'''
 
 
 @app.get("/")
@@ -59,10 +77,18 @@ async def shutdown():
 
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
+    # anders kan de documentatie niet bereikt worden
     excluded = ["/favicon.ico", "/openapi.json", "/docs"]
+
+    w_man_only = ["v2/reports", "v2/warehouses", "v2/clients", "v2/suppliers"]
+    all_managers = ["v2/item_groups", "v2/item_lines", "v2/item_types", "v2/items",
+                    "v2/shipments", "v2/docks"]
+    all = ["v2/locations", "v2/transfers", "v2/orders", "v2/inventories",
+           "v2/packinglist"]
+
     try:
         x_api_key = request.headers.get("api-key")
-        if request.url.path in excluded or "/get-pdf" in request.url.path:
+        if request.url.path in excluded:
             return await call_next(request)
         response: Response = await call_next(request)
 
@@ -71,10 +97,32 @@ async def api_key_middleware(request: Request, call_next):
             response.status_code = 422
             raise HTTPException(status_code=422, detail="Missing API key")
 
-        if x_api_key != "a1b2c3d4e5":
-            logger.warning("Invalid API key")
-            response.status_code = 403
-            raise HTTPException(status_code=403, detail="Invalid API key")
+        if any(path in request.url.path for path in w_man_only):
+
+            if x_api_key != warehouse_manager:
+                logger.warning("Invalid API key")
+                response.status_code = 403
+                raise HTTPException(
+                    status_code=403,
+                    detail="Invalid API key, need to be Warehouse manager")
+
+        if any(path in request.url.path for path in all_managers):
+
+            if x_api_key != warehouse_manager and x_api_key != floor_manager:
+                logger.warning("Invalid API key")
+                response.status_code = 403
+                raise HTTPException(
+                    status_code=403,
+                    detail="Invalid API key, only Floor/Warehouse managers")
+
+        if any(path in request.url.path for path in all):
+
+            if x_api_key != warehouse_manager and x_api_key != floor_manager and x_api_key != employee:
+                logger.warning("Invalid API key")
+                response.status_code = 403
+                raise HTTPException(
+                    status_code=403,
+                    detail="Invalid API key, need to be employee of CargoHub")
 
         return response
 
@@ -87,20 +135,3 @@ async def api_key_middleware(request: Request, call_next):
     except Exception as exc:
         logger.exception("Unexpected error occurred in middleware")
         raise exc
-
-'''
-
-# script voor migrations voor later
-from database import Base, engine
-from models import warehouse_model, items_model, location_model, transfers_model # alle models die je wil migraten
-
-
-# maakt alle tables
-def init_db():
-    Base.metadata.create_all(bind=engine)
-
-
-if __name__ == "__main__":
-    init_db()
-    print("Tables created successfully!")
-'''
